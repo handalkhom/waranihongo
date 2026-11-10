@@ -23,9 +23,10 @@ tidak diulang di sini.
 Aplikasi belajar bahasa Jepang **untuk satu pembelajar**, dipakai di HP dan laptop, berjalan
 offline, dengan seluruh data di perangkat sampai v1.0.
 
-**Termasuk (v0.1–v0.4):** onboarding, sesi harian 30 menit, drill kana, kosakata, tata bahasa,
-dan kanji dengan SRS, jurnal kalimat anime, halaman progres dengan tes mingguan, pengaturan
-dengan ekspor/impor, simulasi JLPT N5 (v0.4).
+**Termasuk (v0.1–v0.4):** onboarding dengan uji cepat kana, sesi harian 30 menit dengan drill
+kana, tes keluar Fase 0, dan pengaturan dengan ekspor (v0.1); kosakata, tata bahasa, dan kanji
+N5 dengan SRS, jelajah konten, dan impor data (v0.2); jurnal kalimat anime, halaman progres
+dengan tes mingguan, dan peta 12 bulan (v0.3); konten N4 dan simulasi JLPT N5 (v0.4).
 
 **Di luar cakupan sampai keputusan baru:** login dan multi-pengguna, sinkronisasi antar perangkat
 (v1.0), notifikasi native dan aplikasi mobile (v1.x), berkas audio, koreksi jurnal otomatis.
@@ -33,8 +34,12 @@ dengan ekspor/impor, simulasi JLPT N5 (v0.4).
 **Aturan produk di semua layar:**
 
 - Teks UI dan pesan validasi berbahasa Indonesia; konten Jepang dalam kana/kanji. Romaji tampil
-  hanya sesuai pengaturan `romajiAid` (`always | on-demand | off`) dan otomatis menjadi `off`
-  saat akurasi kana ≥ 95%.
+  hanya sesuai pengaturan `romajiAid` (`always | on-demand | off`), yang bebas diubah pembelajar
+  kapan saja (keputusan pemilik, lihat `MEMORY.md`): default `on-demand` di fase 0; otomatis
+  menjadi `off` saat akurasi kana ≥ 95% pada 200 review kana terakhir; default `off` mulai fase 1.
+  Pembelajar boleh menyalakannya kembali kapan saja.
+- Fase pembelajar diturunkan dari data review dan asesmen, tidak disimpan dan tidak dipilih.
+  Fase 1 terbuka saat tes `kana-exit` lulus.
 - Setiap layar punya keadaan **memuat**, **kosong**, **berhasil**, dan **error** dengan tombol coba
   lagi. Tidak ada item due adalah keadaan kosong yang normal ("Semua sudah diulang hari ini"),
   bukan error.
@@ -48,51 +53,64 @@ Ringkasan dari `docs/learning-plan.md`; ubah di sana, bukan di sini.
 
 | Fakta | Dampak produk |
 | --- | --- |
-| Hiragana ~50%, katakana ~20% | Fase 0 singkat; batas item baru 20/hari khusus kana |
+| Hiragana ~50%, katakana ~20% | Fase 0 singkat; uji cepat kana saat onboarding menjadi review pertama; batas item baru 20/hari khusus kana |
 | Kosakata lisan di atas skor tes (salah baca, bukan salah arti) | Drill "baca kata utuh" sejak minggu 1 memakai kosakata anime yang sudah dikenal |
-| Salah: ね ほ れ を ぴ, しゃ, っ; ン シ ツ ソ ノ | Seed "lemah" saat onboarding; grup rawan tertukar wajib; drill kontras berpasangan |
+| Salah: ね ほ れ を ぴ, しゃ, っ; ン シ ツ ソ ノ; salah baca た け に (たすける, まける, にがて dibaca keliru padahal katanya dikenal) | Seed "lemah": ね ほ れ を ぴ た け に, しゃ しゅ しょ, っ; ン シ ツ ソ ノ. 11 grup rawan tertukar wajib; drill kontras berpasangan |
 | Salah: に/で, kata sifat -na, から | Kartu tata bahasa ini `priority: true` di fase 1 |
-| Cepat belajar, minta diukur objektif | Tes mingguan otomatis; fase terbuka dari data, bukan tanggal |
+| Cepat belajar, minta diukur objektif | Tes `kana-exit` dan tes mingguan otomatis; fase diturunkan dari data review dan asesmen, bukan tanggal |
 | Nonton anime hampir tiap hari | Jurnal 2–3 kalimat/hari dalam kana; ekspor mingguan untuk tutor |
 | Tujuan termasuk kerja | Tag `register` pada kosakata; label peringatan untuk ungkapan kasar |
 
 ## Layar dan Modul
 
-**Satu layar utama = satu modul**, kecuali `/` dan `/mulai` yang dimiliki `session`.
+**Modul dua tingkat.** Modul daun `kana`, `vocab`, `grammar`, `kanji` memiliki drill dan tampilan
+detail item mereka sendiri dan tidak mengimpor modul lain. Modul penyusun `session` dan `learn`
+boleh memakai modul daun lewat `index.ts`-nya. `journal`, `progress`, `settings` berdiri sendiri.
+**Satu layar utama dimiliki tepat satu modul**; modul daun tidak memiliki route sendiri.
 
 | Route | Modul | Layar |
 | --- | --- | --- |
-| `/mulai` | `session` | Onboarding (sekali) |
+| `/mulai` | `session` | Onboarding dengan uji cepat kana (sekali) |
 | `/` | `session` | Beranda |
-| `/sesi` | `session` | Sesi berjalan (layar penuh) |
-| `/belajar`, `/belajar/:type/:id` | `kana`, `vocab`, `grammar`, `kanji` (satu halaman daftar bersama di `src/components/`, detail per modul) | Jelajah konten |
-| `/jurnal`, `/jurnal/baru`, `/jurnal/:id` | `journal` | Jurnal kalimat anime |
-| `/progres` | `progress` | Progres dan tes mingguan |
+| `/sesi` | `session` (drill dari modul daun) | Sesi berjalan (layar penuh) |
+| `/tes/kana-exit` | `session` | Tes keluar Fase 0 (layar penuh) |
+| `/belajar`, `/belajar/:type/:id` | `learn` (detail dan "Latih sekarang" dari modul daun) | Jelajah konten (v0.2) |
+| `/jurnal`, `/jurnal/baru`, `/jurnal/:id` | `journal` | Jurnal kalimat anime (v0.3) |
+| `/progres` | `progress` | Progres dan tes mingguan (v0.3) |
 | `/pengaturan` | `settings` | Pengaturan |
 
 Navigasi: tab bawah di bawah `lg` (Beranda, Belajar, Jurnal, Progres, Pengaturan), sidebar
-mulai `lg`. `/sesi` menyembunyikan keduanya. Tanpa baris profil, semua route dialihkan ke
-`/mulai`; dengan profil, `/mulai` dialihkan ke `/`.
+mulai `lg`; tab yang layarnya belum dirilis tidak ditampilkan. `/sesi` dan `/tes/kana-exit`
+menyembunyikan keduanya. Tanpa baris profil, semua route dialihkan ke `/mulai`; dengan profil,
+`/mulai` dialihkan ke `/`.
 
 ## Layar
 
 ### Onboarding — `/mulai`
 
-- **Tujuan:** membuat baris profil dan menanam seed lemah.
-- **Isi:** nama panggilan; target menit per hari (default 30); fase awal (default 0); daftar
-  seed lemah dari `seed/alan-weak.json` ditampilkan sebagai kartu huruf yang bisa dicentang atau
-  dibuang; pilihan `romajiAid` (default `on-demand`).
-- **Simpan** → `saveProfile`, lalu setiap seed yang dicentang menjadi `ReviewState` dengan
-  `seededWeak: true` lewat `commitReview` (tanpa log), lalu dialihkan ke `/`.
-- **Keadaan:** awal, menyimpan, error (pesan di bawah tombol). Tidak ada keadaan kosong.
+- **Tujuan:** membuat baris profil dan memetakan kana yang sudah dikuasai.
+- **Isi, berurutan:** nama panggilan; target menit per hari (default 30); **uji cepat** hiragana
+  dan katakana dasar; daftar seed lemah dari `seed/alan-weak.json` untuk item yang tidak tercakup
+  uji cepat (misalnya しゃ しゅ しょ dan っ), ditampilkan sebagai kartu huruf yang bisa dicentang
+  atau dibuang; pilihan `romajiAid` (default `on-demand`). Tidak ada pilihan fase.
+- **Uji cepat:** tiap huruf tampil sekali dan dijawab dengan mengetik romaji (varian yang diterima
+  dihitung benar, lihat Sesi). Setiap jawaban adalah review sungguhan: dinilai otomatis dari
+  benar-salah dan waktu jawab, lalu ditulis bersama log-nya lewat `commitReview`.
+- **Simpan** → `saveProfile` dengan seed yang dicentang sebagai `profile.weakSeeds`; seed itu
+  diperkenalkan paling awal sebagai materi baru. Lalu dialihkan ke `/`.
+- **Keadaan:** awal, uji berjalan, menyimpan, error (pesan di bawah tombol). Tidak ada keadaan
+  kosong.
 
 ### Beranda — `/`
 
 - **Isi:** sapaan dengan nama; streak ("{n} hari berturut-turut", dengan tanda bila hari
-  pengampunan sudah terpakai minggu ini); jumlah due per tipe (kana, kosakata, kanji) dari
-  `useLiveQuery`; tombol **"Mulai sesi hari ini"** (atau **"Lanjutkan sesi"** bila ada baris
-  `sessions` hari ini yang `completed: false`); peta 12 bulan: lima fase dengan posisi saat ini dan
-  indikator on-track dari `progressSummary`.
+  pengampunan sudah terpakai minggu ini); jumlah due per tipe (kana; kosakata dan kanji mulai
+  v0.2) dari `useLiveQuery`; tombol **"Mulai sesi hari ini"** (atau **"Lanjutkan sesi"** bila ada
+  baris `sessions` hari ini yang `completed: false`); kartu **"Tes keluar Fase 0"** setelah setiap
+  kana pernah diulang sekali, sampai tes itu lulus — pembelajar sendiri yang memilih kapan
+  memulainya.
+- **Peta 12 bulan (v0.3):** lima fase dengan posisi saat ini dan indikator on-track dari
+  `progressSummary`.
 - **Keadaan:** memuat (kerangka); kosong — belum ada review sama sekali → "Mulai dari kana" sebagai
   label tombol; berhasil; error.
 
@@ -101,37 +119,62 @@ mulai `lg`. `/sesi` menyembunyikan keduanya. Tanpa baris profil, semua route dia
 - **Tujuan:** menjalankan `SessionPlan` dari `planSession` satu aktivitas per waktu.
 - **Susunan:** bilah atas berisi progres waktu dan tombol jeda; badan berisi aktivitas aktif;
   tidak ada navigasi lain.
-- **Aktivitas** (urutan dari planner): **Ulangan** kartu SRS — pertanyaan, jawaban terbuka, empat
-  tombol rating "Lagi / Sulit / Bagus / Mudah", masing-masing menampilkan interval berikutnya;
-  **Materi baru** — unit kurikulum berikutnya, item diperkenalkan satu per satu dengan mnemonik,
-  contoh, dan TTS, lalu langsung diuji sekali; **Produksi** — dikte (TTS → ketik kana), susun
-  kata, atau "isi jurnal hari ini" bila belum ada entri hari itu.
+- **Aktivitas** (urutan tampil): **Ulangan** kartu SRS yang due; **Materi baru** — unit
+  kurikulum berikutnya (seed lemah lebih dulu), item diperkenalkan satu per satu dengan mnemonik,
+  contoh, dan TTS, lalu langsung diuji sekali; **Produksi** — memakai item yang baru diperkenalkan:
+  dikte (TTS → ketik kana), susun kata, atau "isi jurnal hari ini" (v0.3) bila belum ada entri hari
+  itu.
+- **Alokasi waktu:** ulangan tidak pernah dipotong; ulangan due yang melebihi jatahnya memakai
+  jatah materi baru; jumlah item baru per hari dikurangi bila tumpukan ulangan besar.
+- **Rating** hibrida. Drill objektif (kana→romaji, romaji→kana grid, dikte, baca kata utuh, uji
+  cepat onboarding, tes `kana-exit`) dinilai otomatis dari benar-salah dan waktu jawab: pilihan
+  ganda paling tinggi "Bagus", jawaban ketik bisa mencapai "Mudah". Kartu ingatan terbuka (arti
+  kosakata, tata bahasa) menampilkan empat tombol "Lagi / Sulit / Bagus / Mudah", masing-masing
+  dengan interval berikutnya. Varian romaji yang diterima (を o/wo, ん n/nn, ふ fu/hu, し shi/si,
+  dan seterusnya) dihitung benar.
 - **Drill kana** punya empat mode: kana→romaji (pilihan ganda, lalu ketik), romaji→kana (grid),
-  dikte, baca kata utuh. Jawaban salah yang cocok dengan anggota grup rawan tertukar menampilkan
-  **drill kontras**: dua huruf berdampingan, pilih yang diminta, tiga kali berturut-turut.
-- **Persistensi:** setiap aktivitas selesai → `commitReview` dan `saveSession`. Menutup tab tidak
-  menghilangkan progres; "Lanjutkan sesi" di Beranda melanjutkan dari aktivitas berikutnya.
+  dikte, baca kata utuh. Jawaban yang cocok dengan anggota lain grup rawan tertukar memajukan
+  pasangan itu menjadi due sekarang dan menampilkan **drill kontras**: dua huruf berdampingan, pilih
+  yang diminta, tiga kali berturut-turut. Untuk grup lebih dari dua anggota, pasangannya adalah dua
+  huruf yang benar-benar tertukar. Drill kontras hanya latihan dan tidak dicatat sebagai review.
+- **Persistensi:** setiap aktivitas selesai → review, log-nya, dan progres sesi ditulis dalam
+  **satu** transaksi (`commitReview` bersama sesi). Menutup tab tidak menghilangkan progres dan
+  tidak menghitung ganda; "Lanjutkan sesi" di Beranda melanjutkan dari aktivitas berikutnya.
 - **Selesai:** ringkasan — item diulang, akurasi, item baru, menit aktual — dan tombol "Kembali ke
-  Beranda". Bila waktu habis sebelum semua aktivitas, planner sudah menaruh materi baru terakhir,
-  jadi yang terlewat adalah materi baru, bukan ulangan.
-- **Keadaan:** tanpa item due dan tanpa unit baru → "Tidak ada yang perlu dipelajari hari ini.
-  Mau jelajah bebas?" dengan tautan ke `/belajar`; error pada `commitReview` → aktivitas tetap di
-  layar dengan tombol coba lagi; jawaban tidak hilang.
+  Beranda". Bila waktu habis sebelum semua aktivitas, yang belum dikerjakan adalah produksi;
+  materi baru sudah dikurangi planner sejak awal bila tumpukan ulangan besar.
+- **Keadaan:** tanpa item due dan tanpa unit baru → "Tidak ada yang perlu dipelajari hari ini."
+  (mulai v0.2 ditambah "Mau jelajah bebas?" dengan tautan ke `/belajar`); error pada
+  `commitReview` → aktivitas tetap di layar dengan tombol coba lagi; jawaban tidak hilang.
 
-### Jelajah — `/belajar`, `/belajar/:type/:id`
+### Tes keluar Fase 0 — `/tes/kana-exit`
 
+- **Tujuan:** mengukur target fase 0 dari `docs/learning-plan.md` dan membuka fase 1.
+- **Susunan:** layar penuh seperti `/sesi`, milik `session`; dimulai dari kartu "Tes keluar Fase 0"
+  di Beranda.
+- **Isi:** 50 kata acak dari set kata latihan baca, dengan pewaktu berjalan. **Lulus** = semua
+  benar dalam 2 menit. Setiap jawaban dinilai otomatis seperti drill objektif lain; hasil tes
+  disimpan ke `assessments`. Bila belum lulus, tes bisa diulang dari kartu yang sama.
+- **Cara menjawab:** keputusan terbuka (lihat `MEMORY.md`).
+- **Keadaan:** memuat; berjalan (pewaktu dan nomor kata); selesai — lulus (fase 1 terbuka) atau
+  belum lulus dengan daftar kata yang salah; error dengan tombol coba lagi.
+
+### Jelajah — `/belajar`, `/belajar/:type/:id` (v0.2)
+
+- **Pemilik:** `learn`, yang memakai tampilan detail dan drill dari modul daun.
 - **Daftar:** filter `?type=` (kana, kosakata, tata bahasa, kanji) dan `?phase=`; tiap item
   menampilkan status SRS (baru, belajar, dikuasai, lemah) sebagai lencana. Item fase yang belum
   terbuka tampil redup dengan keterangan "Terbuka setelah {syarat}".
-- **Detail:** huruf/kata/pola besar; mnemonik (kana, bisa diedit → `customContent`); contoh
-  dengan TTS; untuk kanji: bacaan on/kun yang relevan saja dan kosakata pembawa; untuk tata
-  bahasa: struktur, contoh, `pitfalls`; riwayat review item (log terakhir, interval berikutnya).
-  Tombol **"Latih sekarang"** memulai drill satu item tanpa memengaruhi jadwal kecuali dijawab,
-  dan satu-satunya jalan jelajah menyentuh SRS.
+- **Detail** (tampilan detail milik modul daun item itu): huruf/kata/pola besar; mnemonik (kana,
+  bisa diedit → `customContent`); contoh dengan TTS; untuk kanji: bacaan on/kun yang relevan saja
+  dan kosakata pembawa; untuk tata bahasa: struktur, contoh, `pitfalls`; riwayat review item (log
+  terakhir, interval berikutnya). Tombol **"Latih sekarang"** menampilkan drill modul daun untuk
+  satu item tanpa memengaruhi jadwal kecuali dijawab, dan satu-satunya jalan jelajah menyentuh
+  SRS.
 - **Keadaan:** memuat; kosong (filter tanpa hasil → "Tidak ada item untuk filter ini"); berhasil;
   error.
 
-### Jurnal — `/jurnal`, `/jurnal/baru`, `/jurnal/:id`
+### Jurnal — `/jurnal`, `/jurnal/baru`, `/jurnal/:id` (v0.3)
 
 - **Daftar:** entri per tanggal, terbaru di atas, filter `?status=` (`draft`, `needs_review`,
   `corrected`), tombol **"Ekspor minggu ini"** → teks rapi (tanggal, kalimat, tebakan, koreksi)
@@ -141,11 +184,13 @@ mulai `lg`. `/sesi` menyembunyikan keduanya. Tanpa baris profil, semua route dia
   arti; konteks (opsional). Keyboard kana di layar untuk HP (grid kana, bukan IME).
 - **Detail:** kalimat, tebakan, status; bagian **Koreksi** — kalimat benar, arti, catatan, diisi
   pembelajar dari hasil tutor; tombol "Tandai dikoreksi"; **"Kirim ke kosakata"** per kata yang
-  ditandai (pilih rentang kana) → item `vocab` baru di `customContent` dengan `ReviewState` baru.
+  ditandai (pilih rentang kana) → item kosakata buatan pembelajar `vocab:custom:<uuid>` dengan
+  arti berupa teks bebas tulisan pembelajar (bukan kunci i18n), disimpan di `customContent`
+  dengan `ReviewState` baru.
 - **Keadaan:** kosong → "Belum ada entri. Tonton satu episode, catat tiga kalimat."; memuat;
   berhasil; error simpan dengan pesan di bawah tombol.
 
-### Progres — `/progres`
+### Progres — `/progres` (v0.3)
 
 - **Isi:** streak dan heatmap kalender; akurasi per grup rawan tertukar (daftar batang, grup
   terlemah di atas); kata dan kanji dikuasai per level; menit belajar per minggu; peta 12 bulan
@@ -158,33 +203,34 @@ mulai `lg`. `/sesi` menyembunyikan keduanya. Tanpa baris profil, semua route dia
 
 ### Pengaturan — `/pengaturan`
 
-- `romajiAid`; target menit; pilihan suara TTS (daftar suara `ja-JP` perangkat; bila tidak ada,
-  peringatan "Suara Jepang tidak tersedia di perangkat ini; dikte dilewati"); tema terang/gelap;
-  **Ekspor data** → berkas JSON `wara-export-YYYY-MM-DD.json`; **Impor data** → pemilih berkas,
-  validasi penuh dulu, lalu dialog "Impor akan mengganti seluruh data di perangkat ini. Lanjutkan?"
-  dengan tombol "Batal" dan "Ganti"; berkas yang gagal validasi ditolak dengan pesan dan tidak
-  mengubah apa pun.
+- `romajiAid` (lihat aturan romaji di atas); target menit; pilihan suara TTS (daftar suara
+  `ja-JP` perangkat; bila tidak ada, peringatan "Suara Jepang tidak tersedia di perangkat ini;
+  dikte dilewati"); tema terang/gelap; **Ekspor data** → berkas JSON
+  `wara-export-YYYY-MM-DD.json`.
+- **Impor data (v0.2)** → pemilih berkas, validasi penuh dulu, lalu dialog "Impor akan mengganti
+  seluruh data di perangkat ini. Lanjutkan?" dengan tombol "Batal" dan "Ganti"; berkas yang gagal
+  validasi ditolak dengan pesan dan tidak mengubah apa pun.
 - **Keadaan:** memuat; berhasil (pesan "Tersimpan" per perubahan); error.
 
 ## Konten per Rilis
 
 | Rilis | Konten minimum |
 | --- | --- |
-| v0.1 | Hiragana dan katakana lengkap (dasar, dakuten/handakuten, kombinasi, っ, ー); 8 grup rawan tertukar; 40 kata latihan baca termasuk kosakata anime yang dikenal pembelajar; seed lemah; i18n id untuk semuanya |
-| v0.2 | — (fitur) |
-| v0.3 | 600 kosakata N5 dengan contoh dan `register`; ~60 kartu tata bahasa N5 dengan `pitfalls`; 100 kanji dengan kosakata pembawa; `curriculum.json` fase 1 |
+| v0.1 | Hiragana dan katakana lengkap (dasar, dakuten/handakuten, kombinasi, っ, ー, dan katakana tambahan untuk kata serapan seperti ティ ファ ウィ); **11** grup rawan tertukar: ね/れ/わ, ほ/は/ま, に/こ, き/け, っ/つ, しゃ/しょ, ン/シ/ツ/ソ, ノ/メ, ク/タ, コ/ユ, ル/レ; **≥ 60** kata latihan baca termasuk kosakata anime yang dikenal pembelajar; seed lemah; i18n id untuk semuanya |
+| v0.2 | 600 kosakata N5 dengan contoh dan `register`; ~60 kartu tata bahasa N5 dengan `pitfalls`; 100 kanji dengan kosakata pembawa; `curriculum.json` fase 1 |
+| v0.3 | — (fitur) |
 | v0.4 | +600 kosakata N4; ~70 tata bahasa N4; kanji 100–300; bank soal simulasi N5 |
 
-Konten adalah jalur kritis jadwal, bukan kode. Commit `content` diharapkan lebih banyak daripada
-`feat`.
+Konten adalah jalur kritis jadwal, bukan kode: konten N5 ditulis paralel sejak v0.1 agar siap
+saat v0.2. Commit `content` diharapkan lebih banyak daripada `feat`.
 
 ## Roadmap Rilis
 
 | Rilis | Isi | Syarat selesai |
 | --- | --- | --- |
-| **v0.1 Kana** | monorepo, `core` (FSRS, planner, konfusi, kurikulum) dengan tes, konten kana, onboarding, Beranda, Sesi dengan 4 mode drill, Jelajah, Pengaturan (ekspor/impor), PWA | Pembelajar menyelesaikan sesi kana harian di HP, offline; `docs/qa-session.md` lulus |
-| **v0.2 Jurnal + Progres** | Jurnal, ekspor mingguan, Progres, tes mingguan | Jurnal mingguan disetor ke tutor dari aplikasi |
-| **v0.3 N5** | konten dan drill kosakata, tata bahasa, kanji; kurikulum fase 1; unlock antar fase | Fase 1 dijalani penuh dari aplikasi |
+| **v0.1 Kana** | monorepo, `core` (FSRS, planner, konfusi, kurikulum) dengan tes, konten kana, onboarding dengan uji cepat kana, Beranda sederhana (tanpa peta 12 bulan), Sesi dengan 4 mode drill kana dan drill kontras, tes `kana-exit`, Pengaturan minimal (`romajiAid`, target menit, suara TTS, tema, ekspor data), PWA, deploy ke Vercel | Pembelajar menyelesaikan sesi kana harian di HP, offline; `docs/qa-session.md` lulus |
+| **v0.2 N5** | konten dan drill kosakata, tata bahasa, kanji; kurikulum fase 1; unlock antar fase; modul `learn` (Jelajah); impor data | Fase 1 dijalani penuh dari aplikasi |
+| **v0.3 Jurnal + Progres** | Jurnal, ekspor mingguan, Progres, tes mingguan, peta 12 bulan (Beranda dan Progres) | Jurnal mingguan disetor ke tutor dari aplikasi |
 | **v0.4 N4 + Simulasi** | konten N4; simulasi JLPT N5 | Simulasi N5 tersedia |
 | **v1.0 Sinkron** | backend (keputusan terbuka, `MEMORY.md`); TanStack Query; koreksi jurnal (opsional) | Progres sama di HP dan laptop |
 | **v1.x Mobile** | `apps/mobile` (Expo) memakai `core` dan `content` | Notifikasi harian native |
