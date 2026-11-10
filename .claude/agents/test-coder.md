@@ -38,9 +38,15 @@ harness `apps/web/tests/setup.ts`, `apps/web/tests/renderApp.tsx`. Not yours: an
   - `sessionsToday` already holding the day's new-item limit;
   - a session crossing local midnight (`today` vs `now`);
   - ISO-week forgiveness boundaries for `streak`;
-  - romaji variants (を `o`/`wo`, ん `n`/`nn`);
-  - multiple choice capped at Good;
-  - `kana-exit` with 49/50 correct, or 50 correct over the time limit.
+  - `romajiMatches`: きって → `kitte` true, `kisutte`/`kitsute` false; しゃ → `sha` true, `sho`
+    false; を → `o` and `wo`; ん → `n`/`nn`, and before a vowel (きんえん) only `n'` or `nn`; a ー
+    word (コーヒー) accepts the repeated vowel and `-`; uppercase and surrounding spaces; a kana
+    missing from `kana` throws `ContentValidationError`;
+  - `rateAnswer`: `correct: false` → Again at any speed; multiple choice never above Good;
+  - `kanaExitAvailable`: one kana without a state → false; all reviewed, no assessment → true;
+    a failed `kana-exit` → still true; a passed `kana-exit` → false;
+  - `kana-exit` with 49/50 correct, or 50 correct over the time limit; 50 correct at exactly the
+    time limit passes.
 - **`content`:** the validator runs against the real data, and its rules are test-first: each rule
   has a fixture that must fail it — among them an id in decomposed (NFD) form, a `kana:kata:` id
   containing a kanji look-alike (力 for カ), a `kanji:` slug of two characters, a reference to a

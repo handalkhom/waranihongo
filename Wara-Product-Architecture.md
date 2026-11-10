@@ -152,12 +152,18 @@ menyembunyikan keduanya. Tanpa baris profil, semua route dialihkan ke `/mulai`; 
 - **Tujuan:** mengukur target fase 0 dari `docs/learning-plan.md` dan membuka fase 1.
 - **Susunan:** layar penuh seperti `/sesi`, milik `session`; dimulai dari kartu "Tes keluar Fase 0"
   di Beranda.
-- **Isi:** 50 kata acak dari set kata latihan baca, dengan pewaktu berjalan. **Lulus** = semua
-  benar dalam 2 menit. Setiap jawaban dinilai otomatis seperti drill objektif lain; hasil tes
-  disimpan ke `assessments`. Bila belum lulus, tes bisa diulang dari kartu yang sama.
-- **Cara menjawab:** keputusan terbuka (lihat `MEMORY.md`).
-- **Keadaan:** memuat; berjalan (pewaktu dan nomor kata); selesai — lulus (fase 1 terbuka) atau
-  belum lulus dengan daftar kata yang salah; error dengan tombol coba lagi.
+- **Isi:** 50 kata acak dari set kata latihan baca, dengan pewaktu yang hanya menghitung waktu
+  kata tampil. **Lulus** = 50 kata benar dengan total waktu tampil ≤ 2 menit. Setiap jawaban
+  dinilai otomatis seperti drill objektif lain; hasil tes disimpan ke `assessments`. Bila belum
+  lulus, tes bisa diulang dari kartu yang sama.
+- **Cara menjawab:** setiap kata tampil dengan tombol "Siap"; pewaktu hanya berjalan selama kata
+  tampil. "Siap" menyembunyikan kata dan menghentikan pewaktu; pembelajar mengetik romaji kata itu
+  lalu "Kirim"; kata berikutnya tampil dan pewaktu berjalan lagi. Yang diukur kecepatan membaca,
+  bukan kecepatan mengetik. Romaji dicocokkan dengan varian yang diterima dari kana penyusun kata
+  (`romajiMatches`), sama seperti drill "baca kata utuh".
+- **Keadaan:** memuat; berjalan — kata tampil (pewaktu dan nomor kata) atau mengetik (pewaktu
+  berhenti); selesai — lulus (fase 1 terbuka) atau belum lulus dengan daftar kata yang salah;
+  error dengan tombol coba lagi.
 
 ### Jelajah — `/belajar`, `/belajar/:type/:id` (v0.2)
 

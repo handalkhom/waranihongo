@@ -60,12 +60,14 @@ section and `docs/learning-plan.md` are updated together.
 
 ## Project state (2026-11-10)
 
-* **Git:** repository initialised 2026-11-10, branch `master`, baseline commit `f532e6b`
-`[WARA-0.1.0] docs: planning documents baseline`. Docs are tracked. This machine has
-`core.autocrlf=true`; the documents are CRLF.
+* **Git:** repository initialised 2026-11-10, branch `master`. Commits: `f532e6b`
+`[WARA-0.1.0] docs: planning documents baseline`, `669b3bc` `[WARA-0.1.0] docs: apply design
+decisions 2026-11-10`. Docs are tracked. This machine has `core.autocrlf=true`; the documents are
+CRLF.
 * **Agent files exist:** `.claude/agents/{coordinator,core-coder,web-coder,content-author,test-coder}.md`.
-* All planning documents and all five agent files updated 2026-11-10 to the decisions below —
-uncommitted until the owner asks.
+* Planning documents and agent files reflect the decisions below. The `kana-exit` decisions
+(answer mode, Beranda card, `romajiMatches`, `kanaExitAvailable`) are in the working tree, not yet
+committed — the owner has not asked.
 * **Nothing is built.** No `package.json`. Every block in `ARCHITECTURE.md` is Decided, not yet
 built.
 * **Not yet written:** `docs/qa-session.md`, the ESLint tier rule, `docs/plan-v0.2.md`.
@@ -113,11 +115,18 @@ record the outcome here. `ts-fsrs` 6.
 display order review → new → production.
 * One content bundle, no per-phase lazy loading; `bundle` script removed.
 * Learner-made vocab: `ContentItem` vocab branch `source: 'custom'`, free-text meaning.
-* Phase-0 exit: timed `kana-exit` test (50 words, 2 min) unlocks phase 1; reading-practice words
-≥ 60.
+* Phase-0 exit: timed `kana-exit` test (50 words, 2 min of display time — answer mode below)
+unlocks phase 1; reading-practice words ≥ 60.
 * Docs: product doc renamed to `Wara-Product-Architecture.md`; composition root `src/app/App.tsx`;
 `src/lib/cn.ts` instead of `utils.ts`.
 * Commit id = plan step (`[WARA-0.1.3]`); MEMORY.md is the only project memory; hosting Vercel.
+* `kana-exit` answer mode: look → "Siap" → word hidden → type romaji. The timer counts only display
+time (word visible until "Siap"); typing time is excluded, so the test measures reading speed, not
+typing. Pass = 50 correct with total display time ≤ 120 s. Each answer is also a review
+(`romajiMatches` → `rateAnswer` typed with that word's display time → `schedule` →
+`commitReview`).
+* `kana-exit` card on Beranda appears after every kana has been reviewed at least once, until the
+test is passed; a failed attempt can be retaken from the same card.
 
 Taken by the coordinator, 2026-11-10, within the decisions above:
 
@@ -131,6 +140,13 @@ new items introduced today are counted from `kind: 'new'` activities.
 `source: 'content' | 'custom'`.
 * Web derives `today` with one helper, `toLocalDate(now)` in `apps/web/src/utils/localDate.ts`.
 * A stub brief verifies with lint + typecheck only; tests come after the stub.
+* `romajiMatches({ reading, given, kana })` split out of `rateAnswer` (2026-11-10):
+`romajiAccepted` exists only on kana items, so a whole word (kana reading, no romaji in content)
+could not be matched. `romajiMatches` composes accepted variants token by token (longest match,
+っ doubles the next consonant, ー repeats the vowel or accepts `-`, ん before vowel/y accepts
+`n'`/`nn`); `rateAnswer` now takes `{ correct, elapsedMs, mode }`. Also
+`kanaExitAvailable({ kanaIds, states, assessments })` in core owns the Beranda card rule so it
+does not live in a hook.
 
 Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation**:
 
@@ -157,10 +173,6 @@ assistant's knowledge; attribution placement undecided).
 former is the v0.2 design.
 * Weekly test day (Saturday is the v0.2 default) and whether it is skippable.
 * TTS fallback when no `ja-JP` voice exists on the device: hide dictation drills or show a notice.
-* `kana-exit` answer mode (typed romaji vs choice vs read-aloud self-check), and whether the
-2-minute bound is realistic for typed answers.
-* `kana-exit` card trigger on Beranda: the product doc says "after every kana has been reviewed at
-least once" — chosen by the doc worker, not yet confirmed by the owner.
 * `rateAnswer` time thresholds and the backlog threshold: initial values to be set, later tuned
 from the learner's own logs.
 

@@ -1,6 +1,6 @@
 ---
 name: core-coder
-description: Implements pure domain logic in packages/core — FSRS wrapper, answer rating, session planner, confusion logic, phase derivation, kana-exit evaluation, streak, curriculum unlock, progress math, typed errors, the Repository interface.
+description: Implements pure domain logic in packages/core — FSRS wrapper, answer rating, romaji matching, session planner, confusion logic, phase derivation, kana-exit evaluation, kana-exit availability, streak, curriculum unlock, progress math, typed errors, the Repository interface.
 tools: Read, Glob, Grep, Edit, Write, Bash
 ---
 

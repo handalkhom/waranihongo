@@ -110,8 +110,9 @@ Browser (phone first)
           → Feature hook              // composes core + repository; reads now, computes today (LocalDate)
                                       // via toLocalDate (src/utils/localDate.ts) from the device clock
                                       // at the edge; owns no rule
-            → @wara/core              // pure: rateAnswer, schedule, applyConfusion, planSession,
-                                      // derivePhase, evaluateKanaExit, nextCurriculumUnit, streak,
+            → @wara/core              // pure: romajiMatches, rateAnswer, schedule, applyConfusion,
+                                      // planSession, derivePhase, evaluateKanaExit,
+                                      // kanaExitAvailable, nextCurriculumUnit, streak,
                                       // progressSummary
             → Repository (src/data)   // Dexie; the only code that knows IndexedDB
             → useLiveQuery            // reactive reads for lists and counters
@@ -175,18 +176,20 @@ and takes `rng` where it samples. Reference: *none yet*.
 
 | Function | Signature (abridged) | Rule |
 | --- | --- | --- |
-| `rateAnswer` | `(answer: { item: ContentItem; given: string }, elapsedMs: number, mode: 'choice' \| 'typed') => Rating` | Wrong → Again; correct → Hard / Good / Easy by the elapsed-time thresholds. Multiple choice is capped at Good; typed can reach Easy. Romaji is matched against `romajiAccepted`. Open-recall cards are not rated here: the learner's four buttons give the `Rating`. |
+| `romajiMatches` | `({ reading, given, kana }: { reading: string; given: string; kana: ReadonlyArray<KanaData> }) => boolean` | The reading (one kana or a whole word) is tokenised longest-match first (しゃ before し); each token accepts its `romajiAccepted` variants; small っ/ッ doubles the first consonant of the next token; ー repeats the previous vowel (a typed `-` is also accepted); ん before a vowel or y accepts `n'` and `nn`. Case- and surrounding-whitespace-insensitive. A reading containing a kana not in `kana` throws `ContentValidationError` (the content validator makes that unreachable). |
+| `rateAnswer` | `({ correct, elapsedMs, mode }: { correct: boolean; elapsedMs: number; mode: 'choice' \| 'typed' }) => Rating` | Wrong → Again; correct → Hard / Good / Easy by the elapsed-time thresholds. Multiple choice is capped at Good; typed can reach Easy. Correctness comes from `romajiMatches` (typed) or an id comparison (choice). Open-recall cards are not rated here: the learner's four buttons give the `Rating`. |
 | `schedule` | `({ itemId, state: ReviewState \| null, rating, now, weakSeeds }) => ReviewState` | Wraps `ts-fsrs`. `state: null` is the first review; an item in `weakSeeds` is then initialised as if it had lapsed once. |
 | `applyConfusion` | `({ itemId, given, groups, items, states, now }) => { confusedWith: string \| null; moved: ReadonlyArray<ReviewState>; priorityNew: ReadonlyArray<string> }` | When the answer to A matches another member B of a group containing A: A is scheduled normally (Again, through `schedule`); B's `due` moves to `now` with stability and difficulty unchanged (`moved`); a B with no state is returned in `priorityNew`. `confusedWith` is written to A's `ReviewLog`. The contrast drill is neither logged nor scheduled. |
 | `planSession` | `({ availableMin, dueStates, curriculumCursor, profile, phase, sessionsToday, now, today, rng }) => SessionPlan` | Allocation priority review → production → new material: review is never cut; due reviews beyond the review slice consume the new-material slice; new items per day are throttled when the backlog exceeds its threshold; new items already introduced today — counted from `sessionsToday` activities of kind `new` — count against the per-day limit. Display order review → new material → production. `weakSeeds` come first among new items. Deterministic for identical inputs. |
 | `derivePhase` | `(states, assessments) => Phase` | Phase from data only; phase 1 requires a passed `kana-exit` assessment. |
-| `evaluateKanaExit` | `(answers: ReadonlyArray<{ itemId: string; correct: boolean }>, elapsedMs: number) => { passed: boolean; wrong: ReadonlyArray<string> }` | Pass = all 50 words correct within the phase-0 target time. |
+| `evaluateKanaExit` | `(answers: ReadonlyArray<{ itemId: string; correct: boolean }>, elapsedMs: number) => { passed: boolean; wrong: ReadonlyArray<string> }` | `elapsedMs` is the sum of per-word display times (a word appearing to "Siap"; typing time excluded). Pass = all 50 correct and `elapsedMs` ≤ the kana-exit time limit default. Each kana-exit answer is also a review: `romajiMatches` → `rateAnswer` (mode `typed`, `elapsedMs` = that word's display time) → `schedule` → `commitReview`. |
+| `kanaExitAvailable` | `({ kanaIds, states, assessments }: { kanaIds: ReadonlyArray<string>; states: ReadonlyArray<ReviewState>; assessments: ReadonlyArray<Assessment> }) => boolean` | True when every id in `kanaIds` has a `ReviewState` (each kana reviewed at least once) and no passed `kana-exit` assessment exists. Drives the "Tes keluar Fase 0" card on Beranda; a failed attempt keeps it true so the test can be retaken. |
 | `nextCurriculumUnit` | `(curriculum, states) => Unit \| null` | The next unit whose `unlockWhen` holds, evaluated from review data only; `priority: true` units first. |
 | `streak` | `({ sessions, today }) => { days: number; forgivenessUsedThisWeek: boolean }` | Consecutive local days ending today or yesterday with a completed session; one forgiveness day per ISO week. Used by Beranda; `progressSummary` reuses it. |
 | `progressSummary` | `(states, logs, sessions, now, today) => ProgressSummary` | Streak via `streak`, accuracy per confusion group from `ReviewLog.confusedWith`, on-track flag against the 12-month map. |
 
-The placement test has no function of its own: each answer goes through `rateAnswer` →
-`schedule` → `commitReview`.
+The placement test has no function of its own: each answer goes through `romajiMatches` →
+`rateAnswer` → `schedule` → `commitReview`.
 
 Defaults (`core/session/defaults.ts`): `availableMin` 30, split 5/15/10, new items per day 20 in
 phase 0 and 10 after, the backlog threshold that throttles new items, the `rateAnswer`
@@ -286,9 +289,9 @@ only katakana (including ー and small kana); a `kanji:` slug is exactly one CJK
 | Path | Page | Notes |
 | --- | --- | --- |
 | `/mulai` | `OnboardingPage` | Only route while no profile exists; redirects to `/` once one does |
-| `/` | `HomePage` | Streak, due counts, "Mulai sesi hari ini", 12-month map |
+| `/` | `HomePage` | Streak, due counts, "Mulai sesi hari ini", 12-month map; kana-exit card shown when `kanaExitAvailable` |
 | `/sesi` | `SessionPage` | Owned by `session`; full-screen; mounts `SessionProvider`; hides the app chrome |
-| `/tes/:kind` | `TestPage` | Owned by `session`; full-screen; hides the app chrome; first kind `kana-exit` |
+| `/tes/:kind` | `TestPage` | Owned by `session`; full-screen; hides the app chrome; first kind `kana-exit`; owns the per-word display timer, which runs only while a word is visible and pauses from "Siap" through the typed answer |
 | `/belajar` | `LearnPage` | Owned by `learn`; browse content outside a session |
 | `/belajar/:type/:id` | `ItemPage` | Owned by `learn`; one item; "Latih sekarang" is the only way browsing touches the SRS |
 | `/jurnal`, `/jurnal/baru`, `/jurnal/:id` | journal pages | Owned by `journal`; RHF + Zod form |
