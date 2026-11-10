@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.vercel/
+.claude/settings.local.json
+.claude/state/
+docs/

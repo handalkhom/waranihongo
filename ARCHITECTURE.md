@@ -5,10 +5,10 @@ the map: where a change belongs, what boundary it crosses, what it can silently 
 written as the present state and carries no dates, history, status, verification results, or open
 questions — those live in `MEMORY.md`. What a screen shows is in `Wara-Product-Architecture.md`.
 
-> **Status: nothing is built.** Every block in this file is **Decided, not yet built**. When the
-> code exists, each block is checked against the real tree and either confirmed or corrected; a
-> reference-implementation cell reading *none yet* is replaced by a real path. `MEMORY.md` records
-> which blocks have been confirmed.
+> **Status: only the monorepo scaffold is built.** Every other block in this file is **Decided,
+> not yet built**. When the code exists, each block is checked against the real tree and either
+> confirmed or corrected; a reference-implementation cell reading *none yet* is replaced by a real
+> path. `MEMORY.md` records which blocks have been confirmed.
 
 Authority order: `package.json` files and source code; then this file; then `MEMORY.md` for what
 was decided but is not yet in the code.
@@ -33,7 +33,7 @@ wara-no-nihongo/
   packages/core/            @wara/core: pure domain logic
   packages/content/         @wara/content: JSON data + Zod schemas + validate script
   tests/ (per package)      each package has its own tests/ tree mirroring its src/
-  docs/                     learning-plan.md, qa-session.md (tracked in git)
+  docs/                     learning-plan.md, qa-session.md (local only, git-ignored)
   CLAUDE.md  ARCHITECTURE.md  MEMORY.md  Wara-Product-Architecture.md
   package.json              npm workspaces; root scripts fan out with --workspaces
 ```
@@ -42,7 +42,7 @@ wara-no-nihongo/
 schemas (`@wara/content/schema`) for types, never the data bundle; data reaches it as arguments.
 `core` imports no React, DOM, or Dexie. Nothing imports `web`. A future `apps/api` (Hono) and
 `apps/mobile` (Expo) sit beside `web` and obey the same direction. Enforced by an ESLint
-`no-restricted-imports` rule per package (written with the first module — *none yet*).
+`no-restricted-imports` rule per package in the root `eslint.config.js`.
 
 **Module tiers inside `apps/web/src/modules/`.** Phase-1 modules: `session`, `learn`, `kana`,
 `vocab`, `grammar`, `kanji`, `journal`, `progress`, `settings`.
@@ -60,10 +60,10 @@ A leaf never imports a composer; a composer never imports another composer. Enfo
 
 | Concern | Choice | Reason |
 | --- | --- | --- |
-| Language | TypeScript 7 if `typescript-eslint` and Vite tooling pass lint/typecheck/build at init, else latest 6.x — outcome recorded in `MEMORY.md`; `strict`, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`, `erasableSyntaxOnly`, `noUnusedLocals`, `noUnusedParameters` | The compiler is the proof |
+| Language | TypeScript 6.0.x (`~6.0.3`); TS 7 waits for `typescript-eslint` support (`MEMORY.md`); `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`, `erasableSyntaxOnly`, `noUnusedLocals`, `noUnusedParameters` | The compiler is the proof |
 | Package manager | npm workspaces | One lockfile; matches the owner's other projects |
 | Web runtime | React 19 + Vite 8, `vite-plugin-pwa` (Workbox, `autoUpdate`) | Installable, offline, no server |
-| Hosting | Vercel, static PWA; SPA rewrite of every route to `index.html` | Static files only; a deep link reaches the router |
+| Hosting | Vercel, static PWA; project Root Directory `apps/web`, whose `apps/web/vercel.json` rewrites every route to `index.html`; a deploy runs only `vite build` | Static files only; a deep link reaches the router |
 | Routing | React Router 8 from `react-router` (`RouterProvider` from `react-router/dom`) | Route table as data, one guard |
 | Persistence | `dexie` 4 + `dexie-react-hooks` (`useLiveQuery`) | IndexedDB with reactive reads; `fake-indexeddb` in tests |
 | Server state | **Not installed** before v1.0 | No network source exists; two reactive caches over one table would fight |
@@ -75,7 +75,7 @@ A leaf never imports a composer; a composer never imports another composer. Enfo
 | Fonts | System font stack; `lang="ja"` on Japanese text | No multi-MB web font; the OS Japanese font is correct and offline |
 | Charts | `recharts` 3, behind `React.lazy` on the progress page only | Bundle size |
 | Audio | Web Speech API through `src/services/tts.ts` | No audio files in phase 1 |
-| Lint | ESLint 10 flat config with `typescript-eslint`, `react-hooks`, `react-refresh`; errors on `any`, `@ts-ignore`, `==`, `react-router-dom` imports, and imports that cross a package or module tier the wrong way | — |
+| Lint | ESLint 10 flat config with `typescript-eslint`, `react-hooks`, `react-refresh`; errors on `any`, `@ts-ignore`, `==`, `react-router-dom` imports, and imports that cross a package (or, with the first module, a module tier) the wrong way; `@wara/core` source bans `Date.now()`, `new Date()`, `Date()`, `Math.random()`; `lint` runs with `--max-warnings 0` and `noInlineConfig`, so an inline disable cannot switch a rule off | — |
 | Tests | Vitest 5; `core` and `content` unit-level; `web` with jsdom + React Testing Library + `fake-indexeddb` | Route tests run the real repository against an in-memory IndexedDB |
 
 Not chosen and not to be assumed: Redux, Zustand, TanStack Query (before v1.0), Axios, Prettier,

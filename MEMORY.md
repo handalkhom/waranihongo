@@ -60,24 +60,28 @@ section and `docs/learning-plan.md` are updated together.
 
 ## Project state (2026-11-10)
 
-* **Git:** repository initialised 2026-11-10, branch `master`. Commits: `f532e6b`
-`[WARA-0.1.0] docs: planning documents baseline`, `669b3bc` `[WARA-0.1.0] docs: apply design
-decisions 2026-11-10`. Docs are tracked. This machine has `core.autocrlf=true`; the documents are
+* **Git (2026-11-10):** remote `origin` = `https://github.com/handalkhom/waranihongo.git`;
+branch `master` tracks `origin/master`. This machine has `core.autocrlf=true`; the documents are
 CRLF.
+* **`docs/` is git-ignored and gone from history (2026-11-10, owner's request):** removed with
+`git filter-branch --index-filter` + `git push --force-with-lease`. Rewritten commits: `f980861`
+baseline, `a3a99a0` apply design decisions, `d446ea1` decide kana-exit answer mode and card
+trigger; the old hashes `f532e6b`/`669b3bc`/`e74bcf4` no longer exist. `docs/learning-plan.md`
+and `docs/plan-v0.1.md` live only on the owner's disk — git is not their backup.
 * **Agent files exist:** `.claude/agents/{coordinator,core-coder,web-coder,content-author,test-coder}.md`.
-* Planning documents and agent files reflect the decisions below. The `kana-exit` decisions
-(answer mode, Beranda card, `romajiMatches`, `kanaExitAvailable`) are in the working tree, not yet
-committed — the owner has not asked.
-* **Nothing is built.** No `package.json`. Every block in `ARCHITECTURE.md` is Decided, not yet
-built.
+* Planning documents and agent files reflect the decisions below.
+* **Step 0.1.1 (scaffold) done (2026-11-10):** npm workspaces `@wara/content`, `@wara/core`,
+`@wara/web`; the five root checks green; committed as `[WARA-0.1.1]`. Every other block in
+`ARCHITECTURE.md` is Decided, not yet built.
 * **Not yet written:** `docs/qa-session.md`, the ESLint tier rule, `docs/plan-v0.2.md`.
-* **Last verification:** none has ever run.
-* **Guards and orchestration skill: NOT installed (checked 2026-11-09, user's machine
-  `GMBR-KEMLU-100`, Git Bash):** `~/.claude/hooks/` does not exist, `~/.claude/settings.json`
-  has no `hooks` key, and `~/.claude/skills/` holds only `synced/` with nothing matching
-  "orchestrat". Every guard in `CLAUDE.md` is run by hand; the coordinator classifies size and
-  tracks phases manually, as its "FIRST ACTION" already allows. Re-check with the same commands
-  before assuming otherwise.
+* **Last verification (2026-11-10, step 0.1.1):** `lint`, `typecheck`, `test`, `build`,
+`validate -w @wara/content` all exit 0 (`test` and `validate` find no test files yet).
+* **Guards and orchestration skill: NOT installed (checked 2026-11-09, re-checked 2026-11-10,
+  user's machine `GMBR-KEMLU-100`, Git Bash):** `~/.claude/hooks/` does not exist,
+  `~/.claude/settings.json` has no `hooks` key, and `~/.claude/skills/` holds only `synced/` with
+  nothing matching "orchestrat". Every guard in `CLAUDE.md` is run by hand; the coordinator
+  classifies size and tracks phases manually, as its "FIRST ACTION" already allows. Re-check with
+  the same commands before assuming otherwise.
 
 ## Decisions
 
@@ -127,6 +131,14 @@ typing. Pass = 50 correct with total display time ≤ 120 s. Each answer is also
 `commitReview`).
 * `kana-exit` card on Beranda appears after every kana has been reviewed at least once, until the
 test is passed; a failed attempt can be retaken from the same card.
+* Repo structure stays a **monorepo with npm workspaces** (the owner asked whether one package
+would do): kept for the DOM-free `core` tsconfig, separate test environments per package, and
+v1.0 reuse of `@wara/core`/`@wara/content` by `apps/api` and `apps/mobile`.
+* `docs/` is git-ignored (it holds the personal learner profile) and was removed from history.
+* Vercel project Root Directory = `apps/web` (`apps/web/vercel.json` holds the SPA rewrite);
+"Include files outside the Root Directory in the Build Step" must stay enabled so `packages/` and
+`tsconfig.base.json` are available. Vercel runs only `vite build` — deploys do not run typecheck
+or lint. The hello deploy is done by the owner.
 
 Taken by the coordinator, 2026-11-10, within the decisions above:
 
@@ -147,12 +159,16 @@ could not be matched. `romajiMatches` composes accepted variants token by token 
 `n'`/`nn`); `rateAnswer` now takes `{ correct, elapsedMs, mode }`. Also
 `kanaExitAvailable({ kanaIds, states, assessments })` in core owns the Beranda card rule so it
 does not live in a hook.
+* **TypeScript outcome (2026-11-10): 6.0.3 (`~6.0.3`).** TS 7.0.2 (`typescript@latest`) was tried
+and rejected: the `typescript-eslint@8.72.2` peer range is `>=4.8.4 <6.1.0` (no version, canary
+included, accepts 7.x), and TS 7's JS module exports only `version`/`versionMajorMinor` — no
+compiler API for type-aware linting. Revisit when typescript-eslint supports TS 7. Other versions
+installed: React 19.3.1, Vite 8.3.7, Vitest 5.1.0, ESLint 10.14.0, typescript-eslint 8.72.2,
+Tailwind 4.3.5, Zod 4.6.7.
 
-Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation**:
+Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation** (the monorepo item was
+confirmed by the user 2026-11-10, see above):
 
-* **Monorepo with npm workspaces**, not separate repositories, because `@wara/core` and
-`@wara/content` are shared with the future mobile app and a future `apps/api`. The owner's
-habit of separate FE/BE repos was weighed and set aside for this reason.
 * **No web font**: system Japanese font with `lang="ja"` on Japanese text. Reason: Noto Sans JP is
 several MB and the app must open offline immediately after install; every current OS ships a
 Japanese font.
@@ -178,9 +194,28 @@ from the learner's own logs.
 
 ## Load-bearing facts — to be filled from the code
 
-None yet. The first entries will be: the `ts-fsrs` ↔ `ReviewState` mapping in
-`core/srs/schedule.ts`; the `commitReview` transaction (states, logs, session progress); the
-`SessionProvider` persistence point; the `lang="ja"` wrapper; the TypeScript 7/6 outcome.
+Recorded 2026-11-10 (step 0.1.1):
+
+* `npm run lint` is `eslint . --max-warnings 0` with `linterOptions.noInlineConfig: true` — an
+`eslint-disable` comment cannot switch a rule off, and the warning it raises fails lint.
+* `packages/core/src/**` bans `Date.now()`, `new Date()` with no arguments, `Date()`, and
+`Math.random()` via `no-restricted-syntax` (proven to fire 2026-11-10); `packages/core/tests/**`
+is not covered.
+* `@typescript-eslint/consistent-type-assertions` is `assertionStyle: 'never'`; `as const` stays
+allowed.
+* `apps/web/src/main.tsx` mounts into a `div` appended to `document.body`; `index.html` has no
+`#root` (avoids `!` and a bare `Error`).
+* The `@/` alias in `vite.config.ts` is `{ find: '@', replacement: '/src' }` because `@types/node`
+is not a dependency.
+* Packages export TypeScript source (`exports` → `./src/*.ts`); there is no package build step.
+* `npm run validate -w @wara/content` currently runs `vitest --passWithNoTests tests/validator`
+and checks nothing until step 0.1.2.
+* `apps/web/components.json`: shadcn style `base-nova`, `tsx: true`, utils `@/lib/cn`; shadcn is
+not a dependency.
+
+Still to come: the `ts-fsrs` ↔ `ReviewState` mapping in `core/srs/schedule.ts`; the
+`commitReview` transaction (states, logs, session progress); the `SessionProvider` persistence
+point; the `lang="ja"` wrapper.
 
 ## Traps
 
@@ -197,12 +232,15 @@ Bash or `chcp 65001` (the files themselves are fine).
 2026-11-10 (backup kept outside the repo); check any pasted document the same way.
 * Unicode look-alikes (カ/力, ロ/口, ー/一, ニ/二, ハ/八) and NFC vs decomposed dakuten are id
 traps — the validator guards them.
+* `npm audit` (2026-11-10) reports 10 moderate findings, one advisory (minimatch
+GHSA-g3hv-75wg-m249) reached only through eslint/typescript-eslint dev tooling; npm's only fix is
+downgrading to ESLint 9 — not taken.
+* `git filter-branch` checks out the rewritten HEAD and deletes files that became untracked —
+back them up first (`docs/` was backed up and restored 2026-11-10).
 
-## Before step 0.1.1 — checklist
+## Standing checklist
 
 * Confirm every "Decided, not yet built" block in `ARCHITECTURE.md` against the real tree as code
 arrives.
-* Record the TypeScript 7/6 outcome under Decisions.
 * Write the ESLint tier rule with the first module.
 * Write `docs/qa-session.md` before tagging v0.1.
-* Replace "none has ever run" above with the first real verification outcome, failures included.
