@@ -5,10 +5,11 @@ the map: where a change belongs, what boundary it crosses, what it can silently 
 written as the present state and carries no dates, history, status, verification results, or open
 questions — those live in `MEMORY.md`. What a screen shows is in `Wara-Product-Architecture.md`.
 
-> **Status: only the monorepo scaffold is built.** Every other block in this file is **Decided,
-> not yet built**. When the code exists, each block is checked against the real tree and either
-> confirmed or corrected; a reference-implementation cell reading *none yet* is replaced by a real
-> path. `MEMORY.md` records which blocks have been confirmed.
+> **Status: the monorepo scaffold, the content package (schemas, validator, v0.1 data), and the
+> core types (`domain.ts`, `errors.ts`, `repository.ts`) are built.** Every other block in this
+> file is **Decided, not yet built**. When the code exists, each block is checked against the real
+> tree and either confirmed or corrected; a reference-implementation cell reading *none yet* is
+> replaced by a real path. `MEMORY.md` records which blocks have been confirmed.
 
 Authority order: `package.json` files and source code; then this file; then `MEMORY.md` for what
 was decided but is not yet in the code.
@@ -143,8 +144,12 @@ Cross-route client state
 
 ## 5. Domain model (`packages/core/src/domain.ts`)
 
-Types are `z.infer` of the content schemas where they describe content, and hand-written
-`readonly` types where they describe learner state.
+Content types (`ContentItem`, `KanaData`, `VocabData`, `CustomVocabData`, `Phase`,
+`ConfusionGroup`) are `z.infer` of the content schemas and are imported from
+`@wara/content/schema`; `core` does not re-export them. `domain.ts` holds only the hand-written
+`readonly` learner-state types. An absent value is `null`, never an optional field
+(`exactOptionalPropertyTypes`; rows round-trip through Dexie and JSON). Timestamps are `Date`;
+calendar days are `LocalDate`.
 
 | Type | Key fields | Lives in |
 | --- | --- | --- |
@@ -155,15 +160,17 @@ Types are `z.infer` of the content schemas where they describe content, and hand
 | `GrammarData` | `title`, `structure`, `explanationId`, `examples`, `pitfalls`, `exercises`, `priority?` | content |
 | `KanjiData` | `kanji`, `meaningId`, `onyomi`, `kunyomi`, `vocabIds` | content |
 | `ConfusionGroup` | `id`, `items` | `confusion-groups.json` |
-| `LocalDate` | `YYYY-MM-DD`, the learner's local date; computed from the device clock at the edge | `Session.date`, `JournalEntry.date`, `Assessment.date`, `UserProfile.startDate` |
+| `LocalDate` | a `string` alias (`YYYY-MM-DD`), the learner's local date; computed from the device clock at the edge | `Session.date`, `JournalEntry.date`, `Assessment.date`, `UserProfile.startDate` |
 | `Phase` | `0 \| 1 \| 2 \| 3`; returned by `derivePhase`, never stored | — |
-| `ReviewState` | `itemId`, `stability`, `difficulty`, `due`, `lastReview`, `reps`, `lapses`, `learningSteps`, `state` — the fields the ts-fsrs 6 `Card` mapping needs | `reviewStates` |
-| `ReviewLog` | `id`, `itemId`, `at`, `rating` (1–4), `elapsedMs`, `confusedWith?` | `reviewLogs` |
+| `Rating` | `RATING` const `{ again: 1, hard: 2, good: 3, easy: 4 }`; `Rating` is its value union. Returned by `rateAnswer` or given by the four buttons | — (stored in `ReviewLog.rating`) |
+| `ReviewState` | `itemId`, `stability`, `difficulty`, `due`, `lastReview: Date \| null`, `reps`, `lapses`, `learningSteps`, `state: CardState` (`'new' \| 'learning' \| 'review' \| 'relearning'`, mapped to the ts-fsrs `State` numbers only in `srs/schedule.ts`) — the fields the ts-fsrs 6 `Card` mapping needs | `reviewStates` |
+| `ReviewLog` | `id`, `itemId`, `at`, `rating: Rating`, `elapsedMs`, `confusedWith: string \| null` | `reviewLogs` |
 | `Session` | `id`, `date`, `plannedMin`, `actualMin`, `activities: ReadonlyArray<SessionActivity>`, `cursor: number` (index of the next activity), `completed` | `sessions` |
-| `SessionActivity` | `{ kind: 'review' \| 'new' \| 'production'; itemIds: ReadonlyArray<string>; estimatedSec: number; done: boolean }`; the new items a session introduced are the `itemIds` of its `kind: 'new'` activities | `Session.activities` |
-| `JournalEntry` | `id`, `date`, `source?`, `sentenceKana`, `guess`, `status`, `correction?`, `extractedVocabIds` | `journal` |
-| `Assessment` | `id`, `date`, `kind` (includes `'kana-exit'`, `'weekly'`), `scores` | `assessments` |
-| `UserProfile` | `id: 'me'`, `name`, `dailyTargetMin`, `romajiAid`, `startDate`, `weakSeeds` (seed ids introduced first as new material) | `profile` |
+| `SessionActivity` | `{ kind: SessionActivityKind; itemIds: ReadonlyArray<string>; estimatedSec: number; done: boolean }`, `SessionActivityKind` = `'review' \| 'new' \| 'production'`; the new items a session introduced are the `itemIds` of its `kind: 'new'` activities | `Session.activities` |
+| `JournalEntry` | `id`, `date`, `source: { anime, episode: number \| null } \| null`, `sentenceKana`, `guess`, `context: string \| null`, `status: JournalStatus` (`'draft' \| 'needs_review' \| 'corrected'`), `correction: { sentence, meaning, note: string \| null } \| null`, `extractedVocabIds` | `journal` |
+| `Assessment` | discriminated union on `kind`. Its only member is `KanaExitAssessment`: `id`, `date`, `kind: 'kana-exit'`, `passed`, `correct`, `total`, `elapsedMs`, `wrong` (item ids answered wrong). A `weekly` member with per-module scores is added with the weekly test (v0.3) | `assessments` |
+| `UserProfile` | `id: 'me'`, `name`, `dailyTargetMin`, `romajiAid: RomajiAid` (`'always' \| 'on-demand' \| 'off'`), `theme: Theme` (`'system' \| 'light' \| 'dark'`; onboarding writes `'system'`), `ttsVoiceUri: string \| null` (`null` = the device's default Japanese voice), `startDate`, `weakSeeds` (seed ids introduced first as new material) | `profile` |
+| `ExportBundle` | `format: 'wara-export'`, `version: 1`, `exportedAt: Date`, `profile: UserProfile \| null`, `reviewStates`, `reviewLogs`, `sessions`, `journal`, `assessments`, `customContent: ReadonlyArray<CustomVocabItem>`; returned by `exportAll`. `exportBundleSchema` (written with the data layer) is typed against it and turns the JSON's ISO strings back into `Date` | the export file |
 
 `meaningId` and `explanationId` resolve in `packages/content/data/i18n/id.json`; a second UI
 language is a data addition. Confusion-group membership lives only in `confusion-groups.json`; an
@@ -181,7 +188,7 @@ and takes `rng` where it samples. Reference: *none yet*.
 | `schedule` | `({ itemId, state: ReviewState \| null, rating, now, weakSeeds }) => ReviewState` | Wraps `ts-fsrs`. `state: null` is the first review; an item in `weakSeeds` is then initialised as if it had lapsed once. |
 | `applyConfusion` | `({ itemId, given, groups, items, states, now }) => { confusedWith: string \| null; moved: ReadonlyArray<ReviewState>; priorityNew: ReadonlyArray<string> }` | When the answer to A matches another member B of a group containing A: A is scheduled normally (Again, through `schedule`); B's `due` moves to `now` with stability and difficulty unchanged (`moved`); a B with no state is returned in `priorityNew`. `confusedWith` is written to A's `ReviewLog`. The contrast drill is neither logged nor scheduled. |
 | `planSession` | `({ availableMin, dueStates, curriculumCursor, profile, phase, sessionsToday, now, today, rng }) => SessionPlan` | Allocation priority review → production → new material: review is never cut; due reviews beyond the review slice consume the new-material slice; new items per day are throttled when the backlog exceeds its threshold; new items already introduced today — counted from `sessionsToday` activities of kind `new` — count against the per-day limit. Display order review → new material → production. `weakSeeds` come first among new items. Deterministic for identical inputs. |
-| `derivePhase` | `(states, assessments) => Phase` | Phase from data only; phase 1 requires a passed `kana-exit` assessment. |
+| `derivePhase` | `(states, assessments) => Phase` | Phase from data only; phase 1 requires a passed `kana-exit` assessment (a `KanaExitAssessment` with `passed: true`; `kanaExitAvailable` reads it the same way). |
 | `evaluateKanaExit` | `(answers: ReadonlyArray<{ itemId: string; correct: boolean }>, elapsedMs: number) => { passed: boolean; wrong: ReadonlyArray<string> }` | `elapsedMs` is the sum of per-word display times (a word appearing to "Siap"; typing time excluded). Pass = all 50 correct and `elapsedMs` ≤ the kana-exit time limit default. Each kana-exit answer is also a review: `romajiMatches` → `rateAnswer` (mode `typed`, `elapsedMs` = that word's display time) → `schedule` → `commitReview`. |
 | `kanaExitAvailable` | `({ kanaIds, states, assessments }: { kanaIds: ReadonlyArray<string>; states: ReadonlyArray<ReviewState>; assessments: ReadonlyArray<Assessment> }) => boolean` | True when every id in `kanaIds` has a `ReviewState` (each kana reviewed at least once) and no passed `kana-exit` assessment exists. Drives the "Tes keluar Fase 0" card on Beranda; a failed attempt keeps it true so the test can be retaken. |
 | `nextCurriculumUnit` | `(curriculum, states) => Unit \| null` | The next unit whose `unlockWhen` holds, evaluated from review data only; `priority: true` units first. |
@@ -198,8 +205,10 @@ phase 0 and `off` from phase 1 (the learner may change it), romaji aid auto-off 
 ≥ 0.95 over the last 200 kana reviews. A default is a named export, never a literal at a call
 site.
 
-Typed errors (`core/errors.ts`): `ContentValidationError`, `RepositoryError`,
-`ImportFormatError`, each carrying the ids involved.
+Typed errors (`core/errors.ts`): `ContentValidationError`, re-exported from
+`@wara/content/schema`; `RepositoryError` (`operation`, `ids`, `cause`); `ImportFormatError`
+(`issues: { path, message }[]`). Messages carry paths, method names, and counts, never learner
+values.
 
 ## 7. Repository contract (`packages/core/src/repository.ts`)
 

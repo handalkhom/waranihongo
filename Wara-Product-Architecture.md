@@ -211,8 +211,8 @@ menyembunyikan keduanya. Tanpa baris profil, semua route dialihkan ke `/mulai`; 
 
 - `romajiAid` (lihat aturan romaji di atas); target menit; pilihan suara TTS (daftar suara
   `ja-JP` perangkat; bila tidak ada, peringatan "Suara Jepang tidak tersedia di perangkat ini;
-  dikte dilewati"); tema terang/gelap; **Ekspor data** → berkas JSON
-  `wara-export-YYYY-MM-DD.json`.
+  dikte dilewati"); tema (ikuti sistem / terang / gelap; default ikuti sistem); **Ekspor data**
+  → berkas JSON `wara-export-YYYY-MM-DD.json`.
 - **Impor data (v0.2)** → pemilih berkas, validasi penuh dulu, lalu dialog "Impor akan mengganti
   seluruh data di perangkat ini. Lanjutkan?" dengan tombol "Batal" dan "Ganti"; berkas yang gagal
   validasi ditolak dengan pesan dan tidak mengubah apa pun.

@@ -85,9 +85,15 @@ and `docs/plan-v0.1.md` live only on the owner's disk — git is not their backu
 `data/seed/alan-weak.json` 17 ids, `data/i18n/id.json` 80 meanings. `@wara/content` exports
 `contentBundle`, parsed at module load (JSON imported `with { type: 'json' }`); committed as
 `[WARA-0.1.3]`.
+* **Step 0.1.4 (core types) done (2026-11-12):** in `packages/core/src`: `domain.ts` (learner-state
+types), `errors.ts`, `repository.ts`, and the package entry `index.ts` (explicit named
+re-exports). Verified by lint + typecheck only, per the plan (decisions below).
+* **Next step: 0.1.5 (core functions, test-first).**
 * **Not yet written:** `docs/qa-session.md`, the ESLint tier rule, `docs/plan-v0.2.md`.
-* **Last verification (2026-11-12, step 0.1.3):** `lint`, `typecheck`, `test` (224 passed),
-`build`, `validate -w @wara/content` (41 passed against the real data) all exit 0.
+* **Last verification (2026-11-12, step 0.1.4):** `lint`, `typecheck`, `test` (224 passed —
+0.1.4 adds no tests), `build`, and `validate -w @wara/content` (41 passed) all exit 0; no
+`Date.now`/`new Date(`/`Math.random` under `packages/core/src`; a scratch consumer probe resolved
+all 24 `@wara/core` exports and rejected a missing name.
 * **Guards and orchestration skill: NOT installed (checked 2026-11-09, re-checked 2026-11-10,
   user's machine `GMBR-KEMLU-100`, Git Bash):** `~/.claude/hooks/` does not exist,
   `~/.claude/settings.json` has no `hooks` key, and `~/.claude/skills/` holds only `synced/` with
@@ -233,6 +239,36 @@ katakana ン シ ツ ソ ノ メ ク タ コ ユ ル レ.
 small, mark, extended); curriculum order, when it exists, is data in `curriculum.json`, not file
 order.
 
+Taken 2026-11-12 (step 0.1.4) — by the owner where marked "Owner", otherwise coordinator defaults:
+
+* Files: `domain.ts`, `errors.ts`, `repository.ts`, `index.ts` in `packages/core/src`. No tests in
+0.1.4; the error classes' messages are covered by the tests of the functions that throw them
+(0.1.5 `romajiMatches`, 0.1.6 `importAll` and the repository).
+* Owner: `Assessment` is a discriminated union on `kind`; v0.1 has only `KanaExitAssessment`
+`{ passed, correct, total, elapsedMs, wrong }`. `weekly` arrives in v0.3 with its own shape (and
+an export-schema migration).
+* Owner: `ReviewState.state` is a readable `CardState` string union (`'new' | 'learning' |
+'review' | 'relearning'`); `srs/schedule.ts` maps it to the ts-fsrs `State` numbers both ways.
+* Owner: `UserProfile.theme` is `'system' | 'light' | 'dark'`, default `'system'` (onboarding does
+not ask); `ttsVoiceUri: string | null` also lives on the profile (`null` = the device's default
+`ja-JP` voice). The product document's Pengaturan section was updated to match.
+* An absent data field is `T | null`, never optional (`exactOptionalPropertyTypes` plus the
+Dexie/JSON round-trip); optional *parameters* in the Repository contract (`session?`, `from?`)
+stay. Timestamps are `Date`; calendar days are `LocalDate`, a plain `string` alias — a branded or
+template-literal type would need a cast inside `toLocalDate`, which lint forbids.
+* `RATING = { again: 1, hard: 2, good: 3, easy: 4 } as const`; `ReviewLog.confusedWith: string |
+null`.
+* Core does not re-export content types — import them from `@wara/content/schema`. (It still
+re-exports `ContentValidationError`, see step 0.1.2.)
+* `ExportBundle` is hand-written now: `{ format: 'wara-export', version: 1, exportedAt: Date,
+profile, reviewStates, reviewLogs, sessions, journal, assessments, customContent }`. The 0.1.6
+`exportBundleSchema` is typed against it and converts ISO strings back to `Date`.
+* Errors: `RepositoryError({ operation, ids, cause })`, `ImportFormatError(issues: { path, message
+}[])`. Messages carry paths, method names, and counts only, never learner values (privacy rule).
+* `JournalEntry` is typed now (a v0.3 feature) because the Repository contract and the Dexie v1
+`journal` table already include it: `source { anime, episode: number | null } | null`, `context`,
+`correction { sentence, meaning, note } | null`, `status 'draft' | 'needs_review' | 'corrected'`.
+
 Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation** (the monorepo item was
 confirmed by the user 2026-11-10, see above):
 
@@ -326,6 +362,8 @@ test if content ever needs it. The kana-only reading class is duplicated in `id.
 * Open (2026-11-12): when `romajiMatches` is built (step 0.1.5), add a core test that every
 reading-practice word in the real bundle tokenises into existing kana items. A coordinator node
 check on 2026-11-12 found all 80 tokenise; nothing guards it yet.
+* Open (2026-11-12): `LocalDate` is an unbranded string alias; revisit if a date-format bug
+appears.
 * Parallel content workers' temporary `tests/_check-*.test.ts` files make each other's `typecheck`
 fail transiently (the content tsconfig has `types: []`, so `node:fs` in a temp test is a type
 error) — the coordinator's final typecheck is the one that counts (observed 2026-11-12).
