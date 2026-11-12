@@ -62,9 +62,8 @@ section and `docs/learning-plan.md` are updated together.
 
 * **Git (2026-11-12):** remote `origin` = `https://github.com/handalkhom/waranihongo.git`;
 branch `main` (renamed from `master` 2026-11-12 at the owner's request) tracks `origin/main`.
-`origin/master` still exists until the owner switches the GitHub default branch and the Vercel
-Production Branch to `main`; the coordinator then deletes `origin/master`. This machine has
-`core.autocrlf=true`; the documents are CRLF.
+The GitHub default branch and the Vercel Production Branch are `main`; `origin/master` has been
+deleted (2026-11-12). This machine has `core.autocrlf=true`; the documents are CRLF.
 * **`docs/` is git-ignored and gone from history (2026-11-10, owner's request):** removed with
 `git filter-branch --index-filter` + `git push --force-with-lease`. Rewritten commits: `f980861`
 baseline, `a3a99a0` apply design decisions, `d446ea1` decide kana-exit answer mode and card
@@ -75,9 +74,14 @@ and `docs/plan-v0.1.md` live only on the owner's disk — git is not their backu
 * **Step 0.1.1 (scaffold) done (2026-11-10):** npm workspaces `@wara/content`, `@wara/core`,
 `@wara/web`; the five root checks green; committed as `[WARA-0.1.1]`. Every other block in
 `ARCHITECTURE.md` is Decided, not yet built.
+* **Step 0.1.2 (content schemas and validator) done (2026-11-12):** built test-first in
+`packages/content`: `src/schema/errors.ts`, `id.ts`, `dataFiles.ts`, `item.ts`,
+`src/validate/validateBundle.ts`, `src/bundle.ts` (`parseBundle`), entry `src/schema/index.ts`;
+183 tests green; committed as `[WARA-0.1.2]`.
 * **Not yet written:** `docs/qa-session.md`, the ESLint tier rule, `docs/plan-v0.2.md`.
-* **Last verification (2026-11-10, step 0.1.1):** `lint`, `typecheck`, `test`, `build`,
-`validate -w @wara/content` all exit 0 (`test` and `validate` find no test files yet).
+* **Last verification (2026-11-12, step 0.1.2):** `lint`, `typecheck`, `test` (183 passed),
+`build` all exit 0. `validate -w @wara/content` still checks nothing until step 0.1.3 adds
+`tests/validator` against the real data.
 * **Guards and orchestration skill: NOT installed (checked 2026-11-09, re-checked 2026-11-10,
   user's machine `GMBR-KEMLU-100`, Git Bash):** `~/.claude/hooks/` does not exist,
   `~/.claude/settings.json` has no `hooks` key, and `~/.claude/skills/` holds only `synced/` with
@@ -184,6 +188,29 @@ failed deploy installed only 84 packages inside `apps/web`, ignoring the root lo
 simulation reproduced it: unpinned versions, and a future `@wara/core` dependency would be fetched
 from the registry). Installing at the root with `npm ci` keeps the lockfile authoritative.
 
+Taken by the coordinator, 2026-11-12 (step 0.1.2):
+
+* `ContentValidationError` and `ContentIssue` live in `@wara/content/schema`
+(`src/schema/errors.ts`), not in core: `content` may not import `core`, yet `content` must throw
+it at load; `core` re-exports it. CLAUDE.md's "Typed error classes in core" list is read with
+that exception.
+* The export-bundle (import/export JSON) schema is deferred from 0.1.2 to step 0.1.6: it
+describes learner state whose types belong to `core`; it will be a Zod schema at the `importAll`
+edge tied to the core types (`satisfies z.ZodType<…>`).
+* v0.1 content schemas cover kana and vocab only; `ContentItem` = kana | vocab(`source:
+'content'`) | vocab(`source: 'custom'`). Grammar and kanji schemas arrive with their content in
+v0.2 (a schema change, red tests first).
+* Schema choices: every item object is `z.strictObject` (a typo'd field fails); `dataItemSchema`
+(kana | vocab-content) is what data files may hold — a custom item in a data file fails the
+schema; vocab id groups `n5|n4|n3|n2|other`, grammar/kanji `n5|n4|n3|n2`; kana `group` enum
+`basic|dakuten|handakuten|combination|small|extended|mark`; っ/ッ and ー carry `romaji: ''` and
+`romajiAccepted: []`; kana phase is always 0; phase-0 vocab has no kanji in `word` or example
+`ja`; tags are lowercase-kebab and unique; `pos` and `register` are closed enums.
+* `parseBundle(raw)` collects every schema issue across all files before throwing one
+`ContentValidationError`; issue paths are `<file>[i].field` (e.g.
+`kana/hiragana.json[1].data.char`); then `validateBundle` checks cross-file rules (duplicate ids,
+group/seed/`supersededBy` references, `meaningId` in i18n).
+
 Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation** (the monorepo item was
 confirmed by the user 2026-11-10, see above):
 
@@ -227,9 +254,18 @@ allowed.
 is not a dependency.
 * Packages export TypeScript source (`exports` → `./src/*.ts`); there is no package build step.
 * `npm run validate -w @wara/content` currently runs `vitest --passWithNoTests tests/validator`
-and checks nothing until step 0.1.2.
+and checks nothing until step 0.1.3.
 * `apps/web/components.json`: shadcn style `base-nova`, `tsx: true`, utils `@/lib/cn`; shadcn is
 not a dependency.
+
+Recorded 2026-11-12 (step 0.1.2):
+
+* A stub that needs no parameter is written as `export const f: (x: T) => R = () => …` — the lint
+config has no underscore exception for unused args, and `void x;` fails
+`no-meaningless-void-operator`.
+* Test files are untracked until committed, so `git diff` cannot prove a green worker left a red
+test untouched; the coordinator records `md5sum` of each test file right after verifying red and
+checks it after green.
 
 Still to come: the `ts-fsrs` ↔ `ReviewState` mapping in `core/srs/schedule.ts`; the
 `commitReview` transaction (states, logs, session progress); the `SessionProvider` persistence
@@ -262,6 +298,9 @@ Recorded 2026-11-12:
 (observed 2026-11-12, even with "Include files outside the Root Directory" reported on); a local
 root install hides phantom dependencies — when adding an import in a workspace, declare the
 package in that workspace's `package.json`.
+* Open (2026-11-12): the `id.ts` kanji rule (`\p{Script=Han}`) also accepts 々 and CJK radicals;
+vocab/grammar slugs reject Latin letters but not ASCII spaces or punctuation — tighten with a red
+test if content ever needs it. The kana-only reading class is duplicated in `id.ts` and `item.ts`.
 
 ## Standing checklist
 
