@@ -1,0 +1,46 @@
+[
+  {
+    "id": "ね・れ・わ",
+    "items": ["kana:hira:ね", "kana:hira:れ", "kana:hira:わ"]
+  },
+  {
+    "id": "ほ・は・ま",
+    "items": ["kana:hira:ほ", "kana:hira:は", "kana:hira:ま"]
+  },
+  {
+    "id": "に・こ",
+    "items": ["kana:hira:に", "kana:hira:こ"]
+  },
+  {
+    "id": "き・け",
+    "items": ["kana:hira:き", "kana:hira:け"]
+  },
+  {
+    "id": "っ・つ",
+    "items": ["kana:hira:っ", "kana:hira:つ"]
+  },
+  {
+    "id": "しゃ・しょ",
+    "items": ["kana:hira:しゃ", "kana:hira:しょ"]
+  },
+  {
+    "id": "ン・シ・ツ・ソ",
+    "items": ["kana:kata:ン", "kana:kata:シ", "kana:kata:ツ", "kana:kata:ソ"]
+  },
+  {
+    "id": "ノ・メ",
+    "items": ["kana:kata:ノ", "kana:kata:メ"]
+  },
+  {
+    "id": "ク・タ",
+    "items": ["kana:kata:ク", "kana:kata:タ"]
+  },
+  {
+    "id": "コ・ユ",
+    "items": ["kana:kata:コ", "kana:kata:ユ"]
+  },
+  {
+    "id": "ル・レ",
+    "items": ["kana:kata:ル", "kana:kata:レ"]
+  }
+]

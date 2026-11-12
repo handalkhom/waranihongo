@@ -1,0 +1,1712 @@
+[
+  {
+    "type": "kana",
+    "id": "kana:hira:あ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "あ",
+      "romaji": "a",
+      "romajiAccepted": [
+        "a"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:い",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "い",
+      "romaji": "i",
+      "romajiAccepted": [
+        "i"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:う",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "う",
+      "romaji": "u",
+      "romajiAccepted": [
+        "u"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:え",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "え",
+      "romaji": "e",
+      "romajiAccepted": [
+        "e"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:お",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "お",
+      "romaji": "o",
+      "romajiAccepted": [
+        "o"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:か",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "か",
+      "romaji": "ka",
+      "romajiAccepted": [
+        "ka"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:き",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "き",
+      "romaji": "ki",
+      "romajiAccepted": [
+        "ki"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:く",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "く",
+      "romaji": "ku",
+      "romajiAccepted": [
+        "ku"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:け",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "け",
+      "romaji": "ke",
+      "romajiAccepted": [
+        "ke"
+      ],
+      "script": "hiragana",
+      "group": "basic",
+      "mnemonic": "け punya garis tegak sendiri di kiri seperti tiang gerbang, sedangkan き tidak punya garis tegak di kiri dan dua palangnya ditembus satu garis miring."
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:こ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "こ",
+      "romaji": "ko",
+      "romajiAccepted": [
+        "ko"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:さ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "さ",
+      "romaji": "sa",
+      "romajiAccepted": [
+        "sa"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:し",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "し",
+      "romaji": "shi",
+      "romajiAccepted": [
+        "shi",
+        "si"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:す",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "す",
+      "romaji": "su",
+      "romajiAccepted": [
+        "su"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:せ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "せ",
+      "romaji": "se",
+      "romajiAccepted": [
+        "se"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:そ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "そ",
+      "romaji": "so",
+      "romajiAccepted": [
+        "so"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:た",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "た",
+      "romaji": "ta",
+      "romajiAccepted": [
+        "ta"
+      ],
+      "script": "hiragana",
+      "group": "basic",
+      "mnemonic": "た adalah huruf t kecil di kiri ditambah こ di kanan, sedangkan か berbentuk kail dengan hanya satu coretan di sampingnya."
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ち",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ち",
+      "romaji": "chi",
+      "romajiAccepted": [
+        "chi",
+        "ti"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:つ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "つ",
+      "romaji": "tsu",
+      "romajiAccepted": [
+        "tsu",
+        "tu"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:て",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "て",
+      "romaji": "te",
+      "romajiAccepted": [
+        "te"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:と",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "と",
+      "romaji": "to",
+      "romajiAccepted": [
+        "to"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:な",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "な",
+      "romaji": "na",
+      "romajiAccepted": [
+        "na"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:に",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "に",
+      "romaji": "ni",
+      "romajiAccepted": [
+        "ni"
+      ],
+      "script": "hiragana",
+      "group": "basic",
+      "mnemonic": "に adalah こ yang diberi garis tegak di sebelah kirinya, jadi tanpa garis itu yang tersisa hanyalah こ."
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぬ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぬ",
+      "romaji": "nu",
+      "romajiAccepted": [
+        "nu"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ね",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ね",
+      "romaji": "ne",
+      "romajiAccepted": [
+        "ne"
+      ],
+      "script": "hiragana",
+      "group": "basic",
+      "mnemonic": "ね berakhir dengan simpul kecil seperti ekor ねこ yang melingkar, sedangkan れ berakhir dengan kaki lurus menendang ke kanan dan わ dengan lengkung terbuka tanpa simpul."
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:の",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "の",
+      "romaji": "no",
+      "romajiAccepted": [
+        "no"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:は",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "は",
+      "romaji": "ha",
+      "romajiAccepted": [
+        "ha"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ひ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ひ",
+      "romaji": "hi",
+      "romajiAccepted": [
+        "hi"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ふ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ふ",
+      "romaji": "fu",
+      "romajiAccepted": [
+        "fu",
+        "hu"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:へ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "へ",
+      "romaji": "he",
+      "romajiAccepted": [
+        "he"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ほ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ほ",
+      "romaji": "ho",
+      "romajiAccepted": [
+        "ho"
+      ],
+      "script": "hiragana",
+      "group": "basic",
+      "mnemonic": "ほ adalah は yang diberi atap: dua palang di kanan dan tiangnya tidak menembus ke atas, sedangkan ま sama sekali tidak punya garis tegak di kiri."
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ま",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ま",
+      "romaji": "ma",
+      "romajiAccepted": [
+        "ma"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:み",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "み",
+      "romaji": "mi",
+      "romajiAccepted": [
+        "mi"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:む",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "む",
+      "romaji": "mu",
+      "romajiAccepted": [
+        "mu"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:め",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "め",
+      "romaji": "me",
+      "romajiAccepted": [
+        "me"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:も",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "も",
+      "romaji": "mo",
+      "romajiAccepted": [
+        "mo"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:や",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "や",
+      "romaji": "ya",
+      "romajiAccepted": [
+        "ya"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ゆ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ゆ",
+      "romaji": "yu",
+      "romajiAccepted": [
+        "yu"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:よ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "よ",
+      "romaji": "yo",
+      "romajiAccepted": [
+        "yo"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ら",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ら",
+      "romaji": "ra",
+      "romajiAccepted": [
+        "ra"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:り",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "り",
+      "romaji": "ri",
+      "romajiAccepted": [
+        "ri"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:る",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "る",
+      "romaji": "ru",
+      "romajiAccepted": [
+        "ru"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:れ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "れ",
+      "romaji": "re",
+      "romajiAccepted": [
+        "re"
+      ],
+      "script": "hiragana",
+      "group": "basic",
+      "mnemonic": "れ berakhir dengan kaki yang menendang lurus ke kanan, bukan simpul seperti ね atau lengkung yang menggulung ke dalam seperti わ."
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ろ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ろ",
+      "romaji": "ro",
+      "romajiAccepted": [
+        "ro"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:わ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "わ",
+      "romaji": "wa",
+      "romajiAccepted": [
+        "wa"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:を",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "を",
+      "romaji": "o",
+      "romajiAccepted": [
+        "o",
+        "wo"
+      ],
+      "script": "hiragana",
+      "group": "basic",
+      "mnemonic": "を dibaca sama seperti お, tetapi hampir hanya muncul sebagai partikel objek tepat setelah kata benda, seperti dalam みずをのむ."
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ん",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ん",
+      "romaji": "n",
+      "romajiAccepted": [
+        "n",
+        "nn"
+      ],
+      "script": "hiragana",
+      "group": "basic"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:が",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "が",
+      "romaji": "ga",
+      "romajiAccepted": [
+        "ga"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぎ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぎ",
+      "romaji": "gi",
+      "romajiAccepted": [
+        "gi"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぐ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぐ",
+      "romaji": "gu",
+      "romajiAccepted": [
+        "gu"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:げ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "げ",
+      "romaji": "ge",
+      "romajiAccepted": [
+        "ge"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ご",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ご",
+      "romaji": "go",
+      "romajiAccepted": [
+        "go"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ざ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ざ",
+      "romaji": "za",
+      "romajiAccepted": [
+        "za"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:じ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "じ",
+      "romaji": "ji",
+      "romajiAccepted": [
+        "ji",
+        "zi"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ず",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ず",
+      "romaji": "zu",
+      "romajiAccepted": [
+        "zu"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぜ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぜ",
+      "romaji": "ze",
+      "romajiAccepted": [
+        "ze"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぞ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぞ",
+      "romaji": "zo",
+      "romajiAccepted": [
+        "zo"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:だ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "だ",
+      "romaji": "da",
+      "romajiAccepted": [
+        "da"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぢ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぢ",
+      "romaji": "ji",
+      "romajiAccepted": [
+        "ji",
+        "di"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:づ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "づ",
+      "romaji": "zu",
+      "romajiAccepted": [
+        "zu",
+        "du"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:で",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "で",
+      "romaji": "de",
+      "romajiAccepted": [
+        "de"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ど",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ど",
+      "romaji": "do",
+      "romajiAccepted": [
+        "do"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ば",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ば",
+      "romaji": "ba",
+      "romajiAccepted": [
+        "ba"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:び",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "び",
+      "romaji": "bi",
+      "romajiAccepted": [
+        "bi"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぶ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぶ",
+      "romaji": "bu",
+      "romajiAccepted": [
+        "bu"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:べ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "べ",
+      "romaji": "be",
+      "romajiAccepted": [
+        "be"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぼ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぼ",
+      "romaji": "bo",
+      "romajiAccepted": [
+        "bo"
+      ],
+      "script": "hiragana",
+      "group": "dakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぱ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぱ",
+      "romaji": "pa",
+      "romajiAccepted": [
+        "pa"
+      ],
+      "script": "hiragana",
+      "group": "handakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぴ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぴ",
+      "romaji": "pi",
+      "romajiAccepted": [
+        "pi"
+      ],
+      "script": "hiragana",
+      "group": "handakuten",
+      "mnemonic": "ぴ adalah ひ dengan lingkaran kecil di kanan atas: lingkaran selalu berarti bunyi p, sedangkan dua titik seperti pada び berarti bunyi b."
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぷ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぷ",
+      "romaji": "pu",
+      "romajiAccepted": [
+        "pu"
+      ],
+      "script": "hiragana",
+      "group": "handakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぺ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぺ",
+      "romaji": "pe",
+      "romajiAccepted": [
+        "pe"
+      ],
+      "script": "hiragana",
+      "group": "handakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぽ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぽ",
+      "romaji": "po",
+      "romajiAccepted": [
+        "po"
+      ],
+      "script": "hiragana",
+      "group": "handakuten"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:きゃ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "きゃ",
+      "romaji": "kya",
+      "romajiAccepted": [
+        "kya"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:きゅ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "きゅ",
+      "romaji": "kyu",
+      "romajiAccepted": [
+        "kyu"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:きょ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "きょ",
+      "romaji": "kyo",
+      "romajiAccepted": [
+        "kyo"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:しゃ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "しゃ",
+      "romaji": "sha",
+      "romajiAccepted": [
+        "sha",
+        "sya"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:しゅ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "しゅ",
+      "romaji": "shu",
+      "romajiAccepted": [
+        "shu",
+        "syu"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:しょ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "しょ",
+      "romaji": "sho",
+      "romajiAccepted": [
+        "sho",
+        "syo"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ちゃ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ちゃ",
+      "romaji": "cha",
+      "romajiAccepted": [
+        "cha",
+        "tya",
+        "cya"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ちゅ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ちゅ",
+      "romaji": "chu",
+      "romajiAccepted": [
+        "chu",
+        "tyu",
+        "cyu"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ちょ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ちょ",
+      "romaji": "cho",
+      "romajiAccepted": [
+        "cho",
+        "tyo",
+        "cyo"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:にゃ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "にゃ",
+      "romaji": "nya",
+      "romajiAccepted": [
+        "nya"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:にゅ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "にゅ",
+      "romaji": "nyu",
+      "romajiAccepted": [
+        "nyu"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:にょ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "にょ",
+      "romaji": "nyo",
+      "romajiAccepted": [
+        "nyo"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ひゃ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ひゃ",
+      "romaji": "hya",
+      "romajiAccepted": [
+        "hya"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ひゅ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ひゅ",
+      "romaji": "hyu",
+      "romajiAccepted": [
+        "hyu"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ひょ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ひょ",
+      "romaji": "hyo",
+      "romajiAccepted": [
+        "hyo"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:みゃ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "みゃ",
+      "romaji": "mya",
+      "romajiAccepted": [
+        "mya"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:みゅ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "みゅ",
+      "romaji": "myu",
+      "romajiAccepted": [
+        "myu"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:みょ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "みょ",
+      "romaji": "myo",
+      "romajiAccepted": [
+        "myo"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:りゃ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "りゃ",
+      "romaji": "rya",
+      "romajiAccepted": [
+        "rya"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:りゅ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "りゅ",
+      "romaji": "ryu",
+      "romajiAccepted": [
+        "ryu"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:りょ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "りょ",
+      "romaji": "ryo",
+      "romajiAccepted": [
+        "ryo"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぎゃ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぎゃ",
+      "romaji": "gya",
+      "romajiAccepted": [
+        "gya"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぎゅ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぎゅ",
+      "romaji": "gyu",
+      "romajiAccepted": [
+        "gyu"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぎょ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぎょ",
+      "romaji": "gyo",
+      "romajiAccepted": [
+        "gyo"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:じゃ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "じゃ",
+      "romaji": "ja",
+      "romajiAccepted": [
+        "ja",
+        "zya",
+        "jya"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:じゅ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "じゅ",
+      "romaji": "ju",
+      "romajiAccepted": [
+        "ju",
+        "zyu",
+        "jyu"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:じょ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "じょ",
+      "romaji": "jo",
+      "romajiAccepted": [
+        "jo",
+        "zyo",
+        "jyo"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:びゃ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "びゃ",
+      "romaji": "bya",
+      "romajiAccepted": [
+        "bya"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:びゅ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "びゅ",
+      "romaji": "byu",
+      "romajiAccepted": [
+        "byu"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:びょ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "びょ",
+      "romaji": "byo",
+      "romajiAccepted": [
+        "byo"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぴゃ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぴゃ",
+      "romaji": "pya",
+      "romajiAccepted": [
+        "pya"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぴゅ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぴゅ",
+      "romaji": "pyu",
+      "romajiAccepted": [
+        "pyu"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:ぴょ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "ぴょ",
+      "romaji": "pyo",
+      "romajiAccepted": [
+        "pyo"
+      ],
+      "script": "hiragana",
+      "group": "combination"
+    }
+  },
+  {
+    "type": "kana",
+    "id": "kana:hira:っ",
+    "level": "kana",
+    "phase": 0,
+    "tags": [],
+    "data": {
+      "char": "っ",
+      "romaji": "",
+      "romajiAccepted": [],
+      "script": "hiragana",
+      "group": "small"
+    }
+  }
+]

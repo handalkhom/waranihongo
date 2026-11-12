@@ -1,0 +1,1442 @@
+[
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:たべる",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "たべる",
+      "reading": "たべる",
+      "meaningId": "vocab:other:たべる",
+      "pos": "verb",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:おおきい",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "おおきい",
+      "reading": "おおきい",
+      "meaningId": "vocab:other:おおきい",
+      "pos": "i-adjective",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:やくそく",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "やくそく",
+      "reading": "やくそく",
+      "meaningId": "vocab:other:やくそく",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:しんぱい",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "しんぱい",
+      "reading": "しんぱい",
+      "meaningId": "vocab:other:しんぱい",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:みず",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "みず",
+      "reading": "みず",
+      "meaningId": "vocab:other:みず",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ともだち",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ともだち",
+      "reading": "ともだち",
+      "meaningId": "vocab:other:ともだち",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:いつも",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "いつも",
+      "reading": "いつも",
+      "meaningId": "vocab:other:いつも",
+      "pos": "adverb",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:たすける",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "たすける",
+      "reading": "たすける",
+      "meaningId": "vocab:other:たすける",
+      "pos": "verb",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:まける",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "まける",
+      "reading": "まける",
+      "meaningId": "vocab:other:まける",
+      "pos": "verb",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:にがて",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "にがて",
+      "reading": "にがて",
+      "meaningId": "vocab:other:にがて",
+      "pos": "na-adjective",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:きって",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "きって",
+      "reading": "きって",
+      "meaningId": "vocab:other:きって",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ざっし",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ざっし",
+      "reading": "ざっし",
+      "meaningId": "vocab:other:ざっし",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:いっしょ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "いっしょ",
+      "reading": "いっしょ",
+      "meaningId": "vocab:other:いっしょ",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ねこ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ねこ",
+      "reading": "ねこ",
+      "meaningId": "vocab:other:ねこ",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:おかね",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "おかね",
+      "reading": "おかね",
+      "meaningId": "vocab:other:おかね",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:おねがい",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "おねがい",
+      "reading": "おねがい",
+      "meaningId": "vocab:other:おねがい",
+      "pos": "expression",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ほん",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ほん",
+      "reading": "ほん",
+      "meaningId": "vocab:other:ほん",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ほんとう",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ほんとう",
+      "reading": "ほんとう",
+      "meaningId": "vocab:other:ほんとう",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:これ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "これ",
+      "reading": "これ",
+      "meaningId": "vocab:other:これ",
+      "pos": "pronoun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:きれい",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "きれい",
+      "reading": "きれい",
+      "meaningId": "vocab:other:きれい",
+      "pos": "na-adjective",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:を",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "を",
+      "reading": "を",
+      "meaningId": "vocab:other:を",
+      "pos": "particle",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:きをつけて",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "きをつけて",
+      "reading": "きをつけて",
+      "meaningId": "vocab:other:きをつけて",
+      "pos": "expression",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:えんぴつ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "えんぴつ",
+      "reading": "えんぴつ",
+      "meaningId": "vocab:other:えんぴつ",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ぴったり",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ぴったり",
+      "reading": "ぴったり",
+      "meaningId": "vocab:other:ぴったり",
+      "pos": "adverb",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:たのしい",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "たのしい",
+      "reading": "たのしい",
+      "meaningId": "vocab:other:たのしい",
+      "pos": "i-adjective",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:けんか",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "けんか",
+      "reading": "けんか",
+      "meaningId": "vocab:other:けんか",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:なに",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "なに",
+      "reading": "なに",
+      "meaningId": "vocab:other:なに",
+      "pos": "pronoun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ちょっと",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ちょっと",
+      "reading": "ちょっと",
+      "meaningId": "vocab:other:ちょっと",
+      "pos": "adverb",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:がっこう",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "がっこう",
+      "reading": "がっこう",
+      "meaningId": "vocab:other:がっこう",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:やっぱり",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "やっぱり",
+      "reading": "やっぱり",
+      "meaningId": "vocab:other:やっぱり",
+      "pos": "adverb",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:かいしゃ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "かいしゃ",
+      "reading": "かいしゃ",
+      "meaningId": "vocab:other:かいしゃ",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:でんしゃ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "でんしゃ",
+      "reading": "でんしゃ",
+      "meaningId": "vocab:other:でんしゃ",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:しゅみ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "しゅみ",
+      "reading": "しゅみ",
+      "meaningId": "vocab:other:しゅみ",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:しゅくだい",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "しゅくだい",
+      "reading": "しゅくだい",
+      "meaningId": "vocab:other:しゅくだい",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:としょかん",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "としょかん",
+      "reading": "としょかん",
+      "meaningId": "vocab:other:としょかん",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:だいじょうぶ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "だいじょうぶ",
+      "reading": "だいじょうぶ",
+      "meaningId": "vocab:other:だいじょうぶ",
+      "pos": "na-adjective",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:がんばる",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "がんばる",
+      "reading": "がんばる",
+      "meaningId": "vocab:other:がんばる",
+      "pos": "verb",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:すごい",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "すごい",
+      "reading": "すごい",
+      "meaningId": "vocab:other:すごい",
+      "pos": "i-adjective",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:かわいい",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "かわいい",
+      "reading": "かわいい",
+      "meaningId": "vocab:other:かわいい",
+      "pos": "i-adjective",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:よろしく",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "よろしく",
+      "reading": "よろしく",
+      "meaningId": "vocab:other:よろしく",
+      "pos": "expression",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ありがとう",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ありがとう",
+      "reading": "ありがとう",
+      "meaningId": "vocab:other:ありがとう",
+      "pos": "expression",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:すみません",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "すみません",
+      "reading": "すみません",
+      "meaningId": "vocab:other:すみません",
+      "pos": "expression",
+      "register": "polite",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:おはよう",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "おはよう",
+      "reading": "おはよう",
+      "meaningId": "vocab:other:おはよう",
+      "pos": "expression",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:なかま",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "なかま",
+      "reading": "なかま",
+      "meaningId": "vocab:other:なかま",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:せんぱい",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "せんぱい",
+      "reading": "せんぱい",
+      "meaningId": "vocab:other:せんぱい",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:せんせい",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "せんせい",
+      "reading": "せんせい",
+      "meaningId": "vocab:other:せんせい",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:しごと",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "しごと",
+      "reading": "しごと",
+      "meaningId": "vocab:other:しごと",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:きょう",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "きょう",
+      "reading": "きょう",
+      "meaningId": "vocab:other:きょう",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ぎゅうにゅう",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ぎゅうにゅう",
+      "reading": "ぎゅうにゅう",
+      "meaningId": "vocab:other:ぎゅうにゅう",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:かっこいい",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "かっこいい",
+      "reading": "かっこいい",
+      "meaningId": "vocab:other:かっこいい",
+      "pos": "i-adjective",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:やばい",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "やばい",
+      "reading": "やばい",
+      "meaningId": "vocab:other:やばい",
+      "pos": "i-adjective",
+      "register": "rough",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:おれ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "おれ",
+      "reading": "おれ",
+      "meaningId": "vocab:other:おれ",
+      "pos": "pronoun",
+      "register": "rough",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:うるさい",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "うるさい",
+      "reading": "うるさい",
+      "meaningId": "vocab:other:うるさい",
+      "pos": "i-adjective",
+      "register": "rough",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:きさま",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "きさま",
+      "reading": "きさま",
+      "meaningId": "vocab:other:きさま",
+      "pos": "pronoun",
+      "register": "anime",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:アニメ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "アニメ",
+      "reading": "アニメ",
+      "meaningId": "vocab:other:アニメ",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ゲーム",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ゲーム",
+      "reading": "ゲーム",
+      "meaningId": "vocab:other:ゲーム",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:コーヒー",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "コーヒー",
+      "reading": "コーヒー",
+      "meaningId": "vocab:other:コーヒー",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:パソコン",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "パソコン",
+      "reading": "パソコン",
+      "meaningId": "vocab:other:パソコン",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:シャツ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "シャツ",
+      "reading": "シャツ",
+      "meaningId": "vocab:other:シャツ",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ソフト",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ソフト",
+      "reading": "ソフト",
+      "meaningId": "vocab:other:ソフト",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ノート",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ノート",
+      "reading": "ノート",
+      "meaningId": "vocab:other:ノート",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:メール",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "メール",
+      "reading": "メール",
+      "meaningId": "vocab:other:メール",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:テスト",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "テスト",
+      "reading": "テスト",
+      "meaningId": "vocab:other:テスト",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ラーメン",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ラーメン",
+      "reading": "ラーメン",
+      "meaningId": "vocab:other:ラーメン",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:コンビニ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "コンビニ",
+      "reading": "コンビニ",
+      "meaningId": "vocab:other:コンビニ",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:タクシー",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "タクシー",
+      "reading": "タクシー",
+      "meaningId": "vocab:other:タクシー",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:スーツ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "スーツ",
+      "reading": "スーツ",
+      "meaningId": "vocab:other:スーツ",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:スポーツ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "スポーツ",
+      "reading": "スポーツ",
+      "meaningId": "vocab:other:スポーツ",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ピアノ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ピアノ",
+      "reading": "ピアノ",
+      "meaningId": "vocab:other:ピアノ",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:シリーズ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "シリーズ",
+      "reading": "シリーズ",
+      "meaningId": "vocab:other:シリーズ",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:キャラクター",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "キャラクター",
+      "reading": "キャラクター",
+      "meaningId": "vocab:other:キャラクター",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ネット",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ネット",
+      "reading": "ネット",
+      "meaningId": "vocab:other:ネット",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:チーム",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "チーム",
+      "reading": "チーム",
+      "meaningId": "vocab:other:チーム",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:パーティー",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "パーティー",
+      "reading": "パーティー",
+      "meaningId": "vocab:other:パーティー",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ミーティング",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ミーティング",
+      "reading": "ミーティング",
+      "meaningId": "vocab:other:ミーティング",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ファイル",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ファイル",
+      "reading": "ファイル",
+      "meaningId": "vocab:other:ファイル",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:レベル",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "レベル",
+      "reading": "レベル",
+      "meaningId": "vocab:other:レベル",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ストーリー",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ストーリー",
+      "reading": "ストーリー",
+      "meaningId": "vocab:other:ストーリー",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:メッセージ",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "メッセージ",
+      "reading": "メッセージ",
+      "meaningId": "vocab:other:メッセージ",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  },
+  {
+    "type": "vocab",
+    "source": "content",
+    "id": "vocab:other:ヒーロー",
+    "level": "other",
+    "phase": 0,
+    "tags": [
+      "reading-practice"
+    ],
+    "data": {
+      "word": "ヒーロー",
+      "reading": "ヒーロー",
+      "meaningId": "vocab:other:ヒーロー",
+      "pos": "noun",
+      "register": "plain",
+      "examples": []
+    }
+  }
+]

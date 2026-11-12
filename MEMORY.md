@@ -58,7 +58,7 @@ and a plain-vs-rough warning matter.
 * Re-assessed after each weekly test that changes a priority and at each phase transition; this
 section and `docs/learning-plan.md` are updated together.
 
-## Project state (2026-11-10)
+## Project state (2026-11-12)
 
 * **Git (2026-11-12):** remote `origin` = `https://github.com/handalkhom/waranihongo.git`;
 branch `main` (renamed from `master` 2026-11-12 at the owner's request) tracks `origin/main`.
@@ -78,10 +78,16 @@ and `docs/plan-v0.1.md` live only on the owner's disk — git is not their backu
 `packages/content`: `src/schema/errors.ts`, `id.ts`, `dataFiles.ts`, `item.ts`,
 `src/validate/validateBundle.ts`, `src/bundle.ts` (`parseBundle`), entry `src/schema/index.ts`;
 183 tests green; committed as `[WARA-0.1.2]`.
+* **Step 0.1.3 (content data v0.1) done (2026-11-12):** in `packages/content`:
+`data/kana/hiragana.json` 105 items (46 basic, 20 dakuten, 5 handakuten, 33 combination, っ),
+`data/kana/katakana.json` 129 (same plus ッ, ー, 23 extended), `data/vocab/reading-practice.json`
+80 words (54 hiragana, 26 katakana), `data/confusion-groups.json` 11 groups,
+`data/seed/alan-weak.json` 17 ids, `data/i18n/id.json` 80 meanings. `@wara/content` exports
+`contentBundle`, parsed at module load (JSON imported `with { type: 'json' }`); committed as
+`[WARA-0.1.3]`.
 * **Not yet written:** `docs/qa-session.md`, the ESLint tier rule, `docs/plan-v0.2.md`.
-* **Last verification (2026-11-12, step 0.1.2):** `lint`, `typecheck`, `test` (183 passed),
-`build` all exit 0. `validate -w @wara/content` still checks nothing until step 0.1.3 adds
-`tests/validator` against the real data.
+* **Last verification (2026-11-12, step 0.1.3):** `lint`, `typecheck`, `test` (224 passed),
+`build`, `validate -w @wara/content` (41 passed against the real data) all exit 0.
 * **Guards and orchestration skill: NOT installed (checked 2026-11-09, re-checked 2026-11-10,
   user's machine `GMBR-KEMLU-100`, Git Bash):** `~/.claude/hooks/` does not exist,
   `~/.claude/settings.json` has no `hooks` key, and `~/.claude/skills/` holds only `synced/` with
@@ -211,6 +217,22 @@ schema; vocab id groups `n5|n4|n3|n2|other`, grammar/kanji `n5|n4|n3|n2`; kana `
 `kana/hiragana.json[1].data.char`); then `validateBundle` checks cross-file rules (duplicate ids,
 group/seed/`supersededBy` references, `meaningId` in i18n).
 
+Taken by the coordinator, 2026-11-12 (step 0.1.3):
+
+* Reading-practice words are `vocab:other:<kana>`, `level: 'other'`, phase 0, tag
+`reading-practice`, `meaningId` = own id, `examples: []`. The same word may later exist as a
+separate N5 kanji item (`vocab:n5:友達` beside `vocab:other:ともだち`) — intended: one trains kana
+reading, the other vocabulary.
+* を cannot occur inside an ordinary word; reading practice covers it with `vocab:other:を` (the
+particle) and `vocab:other:きをつけて`. いって (ambiguous 行って/言って) was replaced by いっしょ.
+* Register: うるさい, やばい, おれ are `rough`; きさま is `anime`; すみません is `polite`; the rest
+`plain`.
+* Mnemonics (Indonesian) exist only for the weak/confusable kana: hiragana ね ほ れ を ぴ た け に;
+katakana ン シ ツ ソ ノ メ ク タ コ ユ ル レ.
+* Kana files are ordered by group then gojūon (katakana: basic, dakuten, handakuten, combination,
+small, mark, extended); curriculum order, when it exists, is data in `curriculum.json`, not file
+order.
+
 Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation** (the monorepo item was
 confirmed by the user 2026-11-10, see above):
 
@@ -253,8 +275,8 @@ allowed.
 * The `@/` alias in `vite.config.ts` is `{ find: '@', replacement: '/src' }` because `@types/node`
 is not a dependency.
 * Packages export TypeScript source (`exports` → `./src/*.ts`); there is no package build step.
-* `npm run validate -w @wara/content` currently runs `vitest --passWithNoTests tests/validator`
-and checks nothing until step 0.1.3.
+* `npm run validate -w @wara/content` runs `vitest run tests/validator` without
+`--passWithNoTests` (since step 0.1.3, 2026-11-12), so a missing validator test fails it.
 * `apps/web/components.json`: shadcn style `base-nova`, `tsx: true`, utils `@/lib/cn`; shadcn is
 not a dependency.
 
@@ -301,6 +323,12 @@ package in that workspace's `package.json`.
 * Open (2026-11-12): the `id.ts` kanji rule (`\p{Script=Han}`) also accepts 々 and CJK radicals;
 vocab/grammar slugs reject Latin letters but not ASCII spaces or punctuation — tighten with a red
 test if content ever needs it. The kana-only reading class is duplicated in `id.ts` and `item.ts`.
+* Open (2026-11-12): when `romajiMatches` is built (step 0.1.5), add a core test that every
+reading-practice word in the real bundle tokenises into existing kana items. A coordinator node
+check on 2026-11-12 found all 80 tokenise; nothing guards it yet.
+* Parallel content workers' temporary `tests/_check-*.test.ts` files make each other's `typecheck`
+fail transiently (the content tsconfig has `types: []`, so `node:fs` in a temp test is a type
+error) — the coordinator's final typecheck is the one that counts (observed 2026-11-12).
 
 ## Standing checklist
 

@@ -10,7 +10,7 @@
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run --passWithNoTests",
-    "validate": "vitest run --passWithNoTests tests/validator"
+    "validate": "vitest run tests/validator"
   },
   "dependencies": {
     "zod": "^4.6.7"
