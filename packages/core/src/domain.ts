@@ -83,7 +83,17 @@ export interface KanaExitAssessment {
   readonly wrong: ReadonlyArray<string>;
 }
 
-export type Assessment = KanaExitAssessment;
+export type JlptLevel = 'n5' | 'n4';
+
+export interface JlptSimAssessment {
+  readonly id: string;
+  readonly date: LocalDate;
+  readonly kind: 'jlpt-sim';
+  readonly level: JlptLevel;
+  readonly score: number;
+}
+
+export type Assessment = KanaExitAssessment | JlptSimAssessment;
 
 export type RomajiAid = 'always' | 'on-demand' | 'off';
 

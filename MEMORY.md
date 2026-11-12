@@ -88,12 +88,19 @@ and `docs/plan-v0.1.md` live only on the owner's disk — git is not their backu
 * **Step 0.1.4 (core types) done (2026-11-12):** in `packages/core/src`: `domain.ts` (learner-state
 types), `errors.ts`, `repository.ts`, and the package entry `index.ts` (explicit named
 re-exports). Verified by lint + typecheck only, per the plan (decisions below).
-* **Next step: 0.1.5 (core functions, test-first).**
+* **Step 0.1.5 batch 1 (core functions, test-first) done (2026-11-12):** in `packages/core/src`:
+`answer/` (`romajiMatches`, `rateAnswer`), `phase/` (`kanaExitAvailable`, `derivePhase`,
+`evaluateKanaExit`), `progress/` (`streak`), `session/defaults.ts`; all exported from `@wara/core`.
+* **Next: step 0.1.5 batch 2** — `schedule` (needs `ts-fsrs` installed, a coordinator dependency
+decision), `applyConfusion`, `planSession` (+ the remaining defaults). `planSession` first needs
+owner decisions on the v0.1 new-item source (no curriculum until v0.2), the 5/15/10 split
+mapping, and the backlog threshold.
 * **Not yet written:** `docs/qa-session.md`, the ESLint tier rule, `docs/plan-v0.2.md`.
-* **Last verification (2026-11-12, step 0.1.4):** `lint`, `typecheck`, `test` (224 passed —
-0.1.4 adds no tests), `build`, and `validate -w @wara/content` (41 passed) all exit 0; no
-`Date.now`/`new Date(`/`Math.random` under `packages/core/src`; a scratch consumer probe resolved
-all 24 `@wara/core` exports and rejected a missing name.
+* **Last verification (2026-11-12, step 0.1.5 batch 1):** core suite 125 tests across 6 files all
+passing; red first (group 1: 42 failing assertions, group 2: 46); every frozen test file's md5
+unchanged after green. Full run: `lint`, `typecheck`, `test` (content 224, core 125), `build`,
+and `validate -w @wara/content` (41) all exit 0; no `Date.now`/`new Date()`/`Math.random` under
+`packages/core/src`.
 * **Guards and orchestration skill: NOT installed (checked 2026-11-09, re-checked 2026-11-10,
   user's machine `GMBR-KEMLU-100`, Git Bash):** `~/.claude/hooks/` does not exist,
   `~/.claude/settings.json` has no `hooks` key, and `~/.claude/skills/` holds only `synced/` with
@@ -269,6 +276,30 @@ profile, reviewStates, reviewLogs, sessions, journal, assessments, customContent
 `journal` table already include it: `source { anime, episode: number | null } | null`, `context`,
 `correction { sentence, meaning, note } | null`, `status 'draft' | 'needs_review' | 'corrected'`.
 
+Taken 2026-11-12 (step 0.1.5, batch 1) — by the owner where marked "Owner", otherwise coordinator:
+
+* Owner: `rateAnswer` thresholds (inclusive) — typed: Easy ≤ 2.5 s, Good ≤ 6 s, else Hard;
+choice: Good ≤ 4 s, else Hard; wrong → Again. Named in `session/defaults.ts` as
+`RATE_TYPED_EASY_MAX_MS` 2500, `RATE_TYPED_GOOD_MAX_MS` 6000, `RATE_CHOICE_GOOD_MAX_MS` 4000.
+Initial values; to be tuned from the learner's logs.
+* Owner: phases 2 and 3 are defined now from JLPT simulation scores, mirroring the
+`docs/learning-plan.md` §4 targets. New `Assessment` member `JlptSimAssessment` `{ id, date, kind:
+'jlpt-sim', level: 'n5' | 'n4', score }` (score 0–1). `derivePhase({ assessments })` — review
+states dropped from its signature — is cumulative: 1 = a passed kana-exit; 2 = that + best n5 ≥
+`JLPT_SIM_PASS_SCORE.n5` 0.8; 3 = that + best n4 ≥ `JLPT_SIM_PASS_SCORE.n4` 0.7. The simulation
+screen arrives in v0.4, so the learner stays in phase 1 until then.
+* Core file layout by concern: `answer/` (`romajiMatches`, `rateAnswer`), `srs/`, `session/`
+(`planSession`, `defaults.ts`), `phase/` (`derivePhase`, `evaluateKanaExit`,
+`kanaExitAvailable`), `progress/` (`streak`); `tests/` mirrors it.
+* `romajiMatches` precisions: after っ a `ch` token also accepts `tch`; っ with no following
+consonant adds nothing (あっ → `a`); ー at the start or after ん accepts only `-`; ー repeats the
+vowel of the variant actually typed.
+* `kanaExitAvailable` with empty `kanaIds` → `false`. `evaluateKanaExit` requires exactly
+`KANA_EXIT_WORD_COUNT` answers; `wrong` is in answer order.
+* `streak` forgiveness as written in ARCHITECTURE §6: a single missed day, the previous day
+counted, one per ISO week of the missed day (Monday start); the ISO week is keyed by its Monday's
+epoch day, so 2026-W53 crossing into 2027 works.
+
 Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation** (the monorepo item was
 confirmed by the user 2026-11-10, see above):
 
@@ -292,8 +323,11 @@ assistant's knowledge; attribution placement undecided).
 former is the v0.2 design.
 * Weekly test day (Saturday is the v0.2 default) and whether it is skippable.
 * TTS fallback when no `ja-JP` voice exists on the device: hide dictation drills or show a notice.
-* `rateAnswer` time thresholds and the backlog threshold: initial values to be set, later tuned
-from the learner's own logs.
+* Backlog threshold: initial value to be set (with `planSession`, step 0.1.5 batch 2), later tuned
+from the learner's own logs. The `rateAnswer` thresholds were set 2026-11-12 (Decisions).
+* JLPT N4 simulation is not on the roadmap: phase 3 (`derivePhase`) needs a `jlpt-sim` n4 score,
+but v0.4 schedules only the N5 simulation. Decide when the N4 simulation and its question bank
+ship (2026-11-12).
 
 ## Load-bearing facts — to be filled from the code
 
@@ -359,9 +393,12 @@ package in that workspace's `package.json`.
 * Open (2026-11-12): the `id.ts` kanji rule (`\p{Script=Han}`) also accepts 々 and CJK radicals;
 vocab/grammar slugs reject Latin letters but not ASCII spaces or punctuation — tighten with a red
 test if content ever needs it. The kana-only reading class is duplicated in `id.ts` and `item.ts`.
-* Open (2026-11-12): when `romajiMatches` is built (step 0.1.5), add a core test that every
-reading-practice word in the real bundle tokenises into existing kana items. A coordinator node
-check on 2026-11-12 found all 80 tokenise; nothing guards it yet.
+* Open (2026-11-12): a test that every reading-practice word in the real bundle tokenises with
+`romajiMatches` cannot live in core (core may not import content data) nor in content (content
+may not import core); it moves to a web test in step 0.1.7. A coordinator node check on
+2026-11-12 found all 80 tokenise; nothing guards it yet.
+* Open (2026-11-12): `streak` recurses once per day of streak (≈ 365 frames per year) — fine for
+now; revisit if streaks get very long.
 * Open (2026-11-12): `LocalDate` is an unbranded string alias; revisit if a date-format bug
 appears.
 * Parallel content workers' temporary `tests/_check-*.test.ts` files make each other's `typecheck`

@@ -38,8 +38,11 @@ dengan tes mingguan, dan peta 12 bulan (v0.3); konten N4 dan simulasi JLPT N5 (v
   kapan saja (keputusan pemilik, lihat `MEMORY.md`): default `on-demand` di fase 0; otomatis
   menjadi `off` saat akurasi kana ≥ 95% pada 200 review kana terakhir; default `off` mulai fase 1.
   Pembelajar boleh menyalakannya kembali kapan saja.
-- Fase pembelajar diturunkan dari data review dan asesmen, tidak disimpan dan tidak dipilih.
-  Fase 1 terbuka saat tes `kana-exit` lulus.
+- Fase pembelajar diturunkan dari hasil asesmen, tidak disimpan dan tidak dipilih, dan bertingkat:
+  Fase 1 terbuka saat tes `kana-exit` lulus; Fase 2 saat skor terbaik simulasi JLPT N5 ≥ 80%;
+  Fase 3 saat skor terbaik simulasi JLPT N4 ≥ 70% (target terukur di `docs/learning-plan.md` §4).
+  Simulasi JLPT N5 hadir di v0.4 (sampai saat itu pembelajar berada paling tinggi di Fase 1);
+  simulasi N4 belum dijadwalkan di roadmap.
 - Setiap layar punya keadaan **memuat**, **kosong**, **berhasil**, dan **error** dengan tombol coba
   lagi. Tidak ada item due adalah keadaan kosong yang normal ("Semua sudah diulang hari ini"),
   bukan error.
