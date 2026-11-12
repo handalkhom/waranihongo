@@ -12,5 +12,8 @@
   },
   "dependencies": {
     "@wara/content": "*"
+  },
+  "devDependencies": {
+    "vitest": "^5.1.0"
   }
 }

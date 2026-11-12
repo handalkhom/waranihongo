@@ -60,9 +60,11 @@ section and `docs/learning-plan.md` are updated together.
 
 ## Project state (2026-11-10)
 
-* **Git (2026-11-10):** remote `origin` = `https://github.com/handalkhom/waranihongo.git`;
-branch `master` tracks `origin/master`. This machine has `core.autocrlf=true`; the documents are
-CRLF.
+* **Git (2026-11-12):** remote `origin` = `https://github.com/handalkhom/waranihongo.git`;
+branch `main` (renamed from `master` 2026-11-12 at the owner's request) tracks `origin/main`.
+`origin/master` still exists until the owner switches the GitHub default branch and the Vercel
+Production Branch to `main`; the coordinator then deletes `origin/master`. This machine has
+`core.autocrlf=true`; the documents are CRLF.
 * **`docs/` is git-ignored and gone from history (2026-11-10, owner's request):** removed with
 `git filter-branch --index-filter` + `git push --force-with-lease`. Rewritten commits: `f980861`
 baseline, `a3a99a0` apply design decisions, `d446ea1` decide kana-exit answer mode and card
@@ -138,7 +140,14 @@ v1.0 reuse of `@wara/core`/`@wara/content` by `apps/api` and `apps/mobile`.
 * Vercel project Root Directory = `apps/web` (`apps/web/vercel.json` holds the SPA rewrite);
 "Include files outside the Root Directory in the Build Step" must stay enabled so `packages/` and
 `tsconfig.base.json` are available. Vercel runs only `vite build` — deploys do not run typecheck
-or lint. The hello deploy is done by the owner.
+or lint. The hello deploy is done by the owner. Install runs at the repo root through
+`installCommand` (coordinator decision 2026-11-12, below).
+
+Taken by the user, 2026-11-12:
+
+* Branch: the production branch is `main` (not `master`). Until v0.1 is in daily use, commits go
+straight to `main`; before tagging v0.1 a `dev` branch is created for work (Vercel preview URL)
+and merged into `main` after the phone check.
 
 Taken by the coordinator, 2026-11-10, within the decisions above:
 
@@ -165,6 +174,15 @@ included, accepts 7.x), and TS 7's JS module exports only `version`/`versionMajo
 compiler API for type-aware linting. Revisit when typescript-eslint supports TS 7. Other versions
 installed: React 19.3.1, Vite 8.3.7, Vitest 5.1.0, ESLint 10.14.0, typescript-eslint 8.72.2,
 Tailwind 4.3.5, Zod 4.6.7.
+* **Every workspace declares what it imports (2026-11-12):** `vitest` moved from the root
+`package.json` into the `@wara/web`, `@wara/core`, `@wara/content` devDependencies after the first
+Vercel deploy failed with `Cannot find package 'vitest'` from `apps/web/vite.config.ts` — a
+phantom dependency that worked locally only through hoisting. `typescript` stays root-declared
+(used by the workspace `tsc` scripts; not used by `vite build`).
+* **`apps/web/vercel.json` has `"installCommand": "cd ../.. && npm ci"` (2026-11-12):** the
+failed deploy installed only 84 packages inside `apps/web`, ignoring the root lockfile (a web-only
+simulation reproduced it: unpinned versions, and a future `@wara/core` dependency would be fetched
+from the registry). Installing at the root with `npm ci` keeps the lockfile authoritative.
 
 Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation** (the monorepo item was
 confirmed by the user 2026-11-10, see above):
@@ -237,6 +255,13 @@ GHSA-g3hv-75wg-m249) reached only through eslint/typescript-eslint dev tooling; 
 downgrading to ESLint 9 — not taken.
 * `git filter-branch` checks out the rewritten HEAD and deletes files that became untracked —
 back them up first (`docs/` was backed up and restored 2026-11-10).
+
+Recorded 2026-11-12:
+
+* Vercel with Root Directory `apps/web` does not install from the monorepo root by default
+(observed 2026-11-12, even with "Include files outside the Root Directory" reported on); a local
+root install hides phantom dependencies — when adding an import in a workspace, declare the
+package in that workspace's `package.json`.
 
 ## Standing checklist
 
