@@ -61,9 +61,10 @@ package (listed in each worker's file), the tests required, and the verification
 names the command to re-run, never the answer it once gave.
 
 A brief for a screen names which states its **Keadaan** line in `Wara-Product-Architecture.md`
-lists. When either is involved, a brief names `curriculumCursor` (the curriculum position
-`planSession` takes) or `Session.cursor` (the index of the next activity) explicitly; they are
-never interchangeable.
+lists. A brief involving `Session.cursor` names it explicitly as the index of the next activity.
+`planSession` takes `items` and `states` (with `availableMin`, `profile`, `phase`,
+`sessionsToday`, `now`, `today`, `rng`), not a curriculum position; `curriculumCursor` returns as
+an input with the curriculum in v0.2, and it and `Session.cursor` are never interchangeable.
 
 ## Git
 Commit only when the owner asks. Message `[WARA-<release>.<step>] <type>: <summary>`, the id taken

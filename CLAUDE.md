@@ -367,7 +367,8 @@ ARCHITECTURE.md; this shows the format:
 "Mulai sesi hari ini"
   → SessionPage (apps/web)
     → useSessionPlan (hook)
-      → repository.getDueStates(now)            // src/data, Dexie
-      → planSession({ availableMin, dueStates, cursor, profile, now })   // @wara/core
+      → repository.getReviewStates(contentIds)   // src/data, Dexie
+      → repository.getSessions(today)
+      → planSession({ availableMin, items, states, profile, phase, sessionsToday, now, today, rng })   // @wara/core
     → SessionProvider → first activity
 ```

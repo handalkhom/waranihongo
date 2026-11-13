@@ -30,21 +30,29 @@ Read first: `CLAUDE.md` (Code Philosophy, Agent Directives, Rules, Test-First Cy
   Grep for all three before reporting.
 - **No React, DOM, Dexie, or `apps/` import.** The only external imports are `ts-fsrs` (inside
   `srs/schedule.ts` only) and `@wara/content/schema` for types.
-- **`ts-fsrs` 6 types stop at `srs/schedule.ts`.** It is the only importer and maps `ReviewState`
-  (`itemId`, `stability`, `difficulty`, `due`, `lastReview`, `reps`, `lapses`, `learningSteps`,
-  `state`) ↔ FSRS `Card` both ways; nothing else in the package sees an FSRS type. Confirm that
-  field set against ts-fsrs 6's `Card`; a mismatch is `NEEDS_COORDINATOR_INPUT`. The first review
-  is `state: null`; an item in `profile.weakSeeds` is then initialised as if it had lapsed once.
-- **Defaults are named exports in `session/defaults.ts`**: `availableMin` 30, split 5/15/10, new
-  items per day 20 (phase 0) / 10 after, the backlog threshold, the `rateAnswer` elapsed-time
-  thresholds, kana-exit word count 50 and time limit 120 s, the romaji aid defaults, and romaji
-  aid auto-off at ≥ 0.95 over the last 200 kana reviews. A literal `20`, `30`, `50`, `120`,
-  `0.95`, or `200` at a call site is a defect.
+- **`ts-fsrs` 5.4.x (FSRS-6 model, synchronous API) types stop at `srs/schedule.ts`.** It is the
+  only importer and maps `ReviewState` (`itemId`, `stability`, `difficulty`, `due`, `lastReview`,
+  `reps`, `lapses`, `learningSteps`, `state`) ↔ ts-fsrs 5.4's `Card` (snake_case fields) both
+  ways, deriving `scheduled_days` from `lastReview`/`due`; nothing else in the package sees an
+  FSRS type. Confirm that field set against ts-fsrs 5.4's `Card`; a mismatch is
+  `NEEDS_COORDINATOR_INPUT`. The first review is `state: null`; an item in `profile.weakSeeds`
+  is then initialised as if it had lapsed once.
+- **Never name a `@deprecated` ts-fsrs symbol** (e.g. `Card.elapsed_days`):
+  `@typescript-eslint/no-deprecated` is an error. Build a `Card` by spreading
+  `createEmptyCard(...)` and overriding the fields you map.
+- **Defaults are named exports in `session/defaults.ts`** (values in ARCHITECTURE.md §6):
+  `DEFAULT_AVAILABLE_MIN`, `SESSION_SPLIT_MIN`, `REVIEW_ITEM_SEC` / `NEW_ITEM_SEC` /
+  `PRODUCTION_ITEM_SEC`, `NEW_ITEMS_PER_DAY`, `BACKLOG_HALVE_NEW_ABOVE` /
+  `BACKLOG_STOP_NEW_ABOVE`, `FSRS_DESIRED_RETENTION`, `FSRS_ENABLE_FUZZ`, the `RATE_*_MAX_MS`
+  thresholds, `KANA_EXIT_WORD_COUNT` / `KANA_EXIT_TIME_LIMIT_MS`, `JLPT_SIM_PASS_SCORE`,
+  `ROMAJI_AID_DEFAULT`, `ROMAJI_AID_AUTO_OFF_ACCURACY` / `ROMAJI_AID_AUTO_OFF_WINDOW`. A
+  literal `20`, `30`, `50`, `120`, `0.95`, or `200` at a call site is a defect.
 - **Exhaustive switches** over `ContentItem['type']`, the vocab `source` (`'content' | 'custom'`),
   `Rating`, and `SessionActivity['kind']` end with a `satisfies never` default branch.
 - **Names to keep straight.**
-  - `planSession`'s `curriculumCursor` is the curriculum position; `Session.cursor` is the index
-    of the next activity. They are never interchangeable.
+  - `planSession` takes `items` + `states` (no `curriculumCursor` until the curriculum arrives in
+    v0.2, when it is the curriculum position); `Session.cursor` is the index of the next
+    activity. The two are never interchangeable.
   - `planSession` counts new items already introduced today from the `sessionsToday` activities
     of kind `new`.
   - `applyConfusion` returns `{ confusedWith, moved, priorityNew }` and never touches stability or

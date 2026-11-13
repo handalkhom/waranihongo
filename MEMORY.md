@@ -58,7 +58,7 @@ and a plain-vs-rough warning matter.
 * Re-assessed after each weekly test that changes a priority and at each phase transition; this
 section and `docs/learning-plan.md` are updated together.
 
-## Project state (2026-11-12)
+## Project state (2026-11-13)
 
 * **Git (2026-11-12):** remote `origin` = `https://github.com/handalkhom/waranihongo.git`;
 branch `main` (renamed from `master` 2026-11-12 at the owner's request) tracks `origin/main`.
@@ -88,19 +88,23 @@ and `docs/plan-v0.1.md` live only on the owner's disk — git is not their backu
 * **Step 0.1.4 (core types) done (2026-11-12):** in `packages/core/src`: `domain.ts` (learner-state
 types), `errors.ts`, `repository.ts`, and the package entry `index.ts` (explicit named
 re-exports). Verified by lint + typecheck only, per the plan (decisions below).
-* **Step 0.1.5 batch 1 (core functions, test-first) done (2026-11-12):** in `packages/core/src`:
-`answer/` (`romajiMatches`, `rateAnswer`), `phase/` (`kanaExitAvailable`, `derivePhase`,
-`evaluateKanaExit`), `progress/` (`streak`), `session/defaults.ts`; all exported from `@wara/core`.
-* **Next: step 0.1.5 batch 2** — `schedule` (needs `ts-fsrs` installed, a coordinator dependency
-decision), `applyConfusion`, `planSession` (+ the remaining defaults). `planSession` first needs
-owner decisions on the v0.1 new-item source (no curriculum until v0.2), the 5/15/10 split
-mapping, and the backlog threshold.
+* **Step 0.1.5 (core functions, test-first) done (2026-11-13), in two batches:** in
+`packages/core/src` — batch 1 (2026-11-12) `answer/` (`romajiMatches`, `rateAnswer`), `phase/`
+(`kanaExitAvailable`, `derivePhase`, `evaluateKanaExit`), `progress/` (`streak`),
+`session/defaults.ts`; batch 2 (2026-11-13) `srs/schedule.ts` (`schedule`, the ts-fsrs ↔
+`ReviewState` mapping), `srs/applyConfusion.ts` (`applyConfusion`, types `ConfusionAnswer`,
+`ConfusionResult`), `session/planSession.ts` (`planSession`, type `SessionPlan`) and the remaining
+defaults; all exported from `@wara/core`.
+* **Next: step 0.1.6** — `apps/web/src/data`: Dexie db v1 and `dexieRepository`, test-first with
+`fake-indexeddb`.
 * **Not yet written:** `docs/qa-session.md`, the ESLint tier rule, `docs/plan-v0.2.md`.
-* **Last verification (2026-11-12, step 0.1.5 batch 1):** core suite 125 tests across 6 files all
-passing; red first (group 1: 42 failing assertions, group 2: 46); every frozen test file's md5
-unchanged after green. Full run: `lint`, `typecheck`, `test` (content 224, core 125), `build`,
-and `validate -w @wara/content` (41) all exit 0; no `Date.now`/`new Date()`/`Math.random` under
-`packages/core/src`.
+* **Last verification (2026-11-13, step 0.1.5 batch 2):** core suite 204 tests across 9 files all
+passing; red first (batch 2: 64 failing assertions across 3 files); every frozen test file's md5
+unchanged after green. `schedule` bounds cross-checked with a direct ts-fsrs 5.4.2 probe (seeded
+stability 0.25 vs 2.31; mature Again difficulty 8.34 vs Good 4.99; due order Again 1 min < Hard
+6 min ≤ Good 10 min < Easy 8 d). Full run: `lint`, `typecheck`, `test` (content 224, core 204),
+`build`, and `validate -w @wara/content` (41) all exit 0; no `Date.now`/`new Date()`/`Math.random`
+under `packages/core/src`; `ts-fsrs` is imported only by `srs/schedule.ts`.
 * **Guards and orchestration skill: NOT installed (checked 2026-11-09, re-checked 2026-11-10,
   user's machine `GMBR-KEMLU-100`, Git Bash):** `~/.claude/hooks/` does not exist,
   `~/.claude/settings.json` has no `hooks` key, and `~/.claude/skills/` holds only `synced/` with
@@ -130,7 +134,8 @@ Taken by the user, 2026-11-10:
 minimal settings with Export, PWA, Vercel. Release order: v0.2 N5 (+ `learn`, Import) → v0.3
 Journal + Progress → v0.4 N4 + simulation. N5 content authored in parallel from v0.1.
 * TypeScript: try 7 at init, fall back to latest 6.x if typescript-eslint/Vite tooling fails;
-record the outcome here. `ts-fsrs` 6.
+record the outcome here. `ts-fsrs` 6 (superseded 2026-11-13: pinned `~5.4.2`, see step 0.1.5
+batch 2).
 * Placement test: hiragana + katakana basics, typed romaji; every answer is a real review via
 `commitReview`. File seeds not covered → `profile.weakSeeds`.
 * Seeds + 11 confusion groups as in The learner; membership only in `confusion-groups.json`.
@@ -175,7 +180,9 @@ and merged into `main` after the phone check.
 Taken by the coordinator, 2026-11-10, within the decisions above:
 
 * `planSession` takes `phase`, `sessionsToday`, `curriculumCursor` (not `Session.cursor`, the
-next-activity index).
+next-activity index). (Superseded 2026-11-13: v0.1 `planSession` takes `items` + all `states`
+instead of `dueStates` + `curriculumCursor`; `phase` and `sessionsToday` stay — see step 0.1.5
+batch 2.)
 * `Session.activities: ReadonlyArray<SessionActivity>` (`kind: 'review' | 'new' | 'production'`);
 new items introduced today are counted from `kind: 'new'` activities.
 * Repository `getSessions(from?)`; core `streak({ sessions, today })`.
@@ -300,6 +307,40 @@ vowel of the variant actually typed.
 counted, one per ISO week of the missed day (Monday start); the ISO week is keyed by its Monday's
 epoch day, so 2026-W53 crossing into 2027 works.
 
+Taken 2026-11-13 (step 0.1.5, batch 2) — by the owner where marked "Owner", otherwise coordinator:
+
+* Owner: `ts-fsrs` pinned `~5.4.2` (FSRS-6, synchronous `fsrs()`/`next()` API, Node ≥ 20) instead
+of 6.0.0. Why: 6.0.0 (released 2026-10-28) deprecates the whole legacy API, which
+`@typescript-eslint/no-deprecated` (error, no inline disables) rejects; its replacement
+`DefaultScheduler` is async (lazy model import), defaults to FSRS-7 (extra `stabilityFast` field),
+and requires Node ≥ 24 while the repo has no Node pin. Upgrading later touches only
+`srs/schedule.ts` + ARCHITECTURE.
+* ts-fsrs 5.4.2 traps: `Card.elapsed_days` is @deprecated — never name it; `schedule.ts` builds a
+Card by spreading `createEmptyCard(...)` and overriding the other fields. `scheduled_days` is not
+stored; it is derived as whole days between `lastReview` and `due`. Importing ts-fsrs augments the
+global `Date` (`scheduler`, `diff`, `format`, `dueFormat`, all deprecated, so lint rejects any
+use). npm installs it under `packages/core/node_modules` (not hoisted).
+* Owner: v0.1 new-material order = `profile.weakSeeds` → kana in content order → vocabulary in
+content order (words only after the kana pool). `planSession` takes `items` + all `states` instead
+of `dueStates` + `curriculumCursor` (curriculum input returns in v0.2); the planning hook reads all
+states via `getReviewStates`, `getDueStates` serves Beranda counts.
+* Owner: backlog throttle in two tiers — due > `BACKLOG_HALVE_NEW_ABOVE` (100) halves the day's
+new-item limit, > `BACKLOG_STOP_NEW_ABOVE` (200) stops new items.
+* Owner: a session never exceeds `availableMin` — the most overdue reviews fill it and the rest
+stay due.
+* Per-item estimates `REVIEW_ITEM_SEC` 10, `NEW_ITEM_SEC` 30, `PRODUCTION_ITEM_SEC` 20; split from
+learning-plan §5 (`SESSION_SPLIT_MIN` 5/15/10): production takes up to its share of the whole
+session after review, new material takes the rest; production practises this plan's new items
+(or its review items when none), shuffled with `rng`. New items introduced today are counted as
+distinct ids.
+* `applyConfusion` takes `given: ConfusionAnswer` (typed text or chosen id), moves only the first
+matching partner (group order), partner due → min(due, now), no-state partner → `priorityNew`,
+superseded partner ignored; an item in no group returns early (so `romajiMatches` is never run
+against kana absent from the table).
+* Weak-seed first review applies a virtual Again then the real rating and sets `lapses` 1; it
+reports `reps: 2` (the virtual Again counts). Not covered by a test; change only test-first if
+`reps` should read 1.
+
 Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation** (the monorepo item was
 confirmed by the user 2026-11-10, see above):
 
@@ -323,8 +364,8 @@ assistant's knowledge; attribution placement undecided).
 former is the v0.2 design.
 * Weekly test day (Saturday is the v0.2 default) and whether it is skippable.
 * TTS fallback when no `ja-JP` voice exists on the device: hide dictation drills or show a notice.
-* Backlog threshold: initial value to be set (with `planSession`, step 0.1.5 batch 2), later tuned
-from the learner's own logs. The `rateAnswer` thresholds were set 2026-11-12 (Decisions).
+* Tuning from the learner's own logs: the backlog throttle (100/200, set 2026-11-13) and the
+`rateAnswer` thresholds (set 2026-11-12) are initial values (Decisions).
 * JLPT N4 simulation is not on the roadmap: phase 3 (`derivePhase`) needs a `jlpt-sim` n4 score,
 but v0.4 schedules only the N5 simulation. Decide when the N4 simulation and its question bank
 ship (2026-11-12).
@@ -359,9 +400,12 @@ config has no underscore exception for unused args, and `void x;` fails
 test untouched; the coordinator records `md5sum` of each test file right after verifying red and
 checks it after green.
 
-Still to come: the `ts-fsrs` ↔ `ReviewState` mapping in `core/srs/schedule.ts`; the
-`commitReview` transaction (states, logs, session progress); the `SessionProvider` persistence
-point; the `lang="ja"` wrapper.
+Recorded 2026-11-13 (step 0.1.5 batch 2): the `ts-fsrs` ↔ `ReviewState` mapping lives in
+`packages/core/src/srs/schedule.ts` (ts-fsrs 5.4.2; its traps are in Decisions, step 0.1.5 batch
+2).
+
+Still to come: the `commitReview` transaction (states, logs, session progress); the
+`SessionProvider` persistence point; the `lang="ja"` wrapper.
 
 ## Traps
 
