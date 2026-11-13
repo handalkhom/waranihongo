@@ -95,16 +95,26 @@ re-exports). Verified by lint + typecheck only, per the plan (decisions below).
 `ReviewState` mapping), `srs/applyConfusion.ts` (`applyConfusion`, types `ConfusionAnswer`,
 `ConfusionResult`), `session/planSession.ts` (`planSession`, type `SessionPlan`) and the remaining
 defaults; all exported from `@wara/core`.
-* **Next: step 0.1.6** — `apps/web/src/data`: Dexie db v1 and `dexieRepository`, test-first with
-`fake-indexeddb`.
+* **Step 0.1.6 (web data layer, test-first) done (2026-11-13):** in `apps/web/src/data/`: `db.ts`
+(`WaraDb extends Dexie`, schema version 1, constructor `(name, options?)`),
+`exportBundleSchema.ts` (the `importAll` edge, `z.ZodType<ExportBundle>`), `dexieRepository.ts`
+(`createDexieRepository(db, now)` implementing all eleven `Repository` methods). Tests
+`apps/web/tests/data/exportBundleSchema.test.ts` (61) and `dexieRepository.test.ts` (28).
+`@wara/web` gained dependencies `@wara/core`, `@wara/content`, `dexie` ^4.4.7, `zod` ^4.6.7 and
+devDependency `fake-indexeddb` ^6.2.8.
+* **Next: step 0.1.7** — `apps/web` skeleton: `App.tsx`, `router.tsx`, `AppProviders`,
+`SettingsProvider`, `OnboardingGuard`, `AppLayout`, `services/tts.ts`, `src/lib/typography.ts`,
+`tests/renderApp.tsx`; the `OnboardingGuard` redirect route test red first. Needs `react-router`
+and `dexie-react-hooks` (coordinator dependency decisions) and the composition root that creates
+`new WaraDb(<name>)` and `createDexieRepository(db, () => new Date())`.
 * **Not yet written:** `docs/qa-session.md`, the ESLint tier rule, `docs/plan-v0.2.md`.
-* **Last verification (2026-11-13, step 0.1.5 batch 2):** core suite 204 tests across 9 files all
-passing; red first (batch 2: 64 failing assertions across 3 files); every frozen test file's md5
-unchanged after green. `schedule` bounds cross-checked with a direct ts-fsrs 5.4.2 probe (seeded
-stability 0.25 vs 2.31; mature Again difficulty 8.34 vs Good 4.99; due order Again 1 min < Hard
-6 min ≤ Good 10 min < Easy 8 d). Full run: `lint`, `typecheck`, `test` (content 224, core 204),
-`build`, and `validate -w @wara/content` (41) all exit 0; no `Date.now`/`new Date()`/`Math.random`
-under `packages/core/src`; `ts-fsrs` is imported only by `srs/schedule.ts`.
+* **Last verification (2026-11-13, step 0.1.6):** red first — `exportBundleSchema.test.ts` 61
+failing assertions against a `z.never()` stub, `dexieRepository.test.ts` 28 failing assertions
+against an inert stub; both test files' md5 unchanged after green. Full run: `lint`, `typecheck`,
+`test` (web 89, content 224, core 204), `build`, and `validate -w @wara/content` (41) all exit 0.
+The forced storage failure (a row with a function property) surfaces through Dexie 4.4.7 as
+`Dexie.DataCloneError` (a `DexieError`, the DOM exception kept as `.inner`), and the aborted
+transaction leaves no row. Not verified: real-browser IndexedDB (phone QA, `docs/qa-session.md`).
 * **Guards and orchestration skill: NOT installed (checked 2026-11-09, re-checked 2026-11-10,
   user's machine `GMBR-KEMLU-100`, Git Bash):** `~/.claude/hooks/` does not exist,
   `~/.claude/settings.json` has no `hooks` key, and `~/.claude/skills/` holds only `synced/` with
@@ -341,6 +351,25 @@ against kana absent from the table).
 reports `reps: 2` (the virtual Again counts). Not covered by a test; change only test-first if
 `reps` should read 1.
 
+Taken by the coordinator, 2026-11-13 (step 0.1.6):
+
+* The repository factory takes the clock: `createDexieRepository(db: WaraDb, now: () => Date)` —
+`exportAll`'s `exportedAt` comes from `now`, so tests need no fake timers (fake timers would also
+stall fake-indexeddb's scheduling).
+* `commitReview` rejects a log whose `itemId` has no state in the same call (`RepositoryError`,
+ids = the orphan logs' itemIds) before any write; a state without a log is allowed (confusion
+partner).
+* Write methods wrap only `Dexie.DexieError` into `RepositoryError` (operation = method name; ids
+= the states' itemIds for `commitReview`, `[id]` for single-row writes, `[]` for `importAll`);
+reads do not wrap. `saveProfile` is wrapped too (the green worker's addition, kept).
+* `exportBundleSchema` lives in `apps/web/src/data/` (not core: core has no zod dependency of its
+own); timestamps accept only ISO-8601 UTC with `Z` (what `JSON.stringify` writes) — an offset
+such as `+07:00` is rejected; every object strict; item ids validated with the content id schemas.
+* `importAll` replaces the whole database (clear + refill of all seven tables in one transaction)
+only after the bundle parses; `ImportFormatError` paths are Zod paths joined with `.`.
+* Data-layer tests open a fresh `WaraDb` per test over a new `fake-indexeddb` `IDBFactory` (no
+global `fake-indexeddb/auto`, no `setupFiles` yet) and close it with `onTestFinished`.
+
 Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation** (the monorepo item was
 confirmed by the user 2026-11-10, see above):
 
@@ -369,6 +398,12 @@ former is the v0.2 design.
 * JLPT N4 simulation is not on the roadmap: phase 3 (`derivePhase`) needs a `jlpt-sim` n4 score,
 but v0.4 schedules only the N5 simulation. Decide when the N4 simulation and its question bank
 ship (2026-11-12).
+* Import error text (2026-11-13): `ImportFormatError`'s header is Indonesian but the per-issue
+messages are Zod's English defaults; decide with the v0.2 import UI whether to set a Zod locale or
+render Indonesian copy from paths.
+* `contentIdSchema`'s message for an unknown type/group echoes the id's `<type>:<group>` prefix
+(not personal data, but it is input text inside an issue); tighten if import errors are ever
+logged (2026-11-13).
 
 ## Load-bearing facts — to be filled from the code
 
@@ -404,8 +439,12 @@ Recorded 2026-11-13 (step 0.1.5 batch 2): the `ts-fsrs` ↔ `ReviewState` mappin
 `packages/core/src/srs/schedule.ts` (ts-fsrs 5.4.2; its traps are in Decisions, step 0.1.5 batch
 2).
 
-Still to come: the `commitReview` transaction (states, logs, session progress); the
-`SessionProvider` persistence point; the `lang="ja"` wrapper.
+Recorded 2026-11-13 (step 0.1.6): the `commitReview` transaction lives in
+`apps/web/src/data/dexieRepository.ts` (one `rw` transaction over `reviewStates`, `reviewLogs`,
+`sessions`); a row with a function property makes Dexie reject with `DataCloneError` — the tests
+use it to force a storage failure.
+
+Still to come: the `SessionProvider` persistence point; the `lang="ja"` wrapper.
 
 ## Traps
 
@@ -448,6 +487,11 @@ appears.
 * Parallel content workers' temporary `tests/_check-*.test.ts` files make each other's `typecheck`
 fail transiently (the content tsconfig has `types: []`, so `node:fs` in a temp test is a type
 error) — the coordinator's final typecheck is the one that counts (observed 2026-11-12).
+
+Recorded 2026-11-13:
+
+* `require('fake-indexeddb/package.json')` fails with `ERR_PACKAGE_PATH_NOT_EXPORTED` (its
+`exports` hides package.json) — read the version with `fs.readFileSync` or `npm ls`.
 
 ## Standing checklist
 

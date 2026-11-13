@@ -39,11 +39,19 @@ your brief.
 - **Module door:** other code reaches a module through its `index.ts` (explicit named exports);
   files inside the module import each other directly.
 - **`src/data/` is the only Dexie code**, implementing `Repository` from `@wara/core`.
-  - `commitReview(states, logs, session?)` is one `db.transaction('rw', …)` over `reviewStates`,
-    `reviewLogs`, and `sessions` when a session is given.
+  - `db.ts`: `WaraDb extends Dexie`, `constructor(name, options?: DexieOptions)`. Schema
+    `version(1)` is permanent: a schema change is a new additive `version(n + 1)` step, never an
+    edit to a shipped block. No module-level db instance; the composition root creates it.
+  - `dexieRepository.ts`: `createDexieRepository(db: WaraDb, now: () => Date): Repository`.
+  - `commitReview(states, logs, session?)` validates first — every log's `itemId` must be among
+    the states, else `RepositoryError` and nothing is written — then runs one
+    `db.transaction('rw', …)` over `reviewStates`, `reviewLogs`, and `sessions`.
+  - Write methods wrap only `Dexie.DexieError` in `RepositoryError` (`operation` = the method
+    name) and rethrow everything else. Never log a row.
   - `getSessions(from?)` returns the sessions with `date >= from` (all when omitted), ordered by
-    date.
-  - `importAll` parses with `exportBundleSchema` before any write.
+    date, then id.
+  - `importAll` parses with `exportBundleSchema` (`src/data/exportBundleSchema.ts`) before any
+    write, then replaces all seven tables in one transaction.
 - **Session wiring:** `SessionProvider` calls `commitReview(states, logs, session)` after each
   activity, with `Session.cursor` advanced — never `commitReview` followed by a separate session
   write. `saveSession` only creates and finishes the row. The placement test in onboarding and

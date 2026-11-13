@@ -5,11 +5,15 @@ the map: where a change belongs, what boundary it crosses, what it can silently 
 written as the present state and carries no dates, history, status, verification results, or open
 questions — those live in `MEMORY.md`. What a screen shows is in `Wara-Product-Architecture.md`.
 
-> **Status: the monorepo scaffold, the content package (schemas, validator, v0.1 data), and the
-> core types (`domain.ts`, `errors.ts`, `repository.ts`) are built.** Every other block in this
-> file is **Decided, not yet built**. When the code exists, each block is checked against the real
-> tree and either confirmed or corrected; a reference-implementation cell reading *none yet* is
-> replaced by a real path. `MEMORY.md` records which blocks have been confirmed.
+> **Status: built are the monorepo scaffold; the content package (schemas, validator, v0.1 data);
+> `@wara/core` — the types, typed errors, and `Repository` interface (`domain.ts`, `errors.ts`,
+> `repository.ts`) and the v0.1 functions `romajiMatches`, `rateAnswer`, `schedule`,
+> `applyConfusion`, `planSession`, `derivePhase`, `evaluateKanaExit`, `kanaExitAvailable`,
+> `streak`; and the web data layer `apps/web/src/data/` (`db.ts`, `exportBundleSchema.ts`,
+> `dexieRepository.ts`).** Every other block in this file is **Decided, not yet built**. When the
+> code exists, each block is checked against the real tree and either confirmed or corrected; a
+> reference-implementation cell reading *none yet* is replaced by a real path. `MEMORY.md`
+> records which blocks have been confirmed.
 
 Authority order: `package.json` files and source code; then this file; then `MEMORY.md` for what
 was decided but is not yet in the code.
@@ -66,7 +70,7 @@ A leaf never imports a composer; a composer never imports another composer. Enfo
 | Web runtime | React 19 + Vite 8, `vite-plugin-pwa` (Workbox, `autoUpdate`) | Installable, offline, no server |
 | Hosting | Vercel, static PWA; project Root Directory `apps/web`, whose `apps/web/vercel.json` rewrites every route to `index.html`; a deploy runs only `vite build` | Static files only; a deep link reaches the router |
 | Routing | React Router 8 from `react-router` (`RouterProvider` from `react-router/dom`) | Route table as data, one guard |
-| Persistence | `dexie` 4 + `dexie-react-hooks` (`useLiveQuery`) | IndexedDB with reactive reads; `fake-indexeddb` in tests |
+| Persistence | `dexie` 4.4.x; `dexie-react-hooks` (`useLiveQuery`) with the hooks | IndexedDB with reactive reads; `fake-indexeddb` in tests |
 | Server state | **Not installed** before v1.0 | No network source exists; two reactive caches over one table would fight |
 | SRS | `ts-fsrs` 5.4.x | Current standard scheduler; parameters can later be fitted to the learner's log; wrapped in one file; the synchronous API with the FSRS-6 model (6.x replaces it with an async scheduler whose legacy API is deprecated) |
 | Client state | One Context per concern: `SessionContext`, `SettingsContext` | Only two cross-route concerns |
@@ -170,7 +174,7 @@ calendar days are `LocalDate`.
 | `JournalEntry` | `id`, `date`, `source: { anime, episode: number \| null } \| null`, `sentenceKana`, `guess`, `context: string \| null`, `status: JournalStatus` (`'draft' \| 'needs_review' \| 'corrected'`), `correction: { sentence, meaning, note: string \| null } \| null`, `extractedVocabIds` | `journal` |
 | `Assessment` | discriminated union on `kind` with two members. `KanaExitAssessment`: `id`, `date`, `kind: 'kana-exit'`, `passed`, `correct`, `total`, `elapsedMs`, `wrong` (item ids answered wrong). `JlptSimAssessment`: `id`, `date`, `kind: 'jlpt-sim'`, `level: JlptLevel` (`'n5' \| 'n4'`), `score` (fraction correct, 0–1); written by the JLPT simulation (v0.4). A `weekly` member with per-module scores is added with the weekly test (v0.3) | `assessments` |
 | `UserProfile` | `id: 'me'`, `name`, `dailyTargetMin`, `romajiAid: RomajiAid` (`'always' \| 'on-demand' \| 'off'`), `theme: Theme` (`'system' \| 'light' \| 'dark'`; onboarding writes `'system'`), `ttsVoiceUri: string \| null` (`null` = the device's default Japanese voice), `startDate`, `weakSeeds` (seed ids introduced first as new material) | `profile` |
-| `ExportBundle` | `format: 'wara-export'`, `version: 1`, `exportedAt: Date`, `profile: UserProfile \| null`, `reviewStates`, `reviewLogs`, `sessions`, `journal`, `assessments`, `customContent: ReadonlyArray<CustomVocabItem>`; returned by `exportAll`. `exportBundleSchema` (written with the data layer) is typed against it and turns the JSON's ISO strings back into `Date` | the export file |
+| `ExportBundle` | `format: 'wara-export'`, `version: 1`, `exportedAt: Date`, `profile: UserProfile \| null`, `reviewStates`, `reviewLogs`, `sessions`, `journal`, `assessments`, `customContent: ReadonlyArray<CustomVocabItem>`; returned by `exportAll`. `exportBundleSchema` (`apps/web/src/data/exportBundleSchema.ts`) is annotated `z.ZodType<ExportBundle>`; every object is strict; timestamps are ISO-8601 UTC (`Z`) strings parsed to `Date`; `LocalDate`s stay `YYYY-MM-DD` strings; item ids are checked with the content id schemas; `customContent` with `customVocabItemSchema` | the export file |
 
 `meaningId` and `explanationId` resolve in `packages/content/data/i18n/id.json`; a second UI
 language is a data addition. Confusion-group membership lives only in `confusion-groups.json`; an
@@ -238,21 +242,38 @@ export interface Repository {
 }
 ```
 
+- The web implementation is `createDexieRepository(db: WaraDb, now: () => Date): Repository` in
+  `apps/web/src/data/dexieRepository.ts`; `now` supplies `exportAll`'s `exportedAt`, and the
+  composition root passes the device clock. A mobile implementation will be `expo-sqlite`; a sync
+  layer wraps either and adds a `pendingOps` table.
 - `commitReview` writes the states, the logs, and the session row (when given) in **one
   transaction**; a log without its state change corrupts FSRS history, and a session cursor ahead
   of its reviews skips them on resume. The running session calls it with its session; "Latih
-  sekarang" and the placement test call it without one.
+  sekarang" and the placement test call it without one. Validation precedes the first write:
+  every log's `itemId` must be among the states' itemIds (a state without a log is allowed — a
+  confusion partner brought forward); otherwise it throws `RepositoryError` carrying the orphan
+  logs' itemIds and writes nothing. The write is one `rw` transaction over `reviewStates`,
+  `reviewLogs`, and `sessions`; a storage failure rejects with `RepositoryError` (`ids` = the
+  states' itemIds) and the aborted transaction leaves no row.
+- The write methods (`commitReview`, `saveSession`, `saveProfile`, `saveJournalEntry`,
+  `saveAssessment`, `importAll`) wrap a `Dexie.DexieError` in `RepositoryError` (`operation` = the
+  method name) and rethrow anything else; reads do not wrap.
+- `getReviewStates(ids)` returns the rows in `ids` order, skipping ids without a row.
+  `getDueStates(before)` returns the states with `due <= before`, ordered by `due`, then `itemId`.
 - `saveSession` creates and finishes a session row.
 - `getSessions(from?)` returns the sessions with `date >= from` (all when omitted), ordered by
-  date. The planning hook calls `getSessions(today)` for `planSession`'s `sessionsToday` and for
-  Beranda's "Lanjutkan sesi" (today's unfinished session); Beranda's streak calls `getSessions()`.
+  date, then id. The planning hook calls `getSessions(today)` for `planSession`'s `sessionsToday`
+  and for Beranda's "Lanjutkan sesi" (today's unfinished session); Beranda's streak calls
+  `getSessions()`.
 - The planning hook reads all review states (`getReviewStates` over the content ids) and passes
   them to `planSession` as `states`; `getDueStates` serves Beranda's due counts.
+- `exportAll` reads all seven tables in one read transaction, each collection in primary-key
+  order.
 - `importAll` takes `unknown`, parses it with `exportBundleSchema` (the one edge where stored data
-  is external), and **replaces** the database only after the whole bundle validates. It is called
-  only after an explicit confirmation dialog.
-- The web implementation is `apps/web/src/data/dexieRepository.ts`; a mobile one will be
-  `expo-sqlite`; a sync layer wraps either and adds a `pendingOps` table.
+  is external), and **replaces** the database only after the whole bundle validates. A parse
+  failure throws `ImportFormatError` whose issue paths are the Zod paths joined by `.`
+  (`reviewStates.0.due`) and writes nothing; on success it clears and refills all seven tables in
+  one `rw` transaction. It is called only after an explicit confirmation dialog.
 
 ### Dexie schema (`apps/web/src/data/db.ts`)
 
@@ -266,6 +287,10 @@ version 1:
   profile:       id
   customContent: id, type
 ```
+
+`WaraDb extends Dexie`; its constructor takes `(name, options?: DexieOptions)`, so tests pass
+`fake-indexeddb`'s `IDBFactory` and `IDBKeyRange`. Tables are typed through `this.table(...)`; the
+file holds no module-level instance — the composition root creates it.
 
 Schema changes are additive `version(n + 1).stores().upgrade()` steps; a shipped version block is
 never edited.
@@ -374,6 +399,9 @@ Exempt from TDD, each with its substitute verification:
   test. `URL.createObjectURL` is stubbed per test that exports. `speechSynthesis` is absent in
   jsdom; `tts.ts` is stubbed through its one module. A time-dependent route test sets the clock
   with Vitest fake timers; `toLocalDate` has its own test covering the local-midnight boundary.
+  Data-layer tests (`tests/data/`) open a fresh `WaraDb` per test over a new `fake-indexeddb`
+  `IDBFactory`, seed through the repository, and force a storage failure with a row carrying a
+  non-cloneable function property (structured clone throws `DataCloneError`).
 - `tests/` is a separate tree per package mirroring `src/`; no colocated tests.
 
 ## 12. Verification
