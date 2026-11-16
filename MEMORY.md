@@ -102,19 +102,29 @@ defaults; all exported from `@wara/core`.
 `apps/web/tests/data/exportBundleSchema.test.ts` (61) and `dexieRepository.test.ts` (28).
 `@wara/web` gained dependencies `@wara/core`, `@wara/content`, `dexie` ^4.4.7, `zod` ^4.6.7 and
 devDependency `fake-indexeddb` ^6.2.8.
-* **Next: step 0.1.7** — `apps/web` skeleton: `App.tsx`, `router.tsx`, `AppProviders`,
-`SettingsProvider`, `OnboardingGuard`, `AppLayout`, `services/tts.ts`, `src/lib/typography.ts`,
-`tests/renderApp.tsx`; the `OnboardingGuard` redirect route test red first. Needs `react-router`
-and `dexie-react-hooks` (coordinator dependency decisions) and the composition root that creates
-`new WaraDb(<name>)` and `createDexieRepository(db, () => new Date())`.
-* **Not yet written:** `docs/qa-session.md`, the ESLint tier rule, `docs/plan-v0.2.md`.
-* **Last verification (2026-11-13, step 0.1.6):** red first — `exportBundleSchema.test.ts` 61
-failing assertions against a `z.never()` stub, `dexieRepository.test.ts` 28 failing assertions
-against an inert stub; both test files' md5 unchanged after green. Full run: `lint`, `typecheck`,
-`test` (web 89, content 224, core 204), `build`, and `validate -w @wara/content` (41) all exit 0.
-The forced storage failure (a row with a function property) surfaces through Dexie 4.4.7 as
-`Dexie.DataCloneError` (a `DexieError`, the DOM exception kept as `.inner`), and the aborted
-transaction leaves no row. Not verified: real-browser IndexedDB (phone QA, `docs/qa-session.md`).
+* **Step 0.1.7 (apps/web skeleton, test-first) done (2026-11-13):** `src/app/` (`App.tsx`
+composition root, `AppProviders.tsx` — repository only, `router.tsx` `appRoutes`,
+`SettingsProvider.tsx`, `OnboardingGuard.tsx`, `AppLayout.tsx`, `RouteError.tsx`),
+`src/components/PageLoader.tsx`, `src/hooks/useSettings.ts`, `src/data/repositoryContext.ts`,
+`src/lib/typography.ts`, placeholder pages `modules/session/{OnboardingPage,HomePage}.tsx` and
+`modules/settings/SettingsPage.tsx` with their `index.ts`; `index.css` theme via `data-theme`;
+ESLint module-tier rule; `vite.config.ts` `setupFiles: ['fake-indexeddb/auto']`; tests
+`tests/renderApp.tsx` (harness), `tests/app/{onboardingGuard,settingsProvider,appLayout,routeError}.test.tsx`,
+`tests/content/readingPracticeTokenises.test.ts`. New dependencies: `react-router` ^8.5.1,
+`dexie-react-hooks` ^4.4.0, `lucide-react` ^1.72.0.
+* **Next: step 0.1.8** — module `kana` (leaf, component TDD): four drill modes + contrast drill,
+`index.ts`; also `src/services/tts.ts` (moved here from 0.1.7: nothing used it yet, and TTS is
+verified on a phone).
+* **Not yet written:** `docs/qa-session.md`, `docs/plan-v0.2.md`.
+* **Last verification (2026-11-13, step 0.1.7):** red first — onboardingGuard 5, settingsProvider
+4, appLayout 4, routeError 3 failing assertions against stubs; all six frozen web test files' md5
+unchanged after green; `readingPracticeTokenises` (a content guard, not red-first) passes for all
+80 words and a mutation (dropping ー from the kana list) fails it on the 16 long-vowel words. Full
+run: `lint`, `typecheck`, `test` (web 107, content 224, core 204), `build`, `validate` (41) all
+exit 0. Checked in a real browser by the owner on 2026-11-16 (Vite dev server): without a
+profile every path lands on the onboarding placeholder; after a profile row was added, Beranda
+showed with bottom tabs at about 390 px and the sidebar at desktop width. Not verified:
+real-browser IndexedDB (phone QA, `docs/qa-session.md`).
 * **Guards and orchestration skill: NOT installed (checked 2026-11-09, re-checked 2026-11-10,
   user's machine `GMBR-KEMLU-100`, Git Bash):** `~/.claude/hooks/` does not exist,
   `~/.claude/settings.json` has no `hooks` key, and `~/.claude/skills/` holds only `synced/` with
@@ -367,8 +377,33 @@ own); timestamps accept only ISO-8601 UTC with `Z` (what `JSON.stringify` writes
 such as `+07:00` is rejected; every object strict; item ids validated with the content id schemas.
 * `importAll` replaces the whole database (clear + refill of all seven tables in one transaction)
 only after the bundle parses; `ImportFormatError` paths are Zod paths joined with `.`.
-* Data-layer tests open a fresh `WaraDb` per test over a new `fake-indexeddb` `IDBFactory` (no
-global `fake-indexeddb/auto`, no `setupFiles` yet) and close it with `onTestFinished`.
+* Data-layer tests open a fresh `WaraDb` per test over a new `fake-indexeddb` `IDBFactory` and
+close it with `onTestFinished` (the global `fake-indexeddb/auto` exists since step 0.1.7 only for
+`liveQuery`; see Load-bearing facts).
+
+Taken by the coordinator, 2026-11-13 (step 0.1.7):
+
+* The `Repository` reaches hooks through `RepositoryContext` (`src/data/repositoryContext.ts`,
+`useRepository()` throws `RepositoryError` without a provider) — dependency injection so route
+tests inject a fake-indexeddb repository; it is a constant, not a third client-state context.
+* `SettingsProvider` is the root route's element (wrapping `OnboardingGuard`), not a provider
+above `RouterProvider`: its live profile read rethrows on failure and only inside the route tree
+does the root `errorElement` (`RouteError`) catch it; above the router a failed read blanked the
+app (found while wiring). `AppProviders` provides only the repository.
+* The database name is `wara-no-nihongo` — permanent once shipped.
+* Theme: `SettingsProvider` sets `data-theme` on `<html>`; "system" is pure CSS
+(`prefers-color-scheme` when the attribute is not `light`), so no `matchMedia` in JavaScript
+(absent in jsdom).
+* Placeholder pages for `/mulai`, `/`, `/pengaturan` (heading + "… sedang dibangun.") are
+scaffolding; their real screens come test-first in 0.1.9/0.1.10. Until 0.1.9 a fresh browser can
+only reach the onboarding placeholder (no profile → redirect to `/mulai`).
+* Routes follow ARCHITECTURE §9: `*` redirects to `/`; `PageLoader` is the
+`hydrateFallbackElement` and the guard's loading view; `/sesi` and `/tes/:kind` are added with
+their pages in 0.1.9.
+* `RouteError` logs with `console.error`; its test cannot tell its own log from React's and
+react-router's (both already log the caught error) — accepted; the test guards the screen and that
+no learner value (profile name) is logged.
+* `src/services/tts.ts` deferred from 0.1.7 to 0.1.8 (no consumer yet).
 
 Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation** (the monorepo item was
 confirmed by the user 2026-11-10, see above):
@@ -404,6 +439,9 @@ render Indonesian copy from paths.
 * `contentIdSchema`'s message for an unknown type/group echoes the id's `<type>:<group>` prefix
 (not personal data, but it is input text inside an issue); tighten if import errors are ever
 logged (2026-11-13).
+* Bundle size (2026-11-13): the main JS chunk is ~540 kB (≈167 kB gzip) — React, react-router,
+Dexie, zod, core and content load eagerly; revisit (lazy content/core, `manualChunks`) before the
+PWA step if first load on a phone is slow.
 
 ## Load-bearing facts — to be filled from the code
 
@@ -442,7 +480,17 @@ Recorded 2026-11-13 (step 0.1.5 batch 2): the `ts-fsrs` ↔ `ReviewState` mappin
 Recorded 2026-11-13 (step 0.1.6): the `commitReview` transaction lives in
 `apps/web/src/data/dexieRepository.ts` (one `rw` transaction over `reviewStates`, `reviewLogs`,
 `sessions`); a row with a function property makes Dexie reject with `DataCloneError` — the tests
-use it to force a storage failure.
+use it to force a storage failure. Dexie 4.4.7 surfaces it as `Dexie.DataCloneError` (a
+`DexieError`, the DOM exception kept as `.inner`), and the aborted transaction leaves no row.
+
+Recorded 2026-11-13 (step 0.1.7):
+
+* `apps/web/vite.config.ts` registers `fake-indexeddb/auto` because Dexie 4.4.7's `liveQuery`
+checks the global `Dexie.dependencies.indexedDB` and silently emits nothing when it is absent
+(jsdom has none).
+* `renderApp` (`apps/web/tests/renderApp.tsx`) takes `beforeRender(db)` for fault injection; a
+Dexie `reading` hook that throws (`db.profile.hook('reading', …)`) makes a live read fail and reach
+`RouteError`.
 
 Still to come: the `SessionProvider` persistence point; the `lang="ja"` wrapper.
 
@@ -476,10 +524,9 @@ package in that workspace's `package.json`.
 * Open (2026-11-12): the `id.ts` kanji rule (`\p{Script=Han}`) also accepts 々 and CJK radicals;
 vocab/grammar slugs reject Latin letters but not ASCII spaces or punctuation — tighten with a red
 test if content ever needs it. The kana-only reading class is duplicated in `id.ts` and `item.ts`.
-* Open (2026-11-12): a test that every reading-practice word in the real bundle tokenises with
-`romajiMatches` cannot live in core (core may not import content data) nor in content (content
-may not import core); it moves to a web test in step 0.1.7. A coordinator node check on
-2026-11-12 found all 80 tokenise; nothing guards it yet.
+* That every reading-practice word in the real bundle tokenises with `romajiMatches` cannot be
+tested in core (no content data) nor in content (no core import); it is guarded by
+`apps/web/tests/content/readingPracticeTokenises.test.ts` (2026-11-13).
 * Open (2026-11-12): `streak` recurses once per day of streak (≈ 365 frames per year) — fine for
 now; revisit if streaks get very long.
 * Open (2026-11-12): `LocalDate` is an unbranded string alias; revisit if a date-format bug
@@ -492,10 +539,18 @@ Recorded 2026-11-13:
 
 * `require('fake-indexeddb/package.json')` fails with `ERR_PACKAGE_PATH_NOT_EXPORTED` (its
 `exports` hides package.json) — read the version with `fs.readFileSync` or `npm ls`.
+* `db.close()` cannot simulate a failed live read — `liveQuery` deliberately swallows
+`DatabaseClosedError`/`AbortError` and stays loading; and any `useLiveQuery` test without the
+global `indexedDB` stays `undefined` forever with no error.
+
+Recorded 2026-11-16:
+
+* A profile written with the raw IndexedDB API (e.g. from the DevTools console) does not wake
+`useLiveQuery` — Dexie's live queries only observe writes made through Dexie; reload the page
+after such a manual write.
 
 ## Standing checklist
 
 * Confirm every "Decided, not yet built" block in `ARCHITECTURE.md` against the real tree as code
 arrives.
-* Write the ESLint tier rule with the first module.
 * Write `docs/qa-session.md` before tagging v0.1.

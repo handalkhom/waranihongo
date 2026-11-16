@@ -14,6 +14,38 @@ const everywhereBannedPatterns = [
   { group: ['@wara/web/*'], message: 'Nothing imports @wara/web.' },
 ];
 
+const leafModules = ['kana', 'vocab', 'grammar', 'kanji'];
+const composerModules = ['session', 'learn'];
+const standaloneModules = ['journal', 'progress', 'settings'];
+const allModules = [...leafModules, ...composerModules, ...standaloneModules];
+
+const moduleFiles = (names) => [`apps/web/src/modules/{${names.join(',')}}/**/*.{ts,tsx}`];
+
+const dexieBannedPaths = [
+  { name: 'dexie', message: 'src/data/ is the only code that knows Dexie.' },
+];
+
+const dexieBannedPatterns = [
+  { group: ['dexie/*'], message: 'src/data/ is the only code that knows Dexie.' },
+];
+
+const moduleEntryPatterns = [
+  { regex: '^@/modules/[^/]+/', message: 'Import a module only through its index.ts: "@/modules/<name>".' },
+  { regex: '^(\\.\\.?/)+modules(/|$)', message: 'Import a module only through its index.ts: "@/modules/<name>".' },
+];
+
+const moduleRelativeClimbPatterns = [
+  { regex: '^\\.\\.(/\\.\\.)+(/|$)', message: 'A module file does not climb out of its module; use "@/".' },
+  {
+    regex: `^\\.\\./(${allModules.join('|')})(/|$)`,
+    message: 'Reach another module through "@/modules/<name>", never a relative path.',
+  },
+];
+
+const webSrcBannedPaths = [...everywhereBannedPaths, ...dexieBannedPaths];
+
+const webSrcBannedPatterns = [...everywhereBannedPatterns, ...moduleEntryPatterns, ...dexieBannedPatterns];
+
 const clockBan = [
   {
     selector: "CallExpression[callee.object.name='Date'][callee.property.name='now']",
@@ -85,6 +117,92 @@ export default defineConfig([
   {
     files: ['apps/web/src/**/*.tsx'],
     extends: [reactRefresh.configs.vite],
+  },
+  {
+    files: ['apps/web/src/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': ['error', { paths: webSrcBannedPaths, patterns: webSrcBannedPatterns }],
+    },
+  },
+  {
+    files: ['apps/web/src/data/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        { paths: everywhereBannedPaths, patterns: [...everywhereBannedPatterns, ...moduleEntryPatterns] },
+      ],
+    },
+  },
+  {
+    files: ['apps/web/src/components/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: webSrcBannedPaths,
+          patterns: [
+            ...webSrcBannedPatterns,
+            { regex: '^@/modules(/|$)', message: 'Shared components import no module.' },
+            { regex: '^@/data(/|$)', message: 'Shared components do not reach src/data/; they render from props.' },
+            {
+              regex: '^(\\.\\./)+(modules|data)(/|$)',
+              message: 'Shared components import no module and do not reach src/data/.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: moduleFiles(leafModules),
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: webSrcBannedPaths,
+          patterns: [
+            ...webSrcBannedPatterns,
+            ...moduleRelativeClimbPatterns,
+            { regex: '^@/modules(/|$)', message: 'Leaf modules import no module.' },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: moduleFiles(composerModules),
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: webSrcBannedPaths,
+          patterns: [
+            ...webSrcBannedPatterns,
+            ...moduleRelativeClimbPatterns,
+            {
+              regex: `^@/modules/(${[...composerModules, ...standaloneModules].join('|')})(/|$)`,
+              message: 'Composer modules import only leaf modules, through their index.ts.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: moduleFiles(standaloneModules),
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: webSrcBannedPaths,
+          patterns: [
+            ...webSrcBannedPatterns,
+            ...moduleRelativeClimbPatterns,
+            { regex: '^@/modules(/|$)', message: 'Standalone modules import no module.' },
+          ],
+        },
+      ],
+    },
   },
   {
     files: ['packages/content/**/*.ts'],

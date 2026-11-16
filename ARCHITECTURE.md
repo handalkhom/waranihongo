@@ -9,8 +9,11 @@ questions — those live in `MEMORY.md`. What a screen shows is in `Wara-Product
 > `@wara/core` — the types, typed errors, and `Repository` interface (`domain.ts`, `errors.ts`,
 > `repository.ts`) and the v0.1 functions `romajiMatches`, `rateAnswer`, `schedule`,
 > `applyConfusion`, `planSession`, `derivePhase`, `evaluateKanaExit`, `kanaExitAvailable`,
-> `streak`; and the web data layer `apps/web/src/data/` (`db.ts`, `exportBundleSchema.ts`,
-> `dexieRepository.ts`).** Every other block in this file is **Decided, not yet built**. When the
+> `streak`; the web data layer `apps/web/src/data/` (`db.ts`, `exportBundleSchema.ts`,
+> `dexieRepository.ts`, `repositoryContext.ts`); and the `apps/web` skeleton — the composition
+> root, the route table, `SettingsProvider`, `OnboardingGuard`, `AppLayout`, `RouteError`,
+> `PageLoader`, and placeholder pages for `/mulai`, `/`, and `/pengaturan`, whose real screens
+> are built later.** Every other block in this file is **Decided, not yet built**. When the
 > code exists, each block is checked against the real tree and either confirmed or corrected; a
 > reference-implementation cell reading *none yet* is replaced by a real path. `MEMORY.md`
 > records which blocks have been confirmed.
@@ -59,7 +62,11 @@ schemas (`@wara/content/schema`) for types, never the data bundle; data reaches 
 | Standalone | `journal`, `progress`, `settings` | No module |
 
 A leaf never imports a composer; a composer never imports another composer. Enforced by an ESLint
-`no-restricted-imports` rule per module tier (written with the first module — *none yet*).
+`no-restricted-imports` rule per module tier in `eslint.config.js`: leaf and standalone modules
+import no module, composers import only leaf modules; no file reaches past a module's `index.ts`
+(through the `@/` alias or a relative path); a module file never climbs out of its module with a
+relative path; `dexie` is imported only in `src/data/`; shared components in `src/components/`
+import no module and nothing from `@/data`.
 
 ## 3. Technology decisions
 
@@ -69,18 +76,18 @@ A leaf never imports a composer; a composer never imports another composer. Enfo
 | Package manager | npm workspaces | One lockfile; matches the owner's other projects |
 | Web runtime | React 19 + Vite 8, `vite-plugin-pwa` (Workbox, `autoUpdate`) | Installable, offline, no server |
 | Hosting | Vercel, static PWA; project Root Directory `apps/web`, whose `apps/web/vercel.json` rewrites every route to `index.html`; a deploy runs only `vite build` | Static files only; a deep link reaches the router |
-| Routing | React Router 8 from `react-router` (`RouterProvider` from `react-router/dom`) | Route table as data, one guard |
-| Persistence | `dexie` 4.4.x; `dexie-react-hooks` (`useLiveQuery`) with the hooks | IndexedDB with reactive reads; `fake-indexeddb` in tests |
+| Routing | React Router 8.5.x from `react-router` (`RouterProvider` from `react-router/dom`) | Route table as data, one guard |
+| Persistence | `dexie` 4.4.x; `dexie-react-hooks` (`useLiveQuery`) | IndexedDB with reactive reads; `fake-indexeddb` in tests |
 | Server state | **Not installed** before v1.0 | No network source exists; two reactive caches over one table would fight |
 | SRS | `ts-fsrs` 5.4.x | Current standard scheduler; parameters can later be fitted to the learner's log; wrapped in one file; the synchronous API with the FSRS-6 model (6.x replaces it with an async scheduler whose legacy API is deprecated) |
-| Client state | One Context per concern: `SessionContext`, `SettingsContext` | Only two cross-route concerns |
+| Client state | One Context per concern: `SessionContext`, `SettingsContext`; the `Repository` is injected through `RepositoryContext` (`src/data/repositoryContext.ts`, read with `useRepository()`), a constant for dependency injection, not client state | Only two cross-route concerns |
 | Forms | React Hook Form 7 + Zod 4 via `@hookform/resolvers` | Journal entry, custom vocabulary, and settings; the official resolver |
 | Styling | Tailwind CSS 4 in CSS (`@theme`), no config file | — |
-| Components | shadcn/ui on Base UI (`@base-ui/react`), `tsx: true`; `lucide-react`; `cn()` from `clsx` + `tailwind-merge` in `src/lib/cn.ts`; `src/lib/` is a closed list: `cn.ts`, `typography.ts` | Primitives owned by the repo; the `shadcn` package is not a dependency, its stylesheet is vendored |
+| Components | shadcn/ui on Base UI (`@base-ui/react`), `tsx: true`; `lucide-react` (icons `aria-hidden`); `cn()` from `clsx` + `tailwind-merge` in `src/lib/cn.ts`; `src/lib/` is a closed list: `cn.ts`, `typography.ts` | Primitives owned by the repo; the `shadcn` package is not a dependency, its stylesheet is vendored |
 | Fonts | System font stack; `lang="ja"` on Japanese text | No multi-MB web font; the OS Japanese font is correct and offline |
 | Charts | `recharts` 3, behind `React.lazy` on the progress page only | Bundle size |
 | Audio | Web Speech API through `src/services/tts.ts` | No audio files in phase 1 |
-| Lint | ESLint 10 flat config with `typescript-eslint`, `react-hooks`, `react-refresh`; errors on `any`, `@ts-ignore`, `==`, `react-router-dom` imports, and imports that cross a package (or, with the first module, a module tier) the wrong way; `@wara/core` source bans `Date.now()`, `new Date()`, `Date()`, `Math.random()`; `lint` runs with `--max-warnings 0` and `noInlineConfig`, so an inline disable cannot switch a rule off | — |
+| Lint | ESLint 10 flat config with `typescript-eslint`, `react-hooks`, `react-refresh`; errors on `any`, `@ts-ignore`, `==`, `react-router-dom` imports, and imports that cross a package or a module tier the wrong way; `@wara/core` source bans `Date.now()`, `new Date()`, `Date()`, `Math.random()`; `lint` runs with `--max-warnings 0` and `noInlineConfig`, so an inline disable cannot switch a rule off | — |
 | Tests | Vitest 5; `core` and `content` unit-level; `web` with jsdom + React Testing Library + `fake-indexeddb` | Route tests run the real repository against an in-memory IndexedDB |
 
 Not chosen and not to be assumed: Redux, Zustand, TanStack Query (before v1.0), Axios, Prettier,
@@ -106,28 +113,41 @@ Facts about the tools that shape the code:
 
 ```text
 Browser (phone first)
-  → RouterProvider (apps/web/src/app/App.tsx: createBrowserRouter(appRoutes from app/router.tsx))
-    → OnboardingGuard                 // redirects to /mulai while no profile row exists
-      → AppLayout                     // bottom tabs < lg, sidebar ≥ lg; hidden on /sesi and /tes/:kind
-        → Page (lazy per route, owned by one module)
-          → composer module           // session | learn
-            → leaf module index.ts    // kana | vocab | grammar | kanji: drill and item-detail components
-          → Feature hook              // composes core + repository; reads now, computes today (LocalDate)
-                                      // via toLocalDate (src/utils/localDate.ts) from the device clock
-                                      // at the edge; owns no rule
-            → @wara/core              // pure: romajiMatches, rateAnswer, schedule, applyConfusion,
-                                      // planSession, derivePhase, evaluateKanaExit,
-                                      // kanaExitAvailable, nextCurriculumUnit, streak,
-                                      // progressSummary
-            → Repository (src/data)   // Dexie; the only code that knows IndexedDB
-            → useLiveQuery            // reactive reads for lists and counters
-          → services/tts.ts           // speechSynthesis
+  → App (apps/web/src/app/App.tsx)    // composition root; lazy useState initialisers call
+                                      // createDexieRepository(new WaraDb('wara-no-nihongo'), () => new Date())
+                                      // and createBrowserRouter(appRoutes from app/router.tsx)
+    → AppProviders                    // RepositoryContext: the repository, nothing else
+      → RouterProvider
+        → SettingsProvider            // root route element; live query of the profile row; sets data-theme
+          → OnboardingGuard           // PageLoader while the profile loads; redirects to /mulai while no
+                                      // profile row exists, and away from /mulai once one does
+            → OnboardingPage          // /mulai, lazy, outside AppLayout
+            → AppLayout               // bottom tabs < lg, sidebar ≥ lg; hidden on /sesi and /tes/:kind
+              → Page (lazy per route, owned by one module)
+                → composer module           // session | learn
+                  → leaf module index.ts    // kana | vocab | grammar | kanji: drill and item-detail components
+                → Feature hook              // composes core + repository; reads now, computes today (LocalDate)
+                                            // via toLocalDate (src/utils/localDate.ts) from the device clock
+                                            // at the edge; owns no rule
+                  → @wara/core              // pure: romajiMatches, rateAnswer, schedule, applyConfusion,
+                                            // planSession, derivePhase, evaluateKanaExit,
+                                            // kanaExitAvailable, nextCurriculumUnit, streak,
+                                            // progressSummary
+                  → Repository (src/data)   // via useRepository(); Dexie, the only code that knows IndexedDB
+                  → useLiveQuery            // reactive reads for lists and counters
+                → services/tts.ts           // speechSynthesis
 
 Cross-route client state
-  → AppProviders
-    → SettingsProvider                // romajiAid, dailyTargetMin, theme — read-through of the profile row
-    → SessionProvider                 // mounted by /sesi only: the running plan and its cursor
+  → AppProviders                      // holds only the repository (RepositoryContext), a constant
+  → SettingsProvider                  // the root route's element: romajiAid, dailyTargetMin, theme —
+                                      // read-through of the profile row (SettingsContext)
+  → SessionProvider                   // mounted by /sesi only: the running plan and its cursor
 ```
+
+`SettingsProvider` sits inside the route table rather than in `AppProviders` so that a failed
+profile read — its live query rethrows — renders the root route's `errorElement` instead of
+blanking the app. The database name `wara-no-nihongo` is permanent: renaming it opens an empty
+database and orphans the learner's data.
 
 ### Layer responsibilities
 
@@ -140,6 +160,7 @@ Cross-route client state
 | Composer module (`session`, `learn`) | Assemble leaf modules into a session, a test, or a browse flow | Import another composer; reach a leaf past its `index.ts` |
 | Standalone module (`journal`, `progress`, `settings`) | One screen area | Import any module |
 | Feature hook | Compose core + repository; read `now` and compute `today` from the device clock through `toLocalDate`; expose read models and actions | Render; hold a rule |
+| `src/hooks/` | Shared hooks that more than one module or `src/app/` needs: `useSettings()` and its `SettingsContext` in `useSettings.ts` | Render; hold a rule; import a module |
 | `src/utils/` | Pure helpers, one job each, listed here: `toLocalDate(now: Date): LocalDate` in `localDate.ts` — the only place `apps/web` derives the learner's local date from the device clock | Hold a domain rule (rules live in `@wara/core`) |
 | Component/page | Render, interaction, local state | Touch Dexie, storage, TTS, or core scheduling directly |
 | Shared component (`src/components/`) | Props-driven UI from primitives | Import from a module; call a data hook |
@@ -346,8 +367,21 @@ only katakana (including ー and small kana); a `kanji:` slug is exactly one CJK
 | `*` | — | Redirects to `/` |
 
 The route table is an exported `RouteObject[]` in `src/app/router.tsx`; `src/app/App.tsx` (the
-composition root) and `tests/renderApp.tsx` both consume it. Pages are lazy per route with
-`PageLoader` as `hydrateFallbackElement`.
+composition root) and `tests/renderApp.tsx` both consume it. Every path is a child of one
+pathless root route:
+
+- **`element`**: `SettingsProvider` wrapping `OnboardingGuard`. The guard renders `PageLoader`
+  while the profile row loads; with no profile, every path except `/mulai` redirects to `/mulai`;
+  with a profile, `/mulai` redirects to `/`.
+- **`errorElement`**: `RouteError` — "Terjadi kesalahan" and a "Muat ulang" button that reloads
+  the page; it logs the error with `console.error`, as the outermost boundary.
+- **`hydrateFallbackElement`**: `PageLoader`.
+
+Pages are lazy per route through `lazy: async () => ({ Component })`, importing the page from its
+module's `index.ts`. `/mulai` sits outside `AppLayout`; the app's pages sit inside it.
+`AppLayout` renders one `<nav aria-label="Navigasi utama">`: fixed bottom tabs below `lg`, a
+sticky sidebar from `lg`. Only released screens get a tab; in v0.1 these are Beranda (`/`) and
+Pengaturan (`/pengaturan`).
 
 ## 10. State contract
 
@@ -359,7 +393,14 @@ composition root) and `tests/renderApp.tsx` both consume it. Pages are lazy per 
 | Component | `useState` | Card flipped, answer typed, dialog open |
 
 - Settings are persisted in the `profile` row and mirrored into `SettingsContext` on load and on
-  each save; the Context is a read-through, not a second source.
+  each save; the Context is a read-through, not a second source. Its value, read with
+  `useSettings()` (`src/hooks/useSettings.ts`), is
+  `{ status: 'loading' } | { status: 'ready'; profile: UserProfile | null }`.
+- `SettingsProvider` reads the profile with `useLiveQuery` and sets
+  `document.documentElement.dataset.theme` to the profile's `theme` (`'system'` while no profile
+  exists). `src/index.css` applies the dark palette for `data-theme="dark"` and, under
+  `prefers-color-scheme: dark`, whenever the attribute is not `light`, so `'system'` needs no
+  JavaScript media query.
 - `SessionProvider` persists the session row with every `commitReview`, so a closed tab resumes;
   `saveSession` creates and finishes it.
 - No IndexedDB row is ever copied into component state as a cache; a list renders from
@@ -394,11 +435,19 @@ Exempt from TDD, each with its substitute verification:
   rules included, has a fixture that fails it.
 - **`web`**: Vitest + jsdom + React Testing Library + `fake-indexeddb`. `tests/renderApp.tsx`
   renders the real providers and route table on a memory router over a fresh in-memory database
-  seeded through the real repository. Every page has a route test covering empty, loading,
-  success, and error. A behaviour change ships with a route or component test, not only a core
-  test. `URL.createObjectURL` is stubbed per test that exports. `speechSynthesis` is absent in
-  jsdom; `tts.ts` is stubbed through its one module. A time-dependent route test sets the clock
-  with Vitest fake timers; `toLocalDate` has its own test covering the local-midnight boundary.
+  seeded through the real repository. `renderApp({ path?, seed?, beforeRender? })` returns
+  `{ repository, db, router }` and cleans up with `onTestFinished`: it unmounts, closes the
+  database, and clears `data-theme`. `apps/web/vite.config.ts` registers `fake-indexeddb/auto` as
+  a setup file because Dexie's `liveQuery` silently emits nothing without a global `indexedDB`;
+  each test's database still gets its own `IDBFactory` through the `WaraDb` options. A storage
+  failure under a live query is injected with a Dexie table hook in `beforeRender` (for example
+  `db.profile.hook('reading', () => { throw new Dexie.UnknownError(...) })`); `db.close()` does
+  not work, because `liveQuery` ignores `DatabaseClosedError`. Every page has a route test
+  covering empty, loading, success, and error. A behaviour change ships with a route or
+  component test, not only a core test. `URL.createObjectURL` is stubbed per test that exports.
+  `speechSynthesis` is absent in jsdom; `tts.ts` is stubbed through its one module. A
+  time-dependent route test sets the clock with Vitest fake timers; `toLocalDate` has its own
+  test covering the local-midnight boundary.
   Data-layer tests (`tests/data/`) open a fresh `WaraDb` per test over a new `fake-indexeddb`
   `IDBFactory`, seed through the repository, and force a storage failure with a row carrying a
   non-cloneable function property (structured clone throws `DataCloneError`).

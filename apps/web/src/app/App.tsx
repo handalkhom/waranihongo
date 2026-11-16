@@ -1,12 +1,17 @@
-import type { ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
+import { createBrowserRouter } from 'react-router';
+import { RouterProvider } from 'react-router/dom';
+import { WaraDb } from '@/data/db';
+import { createDexieRepository } from '@/data/dexieRepository';
+import { AppProviders } from './AppProviders';
+import { appRoutes } from './router';
 
 export function App(): ReactElement {
+  const [repository] = useState(() => createDexieRepository(new WaraDb('wara-no-nihongo'), () => new Date()));
+  const [router] = useState(() => createBrowserRouter(appRoutes));
   return (
-    <main className="mx-auto flex min-h-svh max-w-md flex-col justify-center gap-2 px-4">
-      <h1 lang="ja" className="text-2xl font-semibold">
-        ワラの日本語
-      </h1>
-      <p className="text-sm text-muted-foreground">Sedang dibangun.</p>
-    </main>
+    <AppProviders repository={repository}>
+      <RouterProvider router={router} />
+    </AppProviders>
   );
 }

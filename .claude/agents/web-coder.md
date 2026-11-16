@@ -31,11 +31,20 @@ your brief.
   `dexie`, `@/data`, `@/services/tts`, or a `core` scheduling function. A hook holds no rule: if
   you find yourself computing an interval, a streak, an unlock, or a default in a hook, stop — it
   belongs in `core`, report `NEEDS_COORDINATOR_INPUT`.
+- **Repository and settings access:** hooks and pages get the repository with `useRepository()`
+  from `@/data/repositoryContext` (a page still reads data through a hook, per the layering
+  above). Only `src/app/App.tsx` imports `WaraDb` or `createDexieRepository`. Settings come from
+  `useSettings()` in `@/hooks/useSettings`:
+  `{ status: 'loading' } | { status: 'ready'; profile: UserProfile | null }`.
 - **Module tiers.** Leaf modules `kana`, `vocab`, `grammar`, `kanji` own their drill and
   item-detail components and import no module. Composer modules `session`, `learn` import leaf
   modules only through their `index.ts`. A leaf never imports a composer; a composer never imports
   another composer; `journal`, `progress`, `settings` import no module. Anything else shared goes
   to `src/components/`, `src/hooks/`, `src/data/` — only when the brief says so.
+- **ESLint enforces the tiers** (`no-restricted-imports` in `eslint.config.js`): leaf, composer,
+  and standalone rules; no deep import past a module's `index.ts`; no relative climb out of a
+  module; `dexie` only in `src/data/`; `src/components/` imports no module and nothing from
+  `@/data`. Never work around a reported import — report `NEEDS_COORDINATOR_INPUT`.
 - **Module door:** other code reaches a module through its `index.ts` (explicit named exports);
   files inside the module import each other directly.
 - **`src/data/` is the only Dexie code**, implementing `Repository` from `@wara/core`.
@@ -61,11 +70,23 @@ your brief.
   to `core`. `today` comes from the one pure helper `toLocalDate(now)` in
   `apps/web/src/utils/localDate.ts`; nothing else derives a local date. Tests control time with
   Vitest fake timers.
-- **Routes:** `/tes/:kind` is `TestPage`, owned by `session` — full-screen, hides the app chrome
-  like `/sesi`. `/belajar` and `/belajar/:type/:id` belong to `learn`.
+- **Routes:** the table is `appRoutes` in `src/app/router.tsx`. A page is a lazy route loaded
+  through its module's `index.ts`:
+  `lazy: async () => ({ Component: (await import('@/modules/<name>')).<Page> })`. Full-screen
+  routes (`/sesi`, `/tes/:kind`) and `/mulai` sit outside the `AppLayout` route; a released screen
+  gets its tab in `AppLayout`'s single `<nav aria-label="Navigasi utama">`. `/tes/:kind` is
+  `TestPage`, owned by `session`. `/belajar` and `/belajar/:type/:id` belong to `learn`.
+- **Root route:** its element is `SettingsProvider` around `OnboardingGuard`, with `RouteError`
+  as `errorElement`. A live query that throws during render reaches `RouteError` only from inside
+  the route tree — never mount a data-reading provider above `RouterProvider` (`AppProviders`
+  holds only the repository context).
+- **Theme:** `SettingsProvider` sets `data-theme` on `<html>` from the profile. Style with `dark:`
+  utilities; the custom variant follows the attribute, and the OS when it is `system`.
+- **Headings and loading:** headings take `TYPOGRAPHY.pageTitle` / `sectionTitle` / `cardTitle`
+  from `@/lib/typography`; a loading view reuses `PageLoader` from `@/components/PageLoader`.
 - **Japanese text:** every element holding kana/kanji carries `lang="ja"`; drill glyphs
   ≥ `text-5xl`; furigana through `<ruby>`.
-- **Romaji:** `romajiAid` comes from the profile through `SettingsContext`; when on, romaji renders
+- **Romaji:** `romajiAid` comes from the profile through `useSettings()`; when on, romaji renders
   muted and smaller than its kana. The default and the auto-off are decided by `core` defaults,
   never in a hook.
 - **Touch targets:** drill answers 56 px; other controls `h-11 md:h-9`. A registry primitive's
