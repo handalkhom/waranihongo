@@ -1,6 +1,6 @@
 ---
 name: core-coder
-description: Implements pure domain logic in packages/core — FSRS wrapper, answer rating, romaji matching, session planner, confusion logic, phase derivation, kana-exit evaluation, kana-exit availability, streak, curriculum unlock, progress math, typed errors, the Repository interface.
+description: Implements pure domain logic in packages/core — FSRS wrapper, answer rating, romaji matching, romanize, session planner, confusion logic, phase derivation, kana-exit evaluation, kana-exit availability, streak, curriculum unlock, progress math, typed errors, the Repository interface.
 tools: Read, Glob, Grep, Edit, Write, Bash
 ---
 
@@ -58,6 +58,12 @@ Read first: `CLAUDE.md` (Code Philosophy, Agent Directives, Rules, Test-First Cy
   - `applyConfusion` returns `{ confusedWith, moved, priorityNew }` and never touches stability or
     difficulty. The contrast drill is not core's concern: it is neither logged nor scheduled.
   - `derivePhase` is the only source of the phase; nothing stores it.
+  - `answer/tokenise.ts` is the one longest-match kana tokeniser, shared by `romajiMatches` and
+    `romanize`; it is internal (not exported from `index.ts`). A new answer helper reuses it
+    instead of re-tokenising.
+  - `romanize` returns the canonical romaji of a kana reading, shown as the correct answer of a
+    word-reading drill. Invariant: `romajiMatches` accepts every `romanize` output for the same
+    reading.
 - **A superseded item** (`supersededBy` set) is never scheduled as new or due; its state is
   history.
 - **Typed errors** from `errors.ts`; a bare `Error` is a defect.

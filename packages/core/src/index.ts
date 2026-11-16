@@ -29,6 +29,7 @@ export {
 export type { ImportIssue } from './errors';
 export type { Repository } from './repository';
 export { romajiMatches } from './answer/romajiMatches';
+export { romanize } from './answer/romanize';
 export { rateAnswer } from './answer/rateAnswer';
 export type { AnswerMode } from './answer/rateAnswer';
 export { kanaExitAvailable } from './phase/kanaExitAvailable';

@@ -135,11 +135,18 @@ menyembunyikan keduanya. Tanpa baris profil, semua route dialihkan ke `/mulai`; 
   kosakata, tata bahasa) menampilkan empat tombol "Lagi / Sulit / Bagus / Mudah", masing-masing
   dengan interval berikutnya. Varian romaji yang diterima (を o/wo, ん n/nn, ふ fu/hu, し shi/si,
   dan seterusnya) dihitung benar.
-- **Drill kana** punya empat mode: kana→romaji (pilihan ganda, lalu ketik), romaji→kana (grid),
-  dikte, baca kata utuh. Jawaban yang cocok dengan anggota lain grup rawan tertukar memajukan
-  pasangan itu menjadi due sekarang dan menampilkan **drill kontras**: dua huruf berdampingan, pilih
-  yang diminta, tiga kali berturut-turut. Untuk grup lebih dari dua anggota, pasangannya adalah dua
-  huruf yang benar-benar tertukar. Drill kontras hanya latihan dan tidak dicatat sebagai review.
+- **Drill kana** punya empat mode: kana→romaji (pilihan ganda, lalu ketik); romaji→kana (grid);
+  dikte — TTS membacakan kana, lalu pembelajar memilih hurufnya dari grid, tanpa keyboard Jepang;
+  baca kata utuh — ketik romaji; bila salah, romaji yang benar ditampilkan. Jawaban yang cocok
+  dengan anggota lain grup rawan tertukar memajukan pasangan itu menjadi due sekarang dan
+  menampilkan **drill kontras**: dua huruf berdampingan, yang diminta disebut dalam romaji
+  ("Pilih: ne"), posisi kedua huruf diacak setiap putaran, dan harus benar **tiga kali
+  berturut-turut**; jawaban salah mengembalikan hitungan ke 0. Untuk grup lebih dari dua anggota,
+  pasangannya adalah dua huruf yang benar-benar tertukar. Drill kontras hanya latihan dan tidak
+  dicatat sebagai review.
+- **Umpan balik jawaban:** jawaban benar menampilkan "Benar" lalu lanjut sendiri setelah jeda
+  singkat; jawaban salah menampilkan jawaban yang benar dan menunggu tombol "Lanjut". Berlaku untuk
+  semua drill objektif.
 - **Persistensi:** setiap aktivitas selesai → review, log-nya, dan progres sesi ditulis dalam
   **satu** transaksi (`commitReview` bersama sesi). Menutup tab tidak menghilangkan progres dan
   tidak menghitung ganda; "Lanjutkan sesi" di Beranda melanjutkan dari aktivitas berikutnya.

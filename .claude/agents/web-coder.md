@@ -19,7 +19,10 @@ your brief.
 - **Test-first, two briefs per behavioural file** (component, hook, page, repository method).
   - Brief 1 — stub: create the file with the exact props or signature from the brief and
     ARCHITECTURE.md, compiling (typed, no `any`, no bare `Error`) and rendering or returning the
-    minimum, so test-coder's tests fail on assertions, not on an import or type error.
+    minimum, so test-coder's tests fail on assertions, not on an import or type error. A
+    component stub is `export const X: (props: XProps) => ReactElement = () => <div />;` — a
+    `function` destructuring props it does not use fails `noUnusedParameters` and lint. The green
+    step turns it into `export function X(...)`.
   - Brief 2 — green: make the red-verified test file(s) named in the brief pass **without editing
     them**. A test you believe is wrong → `NEEDS_COORDINATOR_INPUT`, never a changed test. Then
     refactor with the tests green.
@@ -28,7 +31,8 @@ your brief.
   - Exempt from TDD: styling and layout (reported as **not seen in a browser** unless you were told
     to run one), PWA config, TTS behaviour on a real device.
 - **Layering:** page/component → hook → `@wara/core` + `Repository`. A component never imports
-  `dexie`, `@/data`, `@/services/tts`, or a `core` scheduling function. A hook holds no rule: if
+  `dexie`, `@/data`, `@/services/tts`, or a `core` scheduling function; pure answer helpers from
+  `@wara/core` (`romajiMatches`, `romanize`) are allowed in a component. A hook holds no rule: if
   you find yourself computing an interval, a streak, an unlock, or a default in a hook, stop — it
   belongs in `core`, report `NEEDS_COORDINATOR_INPUT`.
 - **Repository and settings access:** hooks and pages get the repository with `useRepository()`
@@ -85,11 +89,14 @@ your brief.
 - **Headings and loading:** headings take `TYPOGRAPHY.pageTitle` / `sectionTitle` / `cardTitle`
   from `@/lib/typography`; a loading view reuses `PageLoader` from `@/components/PageLoader`.
 - **Japanese text:** every element holding kana/kanji carries `lang="ja"`; drill glyphs
-  ≥ `text-5xl`; furigana through `<ruby>`.
+  ≥ `text-5xl`, a glyph inside a choice button included; furigana through `<ruby>`. A
+  Japanese answer node passed to `DrillFeedback` carries its own `lang="ja"` element
+  (`<span lang="ja">…</span>`).
 - **Romaji:** `romajiAid` comes from the profile through `useSettings()`; when on, romaji renders
   muted and smaller than its kana. The default and the auto-off are decided by `core` defaults,
   never in a hook.
-- **Touch targets:** drill answers 56 px; other controls `h-11 md:h-9`. A registry primitive's
+- **Touch targets:** drill answers 56 px (`h-14`), a choice button holding a Japanese glyph
+  `h-20`; other controls `h-11 md:h-9`. A registry primitive's
   height under a `data-[…]` modifier is overridden on the same modifier.
 - **Base UI, not Radix:** `render`, not `asChild`; `data-open`, not `data-state`. After any
   `npx shadcn add`: decline overwrites, remove the `cn` package from `package.json`, point the
@@ -99,7 +106,18 @@ your brief.
 - **Settings flags are read through one function each in `src/config/`**, never
   `import.meta.env` or `localStorage` at a call site.
 - **Every `VITE_*` value is public.** None holds a secret.
-- No TTS call outside `src/services/tts.ts`.
+- **Speech:** a component speaks only through `useSpeech()` from `@/hooks/useSpeech`, which calls
+  `speakJapanese(text, voiceUri)` in `@/services/tts` with the profile's `ttsVoiceUri`. Nothing
+  outside `src/services/tts.ts` touches `speechSynthesis`. Component tests stub `@/services/tts` only.
+- **Drill contract (leaf modules):** a drill gets its item (and choices) as props and judges
+  correctness itself — `romajiMatches` from `@wara/core` for a typed answer. It measures
+  `elapsedMs` from `Date.now()` captured at mount in an effect (never during render) and fixed at
+  submit, renders `DrillFeedback` from `@/components/DrillFeedback` ("Benar" and auto-continue
+  after 800 ms, or the correct answer and "Lanjut"), and calls `onAnswer` once with
+  `KanaDrillAnswer` after the feedback. A typed answer lives in a `<form>` with a visible label,
+  a `text-base md:text-sm` input, and a "Kirim" submit.
+- **Randomness in a component** comes in as an `rng` prop (as in `ContrastDrill`) and is drawn in
+  an event handler or a lazy `useState` initialiser — never during render.
 
 ## Verification before reporting
 ```text

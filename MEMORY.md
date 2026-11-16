@@ -58,7 +58,7 @@ and a plain-vs-rough warning matter.
 * Re-assessed after each weekly test that changes a priority and at each phase transition; this
 section and `docs/learning-plan.md` are updated together.
 
-## Project state (2026-11-13)
+## Project state (2026-11-16)
 
 * **Git (2026-11-12):** remote `origin` = `https://github.com/handalkhom/waranihongo.git`;
 branch `main` (renamed from `master` 2026-11-12 at the owner's request) tracks `origin/main`.
@@ -111,19 +111,28 @@ composition root, `AppProviders.tsx` — repository only, `router.tsx` `appRoute
 ESLint module-tier rule; `vite.config.ts` `setupFiles: ['fake-indexeddb/auto']`; tests
 `tests/renderApp.tsx` (harness), `tests/app/{onboardingGuard,settingsProvider,appLayout,routeError}.test.tsx`,
 `tests/content/readingPracticeTokenises.test.ts`. New dependencies: `react-router` ^8.5.1,
-`dexie-react-hooks` ^4.4.0, `lucide-react` ^1.72.0.
-* **Next: step 0.1.8** — module `kana` (leaf, component TDD): four drill modes + contrast drill,
-`index.ts`; also `src/services/tts.ts` (moved here from 0.1.7: nothing used it yet, and TTS is
-verified on a phone).
+`dexie-react-hooks` ^4.4.0, `lucide-react` ^1.72.0. Checked in a real browser by the owner
+2026-11-16 (Vite dev server): no profile → onboarding placeholder on every path; with a profile,
+Beranda with bottom tabs at about 390 px and the sidebar at desktop width.
+* **Step 0.1.8 (kana module, test-first) done (2026-11-16):** core `answer/romanize.ts`
+(`romanize`, exported from `@wara/core`) and internal `answer/tokenise.ts` (the shared
+longest-match tokeniser; `romajiMatches` refactored onto it, behaviour unchanged); web
+`src/services/tts.ts` (`speakJapanese`), `src/hooks/useSpeech.ts`,
+`src/components/DrillFeedback.tsx`, module `src/modules/kana/` (`KanaToRomajiDrill` choice|typed,
+`RomajiToKanaDrill`, `DictationDrill`, `WordReadingDrill`, `ContrastDrill`, `types.ts`
+`KanaDrillAnswer`, `index.ts`). Tests `packages/core/tests/answer/romanize.test.ts` (48),
+`apps/web/tests/components/DrillFeedback.test.tsx` (8), `apps/web/tests/modules/kana/` —
+KanaToRomaji 14, RomajiToKana 9, Dictation 11, WordReading 14, Contrast 17.
+* **Next: step 0.1.9** — module `session` (composer, route TDD): `/mulai` onboarding with the kana
+quick test, `/` Beranda, `/sesi` with `SessionProvider`, `/tes/kana-exit`; needs `toLocalDate`,
+the drill-mode and distractor rules (Open decisions), and the first browser look at the drills.
 * **Not yet written:** `docs/qa-session.md`, `docs/plan-v0.2.md`.
-* **Last verification (2026-11-13, step 0.1.7):** red first — onboardingGuard 5, settingsProvider
-4, appLayout 4, routeError 3 failing assertions against stubs; all six frozen web test files' md5
-unchanged after green; `readingPracticeTokenises` (a content guard, not red-first) passes for all
-80 words and a mutation (dropping ー from the kana list) fails it on the 16 long-vowel words. Full
-run: `lint`, `typecheck`, `test` (web 107, content 224, core 204), `build`, `validate` (41) all
-exit 0. Checked in a real browser by the owner on 2026-11-16 (Vite dev server): without a
-profile every path lands on the onboarding placeholder; after a profile row was added, Beranda
-showed with bottom tabs at about 390 px and the sidebar at desktop width. Not verified:
+* **Last verification (2026-11-16, step 0.1.8):** red first — romanize 48, DrillFeedback 8,
+KanaToRomaji 14, RomajiToKana 9, Dictation 11, WordReading 14, Contrast 17 failing assertions
+against stubs; every frozen test file's md5 unchanged after green; the `romajiMatches` refactor
+green before and after (82/82 on its two files). Full run: `lint`, `typecheck`, `test` (web 180,
+content 224, core 252), `build`, `validate` (41) all exit 0; core still clock-free. **Not seen in
+a browser:** the drills have no route until 0.1.9; TTS not heard on a device. Not verified:
 real-browser IndexedDB (phone QA, `docs/qa-session.md`).
 * **Guards and orchestration skill: NOT installed (checked 2026-11-09, re-checked 2026-11-10,
   user's machine `GMBR-KEMLU-100`, Git Bash):** `~/.claude/hooks/` does not exist,
@@ -403,7 +412,30 @@ their pages in 0.1.9.
 * `RouteError` logs with `console.error`; its test cannot tell its own log from React's and
 react-router's (both already log the caught error) — accepted; the test guards the screen and that
 no learner value (profile name) is logged.
-* `src/services/tts.ts` deferred from 0.1.7 to 0.1.8 (no consumer yet).
+* `src/services/tts.ts` deferred from 0.1.7 to 0.1.8 (no consumer yet); built in 0.1.8.
+
+Taken 2026-11-16 (step 0.1.8) — by the owner where marked "Owner", otherwise coordinator:
+
+* Owner: dictation = hear the kana (TTS), then pick it from a grid of kana — no Japanese keyboard
+in phase 0.
+* Owner: after an answer, a correct one shows "Benar" and moves on by itself after 800 ms; a wrong
+one shows the correct answer and waits for "Lanjut". One shared component,
+`src/components/DrillFeedback.tsx` (shared because vocabulary drills and the kana-exit test will
+reuse it).
+* Owner: contrast drill — asked in romaji ("Pilih: ne"), positions shuffled each round, three
+correct picks in a row; a wrong pick resets the count to 0.
+* Drills are leaf components: they get the item and the choices as props, judge correctness
+(`romajiMatches` for typed, the chosen id for choices), measure `elapsedMs` with `Date.now()` from
+mount to submit (feedback excluded), and report one `KanaDrillAnswer` through `onAnswer` after the
+feedback. The composer chooses mode and distractors, rates, checks confusion, schedules and
+commits.
+* Core `romanize` added so a wrong word-reading answer can show the canonical romaji (content
+stores romaji per kana only). っ before ち → `tchi` (Hepburn).
+* Component stubs use the typed `const` arrow idiom
+(`export const X: (props: P) => ReactElement = () => <div />`) — a `function` destructuring unused
+props fails `noUnusedParameters` and lint.
+* `ContrastDrill` draws its round with exactly two `rng()` calls (asked letter, then order; `< 0.5`
+→ target / target-first); `DrillFeedback` is keyed per round.
 
 Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation** (the monorepo item was
 confirmed by the user 2026-11-10, see above):
@@ -442,6 +474,17 @@ logged (2026-11-13).
 * Bundle size (2026-11-13): the main JS chunk is ~540 kB (≈167 kB gzip) — React, react-router,
 Dexie, zod, core and content load eagerly; revisit (lazy content/core, `manualChunks`) before the
 PWA step if first load on a phone is slow.
+* Kana drill mode and distractors (2026-11-16): which drill mode the session uses for an item (the
+product doc says kana→romaji is "pilihan ganda, lalu ketik" — the switch rule is undecided) and
+how distractors are chosen (confusion partners first?) — both are core rules, decided at the start
+of 0.1.9.
+* Shared kana choice grid (2026-11-16): `RomajiToKanaDrill`, `DictationDrill` and `ContrastDrill`
+repeat the same button markup — whether to extract one component.
+* Production dictation (2026-11-16): `Wara-Product-Architecture.md` (Sesi → Aktivitas) still
+describes the Produksi activity as "dikte (TTS → ketik kana)", which needs a Japanese keyboard,
+while the owner chose a kana grid (no Japanese keyboard) for the kana dictation drill. Decide with
+the session design at the start of 0.1.9 whether phase-0 production dictation reuses the grid drill
+or asks for typed kana.
 
 ## Load-bearing facts — to be filled from the code
 
@@ -548,6 +591,9 @@ Recorded 2026-11-16:
 * A profile written with the raw IndexedDB API (e.g. from the DevTools console) does not wake
 `useLiveQuery` — Dexie's live queries only observe writes made through Dexie; reload the page
 after such a manual write.
+* React StrictMode runs a lazy `useState` initialiser twice in development, so `ContrastDrill`'s
+first round calls `rng` four times in dev (tests do not use StrictMode); `DictationDrill` speaks
+twice on mount in dev for the same reason (`speakJapanese` cancels the first).
 
 ## Standing checklist
 

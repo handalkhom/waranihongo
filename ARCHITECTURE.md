@@ -7,16 +7,18 @@ questions — those live in `MEMORY.md`. What a screen shows is in `Wara-Product
 
 > **Status: built are the monorepo scaffold; the content package (schemas, validator, v0.1 data);
 > `@wara/core` — the types, typed errors, and `Repository` interface (`domain.ts`, `errors.ts`,
-> `repository.ts`) and the v0.1 functions `romajiMatches`, `rateAnswer`, `schedule`,
+> `repository.ts`) and the v0.1 functions `romajiMatches`, `romanize`, `rateAnswer`, `schedule`,
 > `applyConfusion`, `planSession`, `derivePhase`, `evaluateKanaExit`, `kanaExitAvailable`,
 > `streak`; the web data layer `apps/web/src/data/` (`db.ts`, `exportBundleSchema.ts`,
-> `dexieRepository.ts`, `repositoryContext.ts`); and the `apps/web` skeleton — the composition
+> `dexieRepository.ts`, `repositoryContext.ts`); the `apps/web` skeleton — the composition
 > root, the route table, `SettingsProvider`, `OnboardingGuard`, `AppLayout`, `RouteError`,
 > `PageLoader`, and placeholder pages for `/mulai`, `/`, and `/pengaturan`, whose real screens
-> are built later.** Every other block in this file is **Decided, not yet built**. When the
-> code exists, each block is checked against the real tree and either confirmed or corrected; a
-> reference-implementation cell reading *none yet* is replaced by a real path. `MEMORY.md`
-> records which blocks have been confirmed.
+> are built later; speech — `src/services/tts.ts` and `src/hooks/useSpeech.ts`; the shared
+> `DrillFeedback` component; and the `kana` leaf module — `KanaToRomajiDrill` (choice and typed),
+> `RomajiToKanaDrill`, `DictationDrill`, `WordReadingDrill`, `ContrastDrill`.** Every other
+> block in this file is **Decided, not yet built**. When the code exists, each block is checked
+> against the real tree and either confirmed or corrected; a reference-implementation cell reading
+> *none yet* is replaced by a real path. `MEMORY.md` records which blocks have been confirmed.
 
 Authority order: `package.json` files and source code; then this file; then `MEMORY.md` for what
 was decided but is not yet in the code.
@@ -129,13 +131,14 @@ Browser (phone first)
                 → Feature hook              // composes core + repository; reads now, computes today (LocalDate)
                                             // via toLocalDate (src/utils/localDate.ts) from the device clock
                                             // at the edge; owns no rule
-                  → @wara/core              // pure: romajiMatches, rateAnswer, schedule, applyConfusion,
-                                            // planSession, derivePhase, evaluateKanaExit,
+                  → @wara/core              // pure: romajiMatches, romanize, rateAnswer, schedule,
+                                            // applyConfusion, planSession, derivePhase, evaluateKanaExit,
                                             // kanaExitAvailable, nextCurriculumUnit, streak,
                                             // progressSummary
                   → Repository (src/data)   // via useRepository(); Dexie, the only code that knows IndexedDB
                   → useLiveQuery            // reactive reads for lists and counters
-                → services/tts.ts           // speechSynthesis
+                → useSpeech (src/hooks)     // voice from useSettings()
+                  → services/tts.ts         // speakJapanese: the only reader of speechSynthesis
 
 Cross-route client state
   → AppProviders                      // holds only the repository (RepositoryContext), a constant
@@ -160,12 +163,30 @@ database and orphans the learner's data.
 | Composer module (`session`, `learn`) | Assemble leaf modules into a session, a test, or a browse flow | Import another composer; reach a leaf past its `index.ts` |
 | Standalone module (`journal`, `progress`, `settings`) | One screen area | Import any module |
 | Feature hook | Compose core + repository; read `now` and compute `today` from the device clock through `toLocalDate`; expose read models and actions | Render; hold a rule |
-| `src/hooks/` | Shared hooks that more than one module or `src/app/` needs: `useSettings()` and its `SettingsContext` in `useSettings.ts` | Render; hold a rule; import a module |
+| `src/hooks/` | Shared hooks that more than one module or `src/app/` needs: `useSettings()` and its `SettingsContext` in `useSettings.ts`; `useSpeech(): (text: string) => void` in `useSpeech.ts`, which takes the voice from `useSettings()` and speaks through `services/tts.ts` — the only way a component speaks | Render; hold a rule; import a module |
 | `src/utils/` | Pure helpers, one job each, listed here: `toLocalDate(now: Date): LocalDate` in `localDate.ts` — the only place `apps/web` derives the learner's local date from the device clock | Hold a domain rule (rules live in `@wara/core`) |
 | Component/page | Render, interaction, local state | Touch Dexie, storage, TTS, or core scheduling directly |
-| Shared component (`src/components/`) | Props-driven UI from primitives | Import from a module; call a data hook |
+| Shared component (`src/components/`) | Props-driven UI from primitives, for example `DrillFeedback` (the answer feedback every drill shows) | Import from a module; call a data hook |
 | Context provider | The two cross-route concerns above | Cache an IndexedDB table |
-| `services/tts.ts` | The only reader of `window.speechSynthesis` | Know content or scheduling |
+| `services/tts.ts` | `speakJapanese(text: string, voiceUri: string \| null): void`, the only reader of `window.speechSynthesis`: feature-detected (absent → nothing happens); cancels what is speaking; the voice is the one whose `voiceURI` is the profile's `ttsVoiceUri`, else the first voice whose `lang` starts with `ja`, else the browser default; the utterance's `lang` is always `ja-JP`. Called only by `useSpeech()` | Know content or scheduling |
+
+**The `kana` leaf module's drill contract.** `src/modules/kana/index.ts` exports
+`KanaToRomajiDrill` (`answerMode: 'choice'` with `choices`, or `'typed'` with `kana`),
+`RomajiToKanaDrill` and `DictationDrill` (both with `choices`), `WordReadingDrill` (a `VocabItem`
+and `kana`), `ContrastDrill`, their props types, and `KanaDrillAnswer`. Each answer drill receives
+its item and, in a choice mode, the choices as props; judges correctness itself — `romajiMatches`
+for a typed answer, the chosen id against the item's id for a choice; measures `elapsedMs` with
+`Date.now()` from mount to the answer; shows `DrillFeedback`; and, once the feedback continues,
+reports one `KanaDrillAnswer` `{ itemId, correct, given: ConfusionAnswer, elapsedMs }` through
+`onAnswer`. `DictationDrill` speaks the kana through `useSpeech()` on mount and on "Putar lagi";
+`WordReadingDrill` shows `romanize` of the reading as the correct answer. The composer (`session`)
+chooses the mode and the distractors, rates (`rateAnswer`), checks confusion (`applyConfusion`),
+schedules, and commits; no drill calls a scheduling function or the repository. `ContrastDrill`
+takes `target`, `partner`, and `rng`, asks for one of the two in an `rng`-drawn order each round,
+and reports only `onDone` after three correct picks in a row (a wrong pick resets the count); it is
+neither logged nor scheduled. `DrillFeedback` (`correct`, `answer`, `onContinue`): a correct answer
+shows "Benar" and continues after 800 ms; a wrong answer shows "Belum tepat" with the correct
+answer and waits for "Lanjut".
 
 ## 5. Domain model (`packages/core/src/domain.ts`)
 
@@ -206,14 +227,17 @@ item may belong to several groups. The current phase is always derived, never a 
 Every function below is pure, takes `now`, takes `today: LocalDate` where calendar days matter,
 and takes `rng` where it samples. Reference: *none yet*.
 
-`packages/core/src/` groups functions by concern: `answer/` (`romajiMatches`, `rateAnswer`), `srs/`
-(`schedule`, `applyConfusion`), `session/` (`planSession`, `defaults.ts`), `phase/` (`derivePhase`,
-`evaluateKanaExit`, `kanaExitAvailable`), `progress/` (`streak`, later `progressSummary`); the
-placement of `nextCurriculumUnit` is decided with it. `tests/` mirrors this layout.
+`packages/core/src/` groups functions by concern: `answer/` (`romajiMatches`, `romanize`,
+`rateAnswer`), `srs/` (`schedule`, `applyConfusion`), `session/` (`planSession`, `defaults.ts`),
+`phase/` (`derivePhase`, `evaluateKanaExit`, `kanaExitAvailable`), `progress/` (`streak`, later
+`progressSummary`); the placement of `nextCurriculumUnit` is decided with it. `answer/tokenise.ts`
+is the internal longest-match tokeniser shared by `romajiMatches` and `romanize`; it is not
+exported from `@wara/core`. `tests/` mirrors this layout.
 
 | Function | Signature (abridged) | Rule |
 | --- | --- | --- |
 | `romajiMatches` | `({ reading, given, kana }: { reading: string; given: string; kana: ReadonlyArray<KanaData> }) => boolean` | The reading (one kana or a whole word) is tokenised longest-match first (しゃ before し); each token accepts its `romajiAccepted` variants; small っ/ッ doubles the first consonant of the next token; ー repeats the previous vowel (a typed `-` is also accepted); ん before a vowel or y accepts `n'` and `nn`. After small っ/ッ a token starting with `ch` also accepts `tch` (っち → `cchi` or `tchi`); a っ/ッ with no following consonant (end of the reading, or before a vowel-initial token) adds nothing; ー at the start of a reading or after ん accepts only `-`. Comparison uses the given text trimmed and lower-cased. A reading containing a kana not in `kana` throws `ContentValidationError` (the content validator makes that unreachable). |
+| `romanize` | `({ reading, kana }: { reading: string; kana: ReadonlyArray<KanaData> }) => string` | The canonical romaji of a kana reading, used to show the correct answer of a word-reading drill. The reading is tokenised longest-match first, as in `romajiMatches`, and each token contributes its canonical `romaji`; small っ/ッ doubles the first consonant of the next token (`t` before `ch`: っち → `tchi`) and adds nothing at the end of the reading or before a vowel-initial token; ー repeats the last vowel built so far, and is `-` at the start of a reading or after ん/ン; ん/ン is `n`, and `n'` before a vowel- or y-initial token. A reading containing a kana not in `kana` throws `ContentValidationError`. Invariant: `romajiMatches({ reading, given: romanize({ reading, kana }), kana })` is true. |
 | `rateAnswer` | `({ correct, elapsedMs, mode }: { correct: boolean; elapsedMs: number; mode: 'choice' \| 'typed' }) => Rating` | Wrong → Again at any speed. Correct, by inclusive elapsed-time thresholds: typed — ≤ `RATE_TYPED_EASY_MAX_MS` (2.5 s) Easy, ≤ `RATE_TYPED_GOOD_MAX_MS` (6 s) Good, slower Hard; choice — ≤ `RATE_CHOICE_GOOD_MAX_MS` (4 s) Good, slower Hard. Multiple choice is capped at Good; typed can reach Easy. Correctness comes from `romajiMatches` (typed) or an id comparison (choice). Open-recall cards are not rated here: the learner's four buttons give the `Rating`. |
 | `schedule` | `({ itemId, state: ReviewState \| null, rating, now, weakSeeds }) => ReviewState` | Wraps ts-fsrs 5.4 with `FSRS_DESIRED_RETENTION` and fuzz off (`FSRS_ENABLE_FUZZ`), so identical inputs give identical output. `state: null` is the first review and starts from an empty card at `now`. An item in `weakSeeds` on its first review is first given a virtual Again at `now`, then the actual rating, and its `lapses` is 1 (as if it had lapsed once). `lastReview` becomes `now`; `itemId` is preserved; the input state is never mutated. |
 | `applyConfusion` | `({ itemId, given, groups, items, states, now }: { itemId: string; given: ConfusionAnswer; groups: ReadonlyArray<ConfusionGroup>; items: ReadonlyArray<ContentItem>; states: ReadonlyArray<ReviewState>; now: Date }) => { confusedWith: string \| null; moved: ReadonlyArray<ReviewState>; priorityNew: ReadonlyArray<string> }`, `ConfusionAnswer` = `{ mode: 'typed'; text: string } \| { mode: 'choice'; itemId: string }` | A's partners are the other members of every group containing A (`itemId`), in group order; a superseded partner is ignored. A typed answer confuses A with the first partner B whose reading `romajiMatches` it (a kana item's reading is its `char`, a vocab item's its `reading`); a choice answer with the chosen id when it is a partner. An answer that matches A itself, or no partner, returns `{ confusedWith: null, moved: [], priorityNew: [] }`. Only the one confused partner is returned (a group of four yields one pair). A is scheduled normally (Again, through `schedule`); B's `due` becomes the earlier of its `due` and `now` (a partner already overdue is not pushed later), with stability and difficulty unchanged (`moved`); a B with no state is returned in `priorityNew`. `confusedWith` is written to A's `ReviewLog`. The contrast drill is neither logged nor scheduled. |
@@ -448,6 +472,11 @@ Exempt from TDD, each with its substitute verification:
   `speechSynthesis` is absent in jsdom; `tts.ts` is stubbed through its one module. A
   time-dependent route test sets the clock with Vitest fake timers; `toLocalDate` has its own
   test covering the local-midnight boundary.
+  Component tests of leaf modules and shared components live in `tests/modules/<name>/` and
+  `tests/components/`. They render the component directly with React Testing Library's `render`
+  and call `cleanup()` themselves (no `renderApp`); they drive time with `vi.useFakeTimers()`,
+  because the drills read `Date.now()` and `DrillFeedback` advances on a timer; and they stub
+  speech only through `vi.mock('@/services/tts')`.
   Data-layer tests (`tests/data/`) open a fresh `WaraDb` per test over a new `fake-indexeddb`
   `IDBFactory`, seed through the repository, and force a storage failure with a row carrying a
   non-cloneable function property (structured clone throws `DataCloneError`).
