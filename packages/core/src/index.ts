@@ -39,8 +39,14 @@ export { streak } from './progress/streak';
 export { schedule } from './srs/schedule';
 export { applyConfusion } from './srs/applyConfusion';
 export type { ConfusionAnswer, ConfusionResult } from './srs/applyConfusion';
+export { gradeAnswer } from './srs/gradeAnswer';
+export type { GradedAnswer } from './srs/gradeAnswer';
 export { planSession } from './session/planSession';
 export type { SessionPlan } from './session/planSession';
+export { isDrillableKana } from './session/isDrillableKana';
+export { chooseDrill } from './session/chooseDrill';
+export type { DrillChoice } from './session/chooseDrill';
+export { pickChoices } from './session/pickChoices';
 export {
   RATE_TYPED_EASY_MAX_MS,
   RATE_TYPED_GOOD_MAX_MS,
@@ -61,4 +67,5 @@ export {
   ROMAJI_AID_DEFAULT,
   ROMAJI_AID_AUTO_OFF_ACCURACY,
   ROMAJI_AID_AUTO_OFF_WINDOW,
+  DRILL_CHOICE_COUNT,
 } from './session/defaults';

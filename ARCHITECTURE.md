@@ -8,17 +8,18 @@ questions — those live in `MEMORY.md`. What a screen shows is in `Wara-Product
 > **Status: built are the monorepo scaffold; the content package (schemas, validator, v0.1 data);
 > `@wara/core` — the types, typed errors, and `Repository` interface (`domain.ts`, `errors.ts`,
 > `repository.ts`) and the v0.1 functions `romajiMatches`, `romanize`, `rateAnswer`, `schedule`,
-> `applyConfusion`, `planSession`, `derivePhase`, `evaluateKanaExit`, `kanaExitAvailable`,
-> `streak`; the web data layer `apps/web/src/data/` (`db.ts`, `exportBundleSchema.ts`,
-> `dexieRepository.ts`, `repositoryContext.ts`); the `apps/web` skeleton — the composition
-> root, the route table, `SettingsProvider`, `OnboardingGuard`, `AppLayout`, `RouteError`,
-> `PageLoader`, and placeholder pages for `/mulai`, `/`, and `/pengaturan`, whose real screens
-> are built later; speech — `src/services/tts.ts` and `src/hooks/useSpeech.ts`; the shared
-> `DrillFeedback` component; and the `kana` leaf module — `KanaToRomajiDrill` (choice and typed),
-> `RomajiToKanaDrill`, `DictationDrill`, `WordReadingDrill`, `ContrastDrill`.** Every other
-> block in this file is **Decided, not yet built**. When the code exists, each block is checked
-> against the real tree and either confirmed or corrected; a reference-implementation cell reading
-> *none yet* is replaced by a real path. `MEMORY.md` records which blocks have been confirmed.
+> `applyConfusion`, `gradeAnswer`, `planSession`, `isDrillableKana`, `chooseDrill`, `pickChoices`,
+> `derivePhase`, `evaluateKanaExit`, `kanaExitAvailable`, `streak`; the web data layer
+> `apps/web/src/data/` (`db.ts`, `exportBundleSchema.ts`, `dexieRepository.ts`,
+> `repositoryContext.ts`); the `apps/web` skeleton — the composition root, the route table,
+> `SettingsProvider`, `OnboardingGuard`, `AppLayout`, `RouteError`, `PageLoader`, and placeholder
+> pages for `/mulai`, `/`, and `/pengaturan`, whose real screens are built later; speech —
+> `src/services/tts.ts` and `src/hooks/useSpeech.ts`; the shared `DrillFeedback` component; and
+> the `kana` leaf module — `KanaToRomajiDrill` (choice and typed), `RomajiToKanaDrill`,
+> `DictationDrill`, `WordReadingDrill`, `ContrastDrill`.** Every other block in this file is
+> **Decided, not yet built**. When the code exists, each block is checked against the real tree
+> and either confirmed or corrected; a reference-implementation cell reading *none yet* is
+> replaced by a real path. `MEMORY.md` records which blocks have been confirmed.
 
 Authority order: `package.json` files and source code; then this file; then `MEMORY.md` for what
 was decided but is not yet in the code.
@@ -132,7 +133,8 @@ Browser (phone first)
                                             // via toLocalDate (src/utils/localDate.ts) from the device clock
                                             // at the edge; owns no rule
                   → @wara/core              // pure: romajiMatches, romanize, rateAnswer, schedule,
-                                            // applyConfusion, planSession, derivePhase, evaluateKanaExit,
+                                            // applyConfusion, gradeAnswer, planSession, isDrillableKana,
+                                            // chooseDrill, pickChoices, derivePhase, evaluateKanaExit,
                                             // kanaExitAvailable, nextCurriculumUnit, streak,
                                             // progressSummary
                   → Repository (src/data)   // via useRepository(); Dexie, the only code that knows IndexedDB
@@ -180,13 +182,13 @@ for a typed answer, the chosen id against the item's id for a choice; measures `
 reports one `KanaDrillAnswer` `{ itemId, correct, given: ConfusionAnswer, elapsedMs }` through
 `onAnswer`. `DictationDrill` speaks the kana through `useSpeech()` on mount and on "Putar lagi";
 `WordReadingDrill` shows `romanize` of the reading as the correct answer. The composer (`session`)
-chooses the mode and the distractors, rates (`rateAnswer`), checks confusion (`applyConfusion`),
-schedules, and commits; no drill calls a scheduling function or the repository. `ContrastDrill`
-takes `target`, `partner`, and `rng`, asks for one of the two in an `rng`-drawn order each round,
-and reports only `onDone` after three correct picks in a row (a wrong pick resets the count); it is
-neither logged nor scheduled. `DrillFeedback` (`correct`, `answer`, `onContinue`): a correct answer
-shows "Benar" and continues after 800 ms; a wrong answer shows "Belum tepat" with the correct
-answer and waits for "Lanjut".
+picks the drill and its answer mode with `chooseDrill` and the choices with `pickChoices`, grades
+each answer with `gradeAnswer` (rate, confusion check, schedule), and commits the result; no drill
+calls a scheduling function or the repository. `ContrastDrill` takes `target`, `partner`, and
+`rng`, asks for one of the two in an `rng`-drawn order each round, and reports only `onDone` after
+three correct picks in a row (a wrong pick resets the count); it is neither logged nor scheduled.
+`DrillFeedback` (`correct`, `answer`, `onContinue`): a correct answer shows "Benar" and continues
+after 800 ms; a wrong answer shows "Belum tepat" with the correct answer and waits for "Lanjut".
 
 ## 5. Domain model (`packages/core/src/domain.ts`)
 
@@ -228,11 +230,12 @@ Every function below is pure, takes `now`, takes `today: LocalDate` where calend
 and takes `rng` where it samples. Reference: *none yet*.
 
 `packages/core/src/` groups functions by concern: `answer/` (`romajiMatches`, `romanize`,
-`rateAnswer`), `srs/` (`schedule`, `applyConfusion`), `session/` (`planSession`, `defaults.ts`),
-`phase/` (`derivePhase`, `evaluateKanaExit`, `kanaExitAvailable`), `progress/` (`streak`, later
-`progressSummary`); the placement of `nextCurriculumUnit` is decided with it. `answer/tokenise.ts`
-is the internal longest-match tokeniser shared by `romajiMatches` and `romanize`; it is not
-exported from `@wara/core`. `tests/` mirrors this layout.
+`rateAnswer`), `srs/` (`schedule`, `applyConfusion`, `gradeAnswer`), `session/` (`planSession`,
+`isDrillableKana`, `chooseDrill`, `pickChoices`, `defaults.ts`), `phase/` (`derivePhase`,
+`evaluateKanaExit`, `kanaExitAvailable`), `progress/` (`streak`, later `progressSummary`); the
+placement of `nextCurriculumUnit` is decided with it. `answer/tokenise.ts` is the internal
+longest-match tokeniser shared by `romajiMatches` and `romanize`; it is not exported from
+`@wara/core`. `tests/` mirrors this layout.
 
 | Function | Signature (abridged) | Rule |
 | --- | --- | --- |
@@ -241,7 +244,11 @@ exported from `@wara/core`. `tests/` mirrors this layout.
 | `rateAnswer` | `({ correct, elapsedMs, mode }: { correct: boolean; elapsedMs: number; mode: 'choice' \| 'typed' }) => Rating` | Wrong → Again at any speed. Correct, by inclusive elapsed-time thresholds: typed — ≤ `RATE_TYPED_EASY_MAX_MS` (2.5 s) Easy, ≤ `RATE_TYPED_GOOD_MAX_MS` (6 s) Good, slower Hard; choice — ≤ `RATE_CHOICE_GOOD_MAX_MS` (4 s) Good, slower Hard. Multiple choice is capped at Good; typed can reach Easy. Correctness comes from `romajiMatches` (typed) or an id comparison (choice). Open-recall cards are not rated here: the learner's four buttons give the `Rating`. |
 | `schedule` | `({ itemId, state: ReviewState \| null, rating, now, weakSeeds }) => ReviewState` | Wraps ts-fsrs 5.4 with `FSRS_DESIRED_RETENTION` and fuzz off (`FSRS_ENABLE_FUZZ`), so identical inputs give identical output. `state: null` is the first review and starts from an empty card at `now`. An item in `weakSeeds` on its first review is first given a virtual Again at `now`, then the actual rating, and its `lapses` is 1 (as if it had lapsed once). `lastReview` becomes `now`; `itemId` is preserved; the input state is never mutated. |
 | `applyConfusion` | `({ itemId, given, groups, items, states, now }: { itemId: string; given: ConfusionAnswer; groups: ReadonlyArray<ConfusionGroup>; items: ReadonlyArray<ContentItem>; states: ReadonlyArray<ReviewState>; now: Date }) => { confusedWith: string \| null; moved: ReadonlyArray<ReviewState>; priorityNew: ReadonlyArray<string> }`, `ConfusionAnswer` = `{ mode: 'typed'; text: string } \| { mode: 'choice'; itemId: string }` | A's partners are the other members of every group containing A (`itemId`), in group order; a superseded partner is ignored. A typed answer confuses A with the first partner B whose reading `romajiMatches` it (a kana item's reading is its `char`, a vocab item's its `reading`); a choice answer with the chosen id when it is a partner. An answer that matches A itself, or no partner, returns `{ confusedWith: null, moved: [], priorityNew: [] }`. Only the one confused partner is returned (a group of four yields one pair). A is scheduled normally (Again, through `schedule`); B's `due` becomes the earlier of its `due` and `now` (a partner already overdue is not pushed later), with stability and difficulty unchanged (`moved`); a B with no state is returned in `priorityNew`. `confusedWith` is written to A's `ReviewLog`. The contrast drill is neither logged nor scheduled. |
-| `planSession` | `({ availableMin, items, states, profile, phase, sessionsToday, now, today, rng }) => SessionPlan`, `SessionPlan` = `{ plannedMin: number; activities: ReadonlyArray<SessionActivity> }`; `curriculumCursor` returns as an input with the curriculum (v0.2) | Due = the `states` with `due <= now` whose item exists and is not superseded, most overdue first (ties by `itemId`). Review takes as many as fit in `availableMin` at `REVIEW_ITEM_SEC` each; the rest stay due for the next session (a session never exceeds `availableMin`). Production then takes up to `SESSION_SPLIT_MIN.production` / total of the session; new material takes what remains (unused review time goes to new material; review overflow eats new material first). New items per day: `NEW_ITEMS_PER_DAY.phase0` in phase 0, `.later` after; halved when the due count exceeds `BACKLOG_HALVE_NEW_ABOVE`, zero above `BACKLOG_STOP_NEW_ABOVE`; minus the itemIds of `kind: 'new'` activities in `sessionsToday` sessions dated `today`. New pool (v0.1): items without a state, not superseded, with `phase <= phase`, not already introduced today, ordered `profile.weakSeeds` (profile order) → kana items in content order → vocabulary items in content order; each costs `NEW_ITEM_SEC`. Production items: this plan's new items, or its review items when it has none, shuffled with `rng` and cut to fit at `PRODUCTION_ITEM_SEC` each. Activities in display order review → new → production; empty ones omitted; `estimatedSec` = count × per-item seconds; `done: false`. Deterministic for identical inputs (including `rng`). |
+| `gradeAnswer` | `({ itemId, correct, given, elapsedMs, states, groups, items, weakSeeds, now, logId }: { itemId: string; correct: boolean; given: ConfusionAnswer; elapsedMs: number; states: ReadonlyArray<ReviewState>; groups: ReadonlyArray<ConfusionGroup>; items: ReadonlyArray<ContentItem>; weakSeeds: ReadonlyArray<string>; now: Date; logId: string }) => GradedAnswer`, `GradedAnswer` = `{ states: ReadonlyArray<ReviewState>; log: ReviewLog; confusedWith: string \| null; priorityNew: ReadonlyArray<string> }` | One drill answer: `rateAnswer` (`mode` from `given.mode`) → `applyConfusion` (wrong answers only; a correct answer is never checked for confusion) → `schedule` of the answered item from its entry in `states` (`null` when it has none). `states` = the answered item's new state first, then the confusion partner moved to `now` when there is one; `log` = `{ id: logId, itemId, at: now, rating, elapsedMs, confusedWith }`; `confusedWith` and `priorityNew` are `applyConfusion`'s (`null` and empty on a correct answer). The input states are never mutated. The session hook calls it once per answer and commits the result; the hook composes, it holds no rule. |
+| `planSession` | `({ availableMin, items, states, profile, phase, sessionsToday, now, today, rng }) => SessionPlan`, `SessionPlan` = `{ plannedMin: number; activities: ReadonlyArray<SessionActivity> }`; `curriculumCursor` returns as an input with the curriculum (v0.2) | Due = the `states` with `due <= now` whose item exists and is not superseded, most overdue first (ties by `itemId`). Review takes as many as fit in `availableMin` at `REVIEW_ITEM_SEC` each; the rest stay due for the next session (a session never exceeds `availableMin`). Production then takes up to `SESSION_SPLIT_MIN.production` / total of the session; new material takes what remains (unused review time goes to new material; review overflow eats new material first). New items per day: `NEW_ITEMS_PER_DAY.phase0` in phase 0, `.later` after; halved when the due count exceeds `BACKLOG_HALVE_NEW_ABOVE`, zero above `BACKLOG_STOP_NEW_ABOVE`; minus the itemIds of `kind: 'new'` activities in `sessionsToday` sessions dated `today`. New pool (v0.1): items without a state, not superseded, with `phase <= phase`, not already introduced today, and not a non-drillable kana (`isDrillableKana` false — excluded before the new-item limit is applied, so っ, ッ, and ー never take a place, weak seeds included), ordered `profile.weakSeeds` (profile order) → kana items in content order → vocabulary items in content order; each costs `NEW_ITEM_SEC`. Production items: this plan's new items, or its review items when it has none, shuffled with `rng` and cut to fit at `PRODUCTION_ITEM_SEC` each. Activities in display order review → new → production; empty ones omitted; `estimatedSec` = count × per-item seconds; `done: false`. Deterministic for identical inputs (including `rng`). |
+| `isDrillableKana` | `(item: KanaItem) => boolean` | True when the kana's `romaji` is not `''`. っ, ッ, and ー have no sound of their own and are practised only inside words, so they are never introduced as new items, drilled alone, or offered as a choice. Used by `planSession`, `pickChoices`, and the Beranda kana-exit check. |
+| `chooseDrill` | `({ item, state, activity, rng }: { item: ContentItem; state: ReviewState \| null; activity: SessionActivityKind; rng: () => number }) => DrillChoice`, `DrillChoice` = `{ kind: 'kana-to-romaji'; answerMode: 'choice' \| 'typed' } \| { kind: 'romaji-to-kana' } \| { kind: 'dictation' } \| { kind: 'word-reading' }` | A vocabulary item (content or custom) → `word-reading` in every activity. A kana in a `review` or `new` activity → `kana-to-romaji`, `typed` only when the card's FSRS `state` is `'review'`, otherwise `choice` (no state, `new`, `learning`, `relearning` — a forgotten card returns to choice). A kana in a `production` activity → one `rng()` call: below 0.5 `dictation`, otherwise `romaji-to-kana`. `rng` is not called in any other case. Callers never pass a non-drillable kana. |
+| `pickChoices` | `({ item, items, groups, count, rng }: { item: KanaItem; items: ReadonlyArray<ContentItem>; groups: ReadonlyArray<ConfusionGroup>; count: number; rng: () => number }) => ReadonlyArray<KanaItem>` | The choices of a choice drill: `item` plus up to `count - 1` distractors, shuffled with `rng` (`item` appears exactly once, even when `items` lacks it). The pool is the kana in `items` that are drillable (`isDrillableKana`), not superseded, of the item's `script`, and not the item; no choice shares a `romaji` with the item or with another choice (じ/ぢ, ず/づ, and お/を share one). Preference: confusion partners (the members of every group containing the item, in group order, then member order), then kana of the item's own kana `group` in `rng` order, then the rest of the pool in `rng` order. Fewer than `count` choices come back when the pool runs out. `count` comes from `DRILL_CHOICE_COUNT` (`kanaToRomaji` 4, `kanaGrid` 6). |
 | `derivePhase` | `({ assessments }: { assessments: ReadonlyArray<Assessment> }) => Phase` | Phase from assessments only (review states are not an input), cumulative: 0 by default; 1 when a passed `kana-exit` assessment exists (a `KanaExitAssessment` with `passed: true`; `kanaExitAvailable` reads it the same way); 2 when additionally the best `jlpt-sim` score at level `n5` is ≥ `JLPT_SIM_PASS_SCORE.n5` (0.80); 3 when additionally the best `n4` score is ≥ `JLPT_SIM_PASS_SCORE.n4` (0.70). Mirrors the measurable targets of `docs/learning-plan.md` §4. |
 | `evaluateKanaExit` | `(answers: ReadonlyArray<{ itemId: string; correct: boolean }>, elapsedMs: number) => { passed: boolean; wrong: ReadonlyArray<string> }` | `elapsedMs` is the sum of per-word display times (a word appearing to "Siap"; typing time excluded). Pass = exactly `KANA_EXIT_WORD_COUNT` answers, all correct, and `elapsedMs` ≤ `KANA_EXIT_TIME_LIMIT_MS` (inclusive). `wrong` lists the item ids answered wrong, in answer order. Each kana-exit answer is also a review: `romajiMatches` → `rateAnswer` (mode `typed`, `elapsedMs` = that word's display time) → `schedule` → `commitReview`. |
 | `kanaExitAvailable` | `({ kanaIds, states, assessments }: { kanaIds: ReadonlyArray<string>; states: ReadonlyArray<ReviewState>; assessments: ReadonlyArray<Assessment> }) => boolean` | True when every id in `kanaIds` has a `ReviewState` (each kana reviewed at least once) and no passed `kana-exit` assessment exists; an empty `kanaIds` returns false. Drives the "Tes keluar Fase 0" card on Beranda; a failed attempt keeps it true so the test can be retaken. |
@@ -254,15 +261,16 @@ The placement test has no function of its own: each answer goes through `romajiM
 
 Defaults (`core/session/defaults.ts`): `DEFAULT_AVAILABLE_MIN` 30, `SESSION_SPLIT_MIN`
 `{ review: 5, newMaterial: 15, production: 10 }`, `REVIEW_ITEM_SEC` 10, `NEW_ITEM_SEC` 30,
-`PRODUCTION_ITEM_SEC` 20, `NEW_ITEMS_PER_DAY` `{ phase0: 20, later: 10 }`,
-`BACKLOG_HALVE_NEW_ABOVE` 100, `BACKLOG_STOP_NEW_ABOVE` 200, `FSRS_DESIRED_RETENTION` 0.9,
-`FSRS_ENABLE_FUZZ` false, `RATE_TYPED_EASY_MAX_MS` 2500, `RATE_TYPED_GOOD_MAX_MS` 6000,
-`RATE_CHOICE_GOOD_MAX_MS` 4000, `KANA_EXIT_WORD_COUNT` 50, `KANA_EXIT_TIME_LIMIT_MS` 120000,
-`JLPT_SIM_PASS_SCORE` `{ n5: 0.8, n4: 0.7 }`, `ROMAJI_AID_DEFAULT`
-`{ phase0: 'on-demand', later: 'off' }` (the learner may change it),
-`ROMAJI_AID_AUTO_OFF_ACCURACY` 0.95 and `ROMAJI_AID_AUTO_OFF_WINDOW` 200 (romaji aid turns off
-at kana accuracy ≥ 0.95 over the last 200 kana reviews). A default is a named export, never a
-literal at a call site.
+`PRODUCTION_ITEM_SEC` 20, `DRILL_CHOICE_COUNT` `{ kanaToRomaji: 4, kanaGrid: 6 }` (the choices
+`pickChoices` returns for a kana-to-romaji drill and for the kana grid of a romaji-to-kana or
+dictation drill), `NEW_ITEMS_PER_DAY` `{ phase0: 20, later: 10 }`, `BACKLOG_HALVE_NEW_ABOVE` 100,
+`BACKLOG_STOP_NEW_ABOVE` 200, `FSRS_DESIRED_RETENTION` 0.9, `FSRS_ENABLE_FUZZ` false,
+`RATE_TYPED_EASY_MAX_MS` 2500, `RATE_TYPED_GOOD_MAX_MS` 6000, `RATE_CHOICE_GOOD_MAX_MS` 4000,
+`KANA_EXIT_WORD_COUNT` 50, `KANA_EXIT_TIME_LIMIT_MS` 120000, `JLPT_SIM_PASS_SCORE`
+`{ n5: 0.8, n4: 0.7 }`, `ROMAJI_AID_DEFAULT` `{ phase0: 'on-demand', later: 'off' }` (the
+learner may change it), `ROMAJI_AID_AUTO_OFF_ACCURACY` 0.95 and `ROMAJI_AID_AUTO_OFF_WINDOW` 200
+(romaji aid turns off at kana accuracy ≥ 0.95 over the last 200 kana reviews). A default is a
+named export, never a literal at a call site.
 
 Typed errors (`core/errors.ts`): `ContentValidationError`, re-exported from
 `@wara/content/schema`; `RepositoryError` (`operation`, `ids`, `cause`); `ImportFormatError`

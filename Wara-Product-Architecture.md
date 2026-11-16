@@ -125,8 +125,9 @@ menyembunyikan keduanya. Tanpa baris profil, semua route dialihkan ke `/mulai`; 
 - **Aktivitas** (urutan tampil): **Ulangan** kartu SRS yang due; **Materi baru** — unit
   kurikulum berikutnya (seed lemah lebih dulu), item diperkenalkan satu per satu dengan mnemonik,
   contoh, dan TTS, lalu langsung diuji sekali; **Produksi** — memakai item yang baru diperkenalkan:
-  dikte (TTS → ketik kana), susun kata, atau "isi jurnal hari ini" (v0.3) bila belum ada entri hari
-  itu.
+  pada fase 0, kana diuji bergantian acak antara dikte (dengar, lalu pilih hurufnya dari grid) dan
+  romaji→kana (grid), tanpa keyboard Jepang; fase berikutnya dapat memakai dikte ketik kana, susun
+  kata, atau "isi jurnal hari ini" (v0.3) bila belum ada entri hari itu.
 - **Alokasi waktu:** ulangan tidak pernah dipotong; ulangan due yang melebihi jatahnya memakai
   jatah materi baru; jumlah item baru per hari dikurangi bila tumpukan ulangan besar.
 - **Rating** hibrida. Drill objektif (kana→romaji, romaji→kana grid, dikte, baca kata utuh, uji

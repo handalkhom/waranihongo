@@ -123,17 +123,26 @@ longest-match tokeniser; `romajiMatches` refactored onto it, behaviour unchanged
 `KanaDrillAnswer`, `index.ts`). Tests `packages/core/tests/answer/romanize.test.ts` (48),
 `apps/web/tests/components/DrillFeedback.test.tsx` (8), `apps/web/tests/modules/kana/` —
 KanaToRomaji 14, RomajiToKana 9, Dictation 11, WordReading 14, Contrast 17.
-* **Next: step 0.1.9** — module `session` (composer, route TDD): `/mulai` onboarding with the kana
-quick test, `/` Beranda, `/sesi` with `SessionProvider`, `/tes/kana-exit`; needs `toLocalDate`,
-the drill-mode and distractor rules (Open decisions), and the first browser look at the drills.
+* **Step 0.1.9 batch 1 (core session rules, test-first) done (2026-11-16):** in
+`packages/core/src`: `session/isDrillableKana.ts`, `session/chooseDrill.ts` (type `DrillChoice`),
+`session/pickChoices.ts`, `srs/gradeAnswer.ts` (type `GradedAnswer`), `DRILL_CHOICE_COUNT` in
+`session/defaults.ts`; `planSession` now excludes non-drillable kana from the new pool; all
+exported from `@wara/core`. Tests: isDrillableKana 12, chooseDrill 9, pickChoices 28,
+gradeAnswer 17, planSession +5 (42).
+* **Next: step 0.1.9 batch 2** — onboarding `/mulai` (name, daily target, a kana quick test of
+basic hiragana + katakana with typed romaji recorded as real reviews, weak-seed checklist, romaji
+aid) and `toLocalDate`. Batch 3 (Beranda `/` + `/sesi` with `SessionProvider`) and batch 4
+(`/tes/kana-exit`) follow; the first browser look at the drills comes with batch 3.
 * **Not yet written:** `docs/qa-session.md`, `docs/plan-v0.2.md`.
-* **Last verification (2026-11-16, step 0.1.8):** red first — romanize 48, DrillFeedback 8,
-KanaToRomaji 14, RomajiToKana 9, Dictation 11, WordReading 14, Contrast 17 failing assertions
-against stubs; every frozen test file's md5 unchanged after green; the `romajiMatches` refactor
-green before and after (82/82 on its two files). Full run: `lint`, `typecheck`, `test` (web 180,
-content 224, core 252), `build`, `validate` (41) all exit 0; core still clock-free. **Not seen in
-a browser:** the drills have no route until 0.1.9; TTS not heard on a device. Not verified:
-real-browser IndexedDB (phone QA, `docs/qa-session.md`).
+* **Last verification (2026-11-16, step 0.1.9 batch 1):** red first — isDrillableKana 12,
+chooseDrill 9, pickChoices 28, gradeAnswer 17 failing assertions against stubs; planSession's 5
+new tests failing against the old planner with its 37 existing tests green; every frozen test
+file's md5 unchanged after green (planSession's hash re-recorded after its contract change). Full
+run: `lint`, `typecheck`, `test` (web 180, content 224, core 323), `build`, `validate` (41) all
+exit 0; main JS chunk 547 kB (169.7 kB gzip); core still clock-free (no `Date.now(`,
+`new Date(`, `Math.random(` in `packages/core/src/`). **Not seen in a browser:** the drills have
+no route until batch 3; TTS not heard on a device. Not verified: real-browser IndexedDB (phone
+QA, `docs/qa-session.md`).
 * **Guards and orchestration skill: NOT installed (checked 2026-11-09, re-checked 2026-11-10,
   user's machine `GMBR-KEMLU-100`, Git Bash):** `~/.claude/hooks/` does not exist,
   `~/.claude/settings.json` has no `hooks` key, and `~/.claude/skills/` holds only `synced/` with
@@ -437,6 +446,21 @@ props fails `noUnusedParameters` and lint.
 * `ContrastDrill` draws its round with exactly two `rng()` calls (asked letter, then order; `< 0.5`
 → target / target-first); `DrillFeedback` is keyed per round.
 
+Taken 2026-11-16 (step 0.1.9 batch 1) — by the owner where marked "Owner", otherwise coordinator:
+
+* Owner: kana→romaji switches from multiple choice to typing by FSRS card state — typed only when
+the card is in `review`; new, learning and relearning (a forgotten card) use multiple choice.
+* Owner: distractors put confusion partners first, then the same kana group, then the same script.
+* Owner: phase-0 production for kana alternates at random between dictation (grid) and
+romaji→kana; typed kana (IME) waits for phase 1.
+* っ ッ ー (`romaji: ''`) are never drilled alone or introduced as new items — they are practised
+inside reading words; `isDrillableKana` owns the rule (planner, distractors, Beranda kana-exit
+ids).
+* Choices never share a romaji (じ/ぢ, ず/づ, お/を).
+* `gradeAnswer` composes rate → confusion (wrong only) → schedule → log in core, so the session
+hook holds no rule.
+* `DRILL_CHOICE_COUNT` = 4 for kana→romaji, 6 for the grids.
+
 Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation** (the monorepo item was
 confirmed by the user 2026-11-10, see above):
 
@@ -474,17 +498,8 @@ logged (2026-11-13).
 * Bundle size (2026-11-13): the main JS chunk is ~540 kB (≈167 kB gzip) — React, react-router,
 Dexie, zod, core and content load eagerly; revisit (lazy content/core, `manualChunks`) before the
 PWA step if first load on a phone is slow.
-* Kana drill mode and distractors (2026-11-16): which drill mode the session uses for an item (the
-product doc says kana→romaji is "pilihan ganda, lalu ketik" — the switch rule is undecided) and
-how distractors are chosen (confusion partners first?) — both are core rules, decided at the start
-of 0.1.9.
 * Shared kana choice grid (2026-11-16): `RomajiToKanaDrill`, `DictationDrill` and `ContrastDrill`
 repeat the same button markup — whether to extract one component.
-* Production dictation (2026-11-16): `Wara-Product-Architecture.md` (Sesi → Aktivitas) still
-describes the Produksi activity as "dikte (TTS → ketik kana)", which needs a Japanese keyboard,
-while the owner chose a kana grid (no Japanese keyboard) for the kana dictation drill. Decide with
-the session design at the start of 0.1.9 whether phase-0 production dictation reuses the grid drill
-or asks for typed kana.
 
 ## Load-bearing facts — to be filled from the code
 

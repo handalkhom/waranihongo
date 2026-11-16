@@ -16,6 +16,8 @@ export const REVIEW_ITEM_SEC = 10;
 export const NEW_ITEM_SEC = 30;
 export const PRODUCTION_ITEM_SEC = 20;
 
+export const DRILL_CHOICE_COUNT = { kanaToRomaji: 4, kanaGrid: 6 } as const;
+
 export const NEW_ITEMS_PER_DAY = { phase0: 20, later: 10 } as const;
 export const BACKLOG_HALVE_NEW_ABOVE = 100;
 export const BACKLOG_STOP_NEW_ABOVE = 200;

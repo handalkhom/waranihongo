@@ -9,6 +9,7 @@ import {
   REVIEW_ITEM_SEC,
   SESSION_SPLIT_MIN,
 } from './defaults';
+import { isDrillableKana } from './isDrillableKana';
 
 export interface SessionPlan {
   readonly plannedMin: number;
@@ -40,6 +41,17 @@ const isSuperseded = (item: ContentItem): boolean => {
       return item.supersededBy !== undefined;
     case 'vocab':
       return isVocabSuperseded(item);
+    default:
+      return item satisfies never;
+  }
+};
+
+const isIntroducible = (item: ContentItem): boolean => {
+  switch (item.type) {
+    case 'kana':
+      return isDrillableKana(item);
+    case 'vocab':
+      return true;
     default:
       return item satisfies never;
   }
@@ -138,7 +150,8 @@ export function planSession(input: {
   const withState = new Set(states.map((state) => state.itemId));
   const pool = orderPool(
     [...eligible.values()].filter(
-      (item) => !withState.has(item.id) && item.phase <= phase && !introducedToday.has(item.id),
+      (item) =>
+        !withState.has(item.id) && item.phase <= phase && !introducedToday.has(item.id) && isIntroducible(item),
     ),
     profile.weakSeeds,
   );

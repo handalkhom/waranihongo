@@ -86,6 +86,16 @@ const TOMODACHI = vocabItem('友達', 'ともだち', 'n5', 1);
 const NIHONGO = vocabItem('日本語', 'にほんご', 'n4', 2);
 const MISSING_ID = 'kana:hira:ゐ';
 
+const markItem = (char: string, script: KanaItem['data']['script'], group: KanaItem['data']['group']): KanaItem => ({
+  ...kanaItem(char, '', script),
+  data: { char, romaji: '', romajiAccepted: [], script, group },
+});
+
+const SMALL_TSU = markItem('っ', 'hiragana', 'small');
+const SMALL_TSU_KATA = markItem('ッ', 'katakana', 'small');
+const LONG_MARK = markItem('ー', 'katakana', 'mark');
+const MARK_IDS: ReadonlyArray<string> = [SMALL_TSU.id, SMALL_TSU_KATA.id, LONG_MARK.id];
+
 const ITEMS: ReadonlyArray<ContentItem> = [
   INU,
   ...HIRAGANA_ITEMS.slice(0, 10),
@@ -461,6 +471,79 @@ describe('planSession', () => {
         SAKANA.id,
         NIHONGO.id,
       ]);
+    });
+  });
+
+  describe('kana without a sound of their own', () => {
+    it('should never introduce っ, ッ or ー as new items', () => {
+      const items = [
+        SMALL_TSU,
+        ...HIRAGANA_ITEMS.slice(0, 3),
+        LONG_MARK,
+        SO,
+        SMALL_TSU_KATA,
+        N,
+        NEKO,
+      ];
+
+      const result = plan({ items });
+
+      expect(idsOf(result, 'new')).toEqual([...HIRAGANA_ITEMS.slice(0, 3).map((item) => item.id), SO.id, N.id, NEKO.id]);
+      for (const id of MARK_IDS) expect(idsOf(result, 'new')).not.toContain(id);
+    });
+
+    it('should give the place of a skipped mark to the next drillable kana', () => {
+      const items = [
+        ...HIRAGANA_ITEMS.slice(0, 10),
+        SMALL_TSU,
+        LONG_MARK,
+        ...HIRAGANA_ITEMS.slice(10),
+        SMALL_TSU_KATA,
+        SO,
+        N,
+      ];
+
+      const result = plan({ items });
+
+      expect(idsOf(result, 'new')).toEqual(KANA_IDS.slice(0, NEW_ITEMS_PER_DAY.phase0));
+    });
+
+    it('should give the place of a skipped mark to the next drillable kana under the halved limit', () => {
+      const dueCount = BACKLOG_HALVE_NEW_ABOVE + 1;
+      const due = backlog(dueCount);
+      const items = [
+        SMALL_TSU,
+        ...HIRAGANA_ITEMS.slice(0, 3),
+        LONG_MARK,
+        ...HIRAGANA_ITEMS.slice(3),
+        ...fillerItems(dueCount),
+      ];
+
+      const result = plan({ availableMin: LARGE_MIN, items, states: due.states });
+
+      expect(idsOf(result, 'review')).toHaveLength(dueCount);
+      expect(idsOf(result, 'new')).toEqual(KANA_IDS.slice(0, Math.floor(NEW_ITEMS_PER_DAY.phase0 / 2)));
+    });
+
+    it('should not plan production items for a skipped mark', () => {
+      const items = [SMALL_TSU, kanaItem('あ', 'a', 'hiragana'), LONG_MARK, SMALL_TSU_KATA, kanaItem('い', 'i', 'hiragana')];
+
+      const result = plan({ items });
+
+      for (const id of MARK_IDS) expect(idsOf(result, 'production')).not.toContain(id);
+      expect([...idsOf(result, 'production')].sort()).toEqual(['kana:hira:あ', 'kana:hira:い']);
+      expect(idsOf(result, 'new')).toEqual(['kana:hira:あ', 'kana:hira:い']);
+    });
+
+    it('should skip a weak seed that is a mark without counting it toward the limit', () => {
+      const result = plan({
+        items: [...ITEMS, SMALL_TSU, LONG_MARK],
+        profile: profile([SMALL_TSU.id, 'kana:hira:ね', LONG_MARK.id]),
+      });
+
+      expect(idsOf(result, 'new')).toEqual(
+        ['kana:hira:ね', ...KANA_IDS.filter((id) => id !== 'kana:hira:ね')].slice(0, NEW_ITEMS_PER_DAY.phase0),
+      );
     });
   });
 
