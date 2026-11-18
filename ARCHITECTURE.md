@@ -7,16 +7,19 @@ questions — those live in `MEMORY.md`. What a screen shows is in `Wara-Product
 
 > **Status: built are the monorepo scaffold; the content package (schemas, validator, v0.1 data);
 > `@wara/core` — the types, typed errors, and `Repository` interface (`domain.ts`, `errors.ts`,
-> `repository.ts`) and the v0.1 functions `romajiMatches`, `romanize`, `rateAnswer`, `schedule`,
-> `applyConfusion`, `gradeAnswer`, `planSession`, `isDrillableKana`, `chooseDrill`, `pickChoices`,
-> `derivePhase`, `evaluateKanaExit`, `kanaExitAvailable`, `streak`; the web data layer
-> `apps/web/src/data/` (`db.ts`, `exportBundleSchema.ts`, `dexieRepository.ts`,
-> `repositoryContext.ts`); the `apps/web` skeleton — the composition root, the route table,
-> `SettingsProvider`, `OnboardingGuard`, `AppLayout`, `RouteError`, `PageLoader`, and placeholder
-> pages for `/mulai`, `/`, and `/pengaturan`, whose real screens are built later; speech —
-> `src/services/tts.ts` and `src/hooks/useSpeech.ts`; the shared `DrillFeedback` component; and
-> the `kana` leaf module — `KanaToRomajiDrill` (choice and typed), `RomajiToKanaDrill`,
-> `DictationDrill`, `WordReadingDrill`, `ContrastDrill`.** Every other block in this file is
+> `repository.ts`, `getAssessments` included) and the v0.1 functions `romajiMatches`,
+> `romanize`, `rateAnswer`, `schedule`, `applyConfusion`, `gradeAnswer`, `planSession`,
+> `isDrillableKana`, `chooseDrill`, `pickChoices`, `placementItems`, `weakSeedChoices`,
+> `needsIntro`, `resumeSession`, `advanceSession`, `derivePhase`, `evaluateKanaExit`,
+> `kanaExitAvailable`, `streak`; the web data layer `apps/web/src/data/` (`db.ts`,
+> `exportBundleSchema.ts`, `dexieRepository.ts`, `repositoryContext.ts`); the `apps/web`
+> skeleton — the composition root, the route table, `SettingsProvider`, `OnboardingGuard`,
+> `AppLayout`, `RouteError`, `PageLoader`, `src/utils/localDate.ts`, and a placeholder page for
+> `/pengaturan`, whose real screen is built later; the `session` module's screens — onboarding
+> (`/mulai`), Beranda (`/`), and the running session (`/sesi`); speech — `src/services/tts.ts`
+> and `src/hooks/useSpeech.ts`; the shared `DrillFeedback` component; and the `kana` leaf module
+> — `KanaToRomajiDrill` (choice and typed), `RomajiToKanaDrill`, `DictationDrill`,
+> `WordReadingDrill`, `ContrastDrill`, `KanaIntroCard`.** Every other block in this file is
 > **Decided, not yet built**. When the code exists, each block is checked against the real tree
 > and either confirmed or corrected; a reference-implementation cell reading *none yet* is
 > replaced by a real path. `MEMORY.md` records which blocks have been confirmed.
@@ -125,7 +128,8 @@ Browser (phone first)
           → OnboardingGuard           // PageLoader while the profile loads; redirects to /mulai while no
                                       // profile row exists, and away from /mulai once one does
             → OnboardingPage          // /mulai, lazy, outside AppLayout
-            → AppLayout               // bottom tabs < lg, sidebar ≥ lg; hidden on /sesi and /tes/:kind
+            → SessionPage             // /sesi, lazy, outside AppLayout; mounts SessionProvider
+            → AppLayout               // bottom tabs < lg, sidebar ≥ lg; hidden on /tes/:kind
               → Page (lazy per route, owned by one module)
                 → composer module           // session | learn
                   → leaf module index.ts    // kana | vocab | grammar | kanji: drill and item-detail components
@@ -135,7 +139,8 @@ Browser (phone first)
                   → @wara/core              // pure: romajiMatches, romanize, rateAnswer, schedule,
                                             // applyConfusion, gradeAnswer, planSession, isDrillableKana,
                                             // chooseDrill, pickChoices, placementItems,
-                                            // weakSeedChoices, derivePhase, evaluateKanaExit,
+                                            // weakSeedChoices, needsIntro, resumeSession,
+                                            // advanceSession, derivePhase, evaluateKanaExit,
                                             // kanaExitAvailable, nextCurriculumUnit, streak,
                                             // progressSummary
                   → Repository (src/data)   // via useRepository(); Dexie, the only code that knows IndexedDB
@@ -148,6 +153,7 @@ Cross-route client state
   → SettingsProvider                  // the root route's element: romajiAid, dailyTargetMin, theme —
                                       // read-through of the profile row (SettingsContext)
   → SessionProvider                   // mounted by /sesi only: the running plan and its cursor
+                                      // (SessionContext, src/modules/session/useSession.ts)
 ```
 
 `SettingsProvider` sits inside the route table rather than in `AppProviders` so that a failed
@@ -176,12 +182,13 @@ database and orphans the learner's data.
 **The `kana` leaf module's drill contract.** `src/modules/kana/index.ts` exports
 `KanaToRomajiDrill` (`answerMode: 'choice'` with `choices`, or `'typed'` with `kana`),
 `RomajiToKanaDrill` and `DictationDrill` (both with `choices`), `WordReadingDrill` (a `VocabItem`
-and `kana`), `ContrastDrill`, their props types, and `KanaDrillAnswer`. Each answer drill receives
-its item and, in a choice mode, the choices as props; judges correctness itself — `romajiMatches`
-for a typed answer, the chosen id against the item's id for a choice; measures `elapsedMs` with
-`Date.now()` from mount to the answer; shows `DrillFeedback`; and, once the feedback continues,
-reports one `KanaDrillAnswer` `{ itemId, correct, given: ConfusionAnswer, elapsedMs }` through
-`onAnswer`. `DictationDrill` speaks the kana through `useSpeech()` on mount and on "Putar lagi";
+and `kana`), `ContrastDrill`, `KanaIntroCard`, their props types, and `KanaDrillAnswer`. Each
+answer drill receives its item and, in a choice mode, the choices as props; judges correctness
+itself — `romajiMatches` for a typed answer, the chosen id against the item's id for a choice;
+measures `elapsedMs` with `Date.now()` from mount to the answer; shows `DrillFeedback`; and, once
+the feedback continues, reports one `KanaDrillAnswer`
+`{ itemId, correct, given: ConfusionAnswer, elapsedMs }` through `onAnswer`. `DictationDrill`
+speaks the kana through `useSpeech()` on mount and on "Putar lagi";
 `WordReadingDrill` shows `romanize` of the reading as the correct answer. The composer (`session`)
 picks the drill and its answer mode with `chooseDrill` and the choices with `pickChoices`, grades
 each answer with `gradeAnswer` (rate, confusion check, schedule), and commits the result; no drill
@@ -190,6 +197,11 @@ calls a scheduling function or the repository. `ContrastDrill` takes `target`, `
 three correct picks in a row (a wrong pick resets the count); it is neither logged nor scheduled.
 `DrillFeedback` (`correct`, `answer`, `onContinue`): a correct answer shows "Benar" and continues
 after 800 ms; a wrong answer shows "Belum tepat" with the correct answer and waits for "Lanjut".
+`KanaIntroCard` (`item`, `onDone`, with `KanaIntroCardProps`) introduces a new kana before its
+first drill: the kana large with `lang="ja"`, its romaji muted and smaller, the mnemonic when the
+item has one (each Japanese run inside it wrapped in a `lang="ja"` span), "Dengar", which speaks
+the kana through `useSpeech()`, and "Mengerti", which calls `onDone`; it is neither logged nor
+scheduled.
 
 **The onboarding flow (`session`, `/mulai`).** `useOnboarding(): Onboarding` in
 `src/modules/session/useOnboarding.ts` reads every kana's review state with `useLiveQuery` (a
@@ -211,6 +223,46 @@ daily-target select over `DAILY_TARGET_MIN_OPTIONS`, `DEFAULT_AVAILABLE_MIN` sel
 checked; the checklist is hidden when there is none; romaji-aid radios defaulting to
 `ROMAJI_AID_DEFAULT.phase0`). The session hooks read content from `contentBundle`
 (`@wara/content`).
+
+**The session flow (`session`, `/` and `/sesi`).** `useHome(): Home` in
+`src/modules/session/useHome.ts` takes the profile from `useSettings()`, reads `getSessions()` and
+`getDueStates(now)` with `useLiveQuery`, and returns `{ status: 'loading' }` or
+`{ status: 'ready', name, streakDays, dueCount, today }`: `streakDays` from `streak`, `dueCount`
+the due states' count, and `today: HomeToday` (`'unfinished' | 'completed' | 'none'`) from the
+sessions dated today — a date filter and a flag kept in the hook, no rule from `core`. `HomePage`
+renders `PageLoader` while loading, then the h1 "Beranda" (the frozen app tests find the page by
+it), "Halo, {name}", "{n} hari berturut-turut", "Perlu diulang: {n}", and one link to `/sesi`:
+"Lanjutkan sesi" (unfinished), "Sesi hari ini selesai." with "Mulai sesi lagi" (completed), or
+"Mulai sesi hari ini" (none). The 12-month map and the kana-exit card are not on Beranda yet: the
+card comes with step 0.1.9's fourth batch, the map with `progressSummary`.
+`/sesi` renders `SessionPage`, which mounts `SessionProvider` (`SessionProvider.tsx`;
+`SessionContext` and `useSession(): SessionRunner` live in `useSession.ts`, because the
+`react-refresh` lint rule allows only components in a `.tsx` file). The provider's value is
+`useSessionRunner(): SessionRunner` (`useSessionRunner.ts`), `{ step, progress, kana, answer,
+finishIntro, finishContrast }`, whose `step` is `loading`, `empty`, `intro`, `drill`, `contrast`,
+or `done`. It opens the session once (a ref guards against StrictMode's double effect; nothing is
+read or written while there is no profile): today's unfinished session from `getSessions(today)`
+is resumed; otherwise `planSession` plans one with `availableMin: profile.dailyTargetMin`,
+`phase: derivePhase` over `getAssessments()`, `sessionsToday` from the same `getSessions(today)`,
+`states` from `getReviewStates` over every content id, and `rng: Math.random`, into a new row
+(`crypto.randomUUID()` id, `actualMin` 0, `cursor` 0). An empty plan shows the `empty` step
+("Tidak ada yang perlu dilatih sekarang.") and writes nothing. `resumeSession` then gives the
+cursor and the queue, and `saveSession` writes the row when the session is new or `resumeSession`
+changed it. For each queued item, `needsIntro` true shows `KanaIntroCard` first; the drill is
+`chooseDrill` plus, for a choice or grid drill, `pickChoices` with `DRILL_CHOICE_COUNT`
+(`rng: Math.random`), rendered by `SessionDrillView` (`SessionDrill.tsx`, a switch over the drill
+kinds); a drill kind that does not fit the item's type throws `ContentValidationError`. Each answer
+re-reads the states with `getReviewStates`, grades with `gradeAnswer`
+(`weakSeeds: profile.weakSeeds`), moves the queue with `advanceSession`, and writes once with
+`commitReview(states, [log], session)`; a `RepositoryError` keeps the drill and raises its
+`failedAttempts`, which remounts it under the alert "Jawaban gagal disimpan. Coba jawab lagi.";
+a failed open and any other error reach the route error element. A queue emptied before the
+session completes goes through `resumeSession` again with fresh states (saved when changed). A
+wrong answer confused with a kana partner shows `ContrastDrill` (the answered kana as `target`,
+`rng: Math.random`) before the next item. `priorityNew` is not used in v0.1. The `done` step
+("Sesi selesai") counts this visit's drill answers and the correct ones. While an item is shown, a
+header carries a "Keluar" link to `/`, "Bagian i dari n", the activity's label (Ulangan, Huruf
+baru, Latihan), and "Sisa n" (the queue's length). `/sesi` sits outside `AppLayout`.
 
 ## 5. Domain model (`packages/core/src/domain.ts`)
 
@@ -254,8 +306,9 @@ and takes `rng` where it samples. Reference: *none yet*.
 `packages/core/src/` groups functions by concern: `answer/` (`romajiMatches`, `romanize`,
 `rateAnswer`), `srs/` (`schedule`, `applyConfusion`, `gradeAnswer`), `session/` (`planSession`,
 `isDrillableKana`, `chooseDrill`, `pickChoices`, `placementItems`, `weakSeedChoices`,
-`defaults.ts`), `phase/` (`derivePhase`, `evaluateKanaExit`, `kanaExitAvailable`), `progress/`
-(`streak`, later `progressSummary`); the placement of `nextCurriculumUnit` is decided with it.
+`needsIntro`, `resumeSession`, `advanceSession`, `defaults.ts`), `phase/` (`derivePhase`,
+`evaluateKanaExit`, `kanaExitAvailable`), `progress/` (`streak`, later `progressSummary`); the
+placement of `nextCurriculumUnit` is decided with it.
 `answer/tokenise.ts` is the internal longest-match tokeniser shared by `romajiMatches` and
 `romanize`; it is not exported from `@wara/core`. `tests/` mirrors this layout.
 
@@ -273,6 +326,9 @@ and takes `rng` where it samples. Reference: *none yet*.
 | `pickChoices` | `({ item, items, groups, count, rng }: { item: KanaItem; items: ReadonlyArray<ContentItem>; groups: ReadonlyArray<ConfusionGroup>; count: number; rng: () => number }) => ReadonlyArray<KanaItem>` | The choices of a choice drill: `item` plus up to `count - 1` distractors, shuffled with `rng` (`item` appears exactly once, even when `items` lacks it). The pool is the kana in `items` that are drillable (`isDrillableKana`), not superseded, of the item's `script`, and not the item; no choice shares a `romaji` with the item or with another choice (じ/ぢ, ず/づ, and お/を share one). Preference: confusion partners (the members of every group containing the item, in group order, then member order), then kana of the item's own kana `group` in `rng` order, then the rest of the pool in `rng` order. Fewer than `count` choices come back when the pool runs out. `count` comes from `DRILL_CHOICE_COUNT` (`kanaToRomaji` 4, `kanaGrid` 6). |
 | `placementItems` | `({ items, states, rng }: { items: ReadonlyArray<ContentItem>; states: ReadonlyArray<ReviewState>; rng: () => number }) => ReadonlyArray<KanaItem>` | The onboarding quick-test queue: the kana in `items` with `data.group === 'basic'`, drillable (`isDrillableKana`), not superseded, and without any entry in `states` (so a closed tab resumes where it stopped). Hiragana first, then katakana; each script keeps content order and is shuffled separately with `rng` (Fisher–Yates from the end, hiragana consuming `rng` first; n−1 calls per script of n items). Deterministic for identical inputs. |
 | `weakSeedChoices` | `({ seedIds, items, states }: { seedIds: ReadonlyArray<string>; items: ReadonlyArray<ContentItem>; states: ReadonlyArray<ReviewState> }) => ReadonlyArray<KanaItem>` | The onboarding weak-seed checklist: in `seedIds` order, the seeds that resolve to a drillable, non-superseded kana in `items` with no entry in `states` (a seed answered in the quick test is measured, so it drops out; っ, ッ, and ー never appear). Unknown ids, non-kana ids, and repeats are skipped. |
+| `needsIntro` | `({ item, state, activity }: { item: ContentItem; state: ReviewState \| null; activity: SessionActivityKind }) => boolean` | True only for a kana item in a `new` activity with no state (`state === null`); a vocabulary item, a kana with a state, or any `review` or `production` activity is false. The session shows `KanaIntroCard` before that item's first drill. |
+| `resumeSession` | `({ session, states, now }: { session: Session; states: ReadonlyArray<ReviewState>; now: Date }) => { session: Session; queue: ReadonlyArray<string> }` | The pending items of an activity, in its `itemIds` order: `review` — no state, or `due <= now`; `new` — no state; `production` — every item. From `cursor` on, the first activity with pending items becomes the cursor and its pending items the queue; the activities skipped on the way are marked `done`. When the cursor activity already has pending items, the same `session` object is returned (identity, so the caller saves only a changed session). When none is left, every activity from `cursor` on is marked `done`, `cursor` = `activities.length`, `completed: true`, and the queue is `[]`. The input is never mutated. |
+| `advanceSession` | `({ session, queue, correct, elapsedMs }: { session: Session; queue: ReadonlyArray<string>; correct: boolean; elapsedMs: number }) => { session: Session; queue: ReadonlyArray<string> }` | One answer to the queue's head: correct → the head leaves the queue; wrong → it moves to the tail. `actualMin` grows by `elapsedMs / 60000`. A queue that empties marks the cursor activity `done` and moves `cursor` by one; `completed` is true when the cursor reaches `activities.length`. An empty input queue returns the input unchanged. The input is never mutated. |
 | `derivePhase` | `({ assessments }: { assessments: ReadonlyArray<Assessment> }) => Phase` | Phase from assessments only (review states are not an input), cumulative: 0 by default; 1 when a passed `kana-exit` assessment exists (a `KanaExitAssessment` with `passed: true`; `kanaExitAvailable` reads it the same way); 2 when additionally the best `jlpt-sim` score at level `n5` is ≥ `JLPT_SIM_PASS_SCORE.n5` (0.80); 3 when additionally the best `n4` score is ≥ `JLPT_SIM_PASS_SCORE.n4` (0.70). Mirrors the measurable targets of `docs/learning-plan.md` §4. |
 | `evaluateKanaExit` | `(answers: ReadonlyArray<{ itemId: string; correct: boolean }>, elapsedMs: number) => { passed: boolean; wrong: ReadonlyArray<string> }` | `elapsedMs` is the sum of per-word display times (a word appearing to "Siap"; typing time excluded). Pass = exactly `KANA_EXIT_WORD_COUNT` answers, all correct, and `elapsedMs` ≤ `KANA_EXIT_TIME_LIMIT_MS` (inclusive). `wrong` lists the item ids answered wrong, in answer order. Each kana-exit answer is also a review: `romajiMatches` → `rateAnswer` (mode `typed`, `elapsedMs` = that word's display time) → `schedule` → `commitReview`. |
 | `kanaExitAvailable` | `({ kanaIds, states, assessments }: { kanaIds: ReadonlyArray<string>; states: ReadonlyArray<ReviewState>; assessments: ReadonlyArray<Assessment> }) => boolean` | True when every id in `kanaIds` has a `ReviewState` (each kana reviewed at least once) and no passed `kana-exit` assessment exists; an empty `kanaIds` returns false. Drives the "Tes keluar Fase 0" card on Beranda; a failed attempt keeps it true so the test can be retaken. |
@@ -318,6 +374,7 @@ export interface Repository {
   readonly saveProfile: (profile: UserProfile) => Promise<void>
   readonly saveJournalEntry: (entry: JournalEntry) => Promise<void>
   readonly saveAssessment: (assessment: Assessment) => Promise<void>
+  readonly getAssessments: () => Promise<ReadonlyArray<Assessment>>
   readonly exportAll: () => Promise<ExportBundle>
   readonly importAll: (bundle: unknown) => Promise<void>
 }
@@ -341,13 +398,17 @@ export interface Repository {
   method name) and rethrow anything else; reads do not wrap.
 - `getReviewStates(ids)` returns the rows in `ids` order, skipping ids without a row.
   `getDueStates(before)` returns the states with `due <= before`, ordered by `due`, then `itemId`.
-- `saveSession` creates and finishes a session row.
+- `saveSession` writes a session row outside a review: a newly planned session, and one that
+  `resumeSession` changed (skipped activities marked done, or the session completed).
 - `getSessions(from?)` returns the sessions with `date >= from` (all when omitted), ordered by
-  date, then id. The planning hook calls `getSessions(today)` for `planSession`'s `sessionsToday`
-  and for Beranda's "Lanjutkan sesi" (today's unfinished session); Beranda's streak calls
-  `getSessions()`.
-- The planning hook reads all review states (`getReviewStates` over the content ids) and passes
-  them to `planSession` as `states`; `getDueStates` serves Beranda's due counts.
+  date, then id. The session runner calls `getSessions(today)` for today's unfinished session to
+  resume and for `planSession`'s `sessionsToday`; Beranda reads `getSessions()` live for its streak
+  and for the "Lanjutkan sesi" choice (today's sessions, filtered in `useHome`).
+- The session runner reads all review states (`getReviewStates` over the content ids) and passes
+  them to `planSession` as `states`; `getDueStates` serves Beranda's due count.
+- `getAssessments()` returns every assessment ordered by date, then id (Dexie `orderBy('date')`,
+  ties in primary-key order). The session runner derives the phase from it with `derivePhase`;
+  Beranda's kana-exit card (step 0.1.9, fourth batch) reads it for `kanaExitAvailable`.
 - `exportAll` reads all seven tables in one read transaction, each collection in primary-key
   order.
 - `importAll` takes `unknown`, parses it with `exportBundleSchema` (the one edge where stored data
@@ -416,8 +477,8 @@ only katakana (including ー and small kana); a `kanji:` slug is exactly one CJK
 | Path | Page | Notes |
 | --- | --- | --- |
 | `/mulai` | `OnboardingPage` | Only route while no profile exists; redirects to `/` once one does |
-| `/` | `HomePage` | Streak, due counts, "Mulai sesi hari ini", 12-month map; kana-exit card shown when `kanaExitAvailable` |
-| `/sesi` | `SessionPage` | Owned by `session`; full-screen; mounts `SessionProvider`; hides the app chrome |
+| `/` | `HomePage` | Owned by `session`; v0.1 shows the streak, the due count, and the session action ("Mulai sesi hari ini", "Lanjutkan sesi", or "Mulai sesi lagi"); the kana-exit card, shown when `kanaExitAvailable`, comes with step 0.1.9's fourth batch, the 12-month map with `progressSummary` |
+| `/sesi` | `SessionPage` | Owned by `session`; full-screen; mounts `SessionProvider`; outside `AppLayout`, like `/mulai` |
 | `/tes/:kind` | `TestPage` | Owned by `session`; full-screen; hides the app chrome; first kind `kana-exit`; owns the per-word display timer, which runs only while a word is visible and pauses from "Siap" through the typed answer |
 | `/belajar` | `LearnPage` | Owned by `learn`; browse content outside a session |
 | `/belajar/:type/:id` | `ItemPage` | Owned by `learn`; one item; "Latih sekarang" is the only way browsing touches the SRS |
@@ -438,7 +499,7 @@ pathless root route:
 - **`hydrateFallbackElement`**: `PageLoader`.
 
 Pages are lazy per route through `lazy: async () => ({ Component })`, importing the page from its
-module's `index.ts`. `/mulai` sits outside `AppLayout`; the app's pages sit inside it.
+module's `index.ts`. `/mulai` and `/sesi` sit outside `AppLayout`; the app's pages sit inside it.
 `AppLayout` renders one `<nav aria-label="Navigasi utama">`: fixed bottom tabs below `lg`, a
 sticky sidebar from `lg`. Only released screens get a tab; in v0.1 these are Beranda (`/`) and
 Pengaturan (`/pengaturan`).
@@ -461,8 +522,12 @@ Pengaturan (`/pengaturan`).
   exists). `src/index.css` applies the dark palette for `data-theme="dark"` and, under
   `prefers-color-scheme: dark`, whenever the attribute is not `light`, so `'system'` needs no
   JavaScript media query.
-- `SessionProvider` persists the session row with every `commitReview`, so a closed tab resumes;
-  `saveSession` creates and finishes it.
+- `SessionContext` and `useSession(): SessionRunner` live in `src/modules/session/useSession.ts`;
+  `SessionProvider` (`SessionProvider.tsx`) supplies `useSessionRunner()` as its value. The
+  session row is persisted with every `commitReview`, so a closed tab resumes through
+  `resumeSession`; `saveSession` writes a new session and one `resumeSession` changed. The runner
+  holds the session, its queue, and the states it last read through the repository in `useState`,
+  not in a live query, so a review commit does not re-render the screen from the table.
 - No IndexedDB row is ever copied into component state as a cache; a list renders from
   `useLiveQuery`.
 
@@ -510,10 +575,18 @@ Exempt from TDD, each with its substitute verification:
   the clock fakes only `Date` (`vi.useFakeTimers({ toFake: ['Date'] })`) and waits out the 800 ms
   `DrillFeedback` continue on real timers with long `waitFor` timeouts. Route tests of
   `session`'s `/mulai` live in `tests/modules/session/` (the profile step, the quick test, and the
-  finish step and save). `tests/utils/` tests the pure helpers of `src/utils/`: `toLocalDate`
-  covers the local-midnight, month, year, and leap-day boundaries and, with `vi.stubEnv('TZ', …)`,
-  time zones whose date differs from UTC — which works because Vitest's default `forks` pool runs
-  each test file in its own process.
+  finish step and save), and so do those of Beranda (`home.test.tsx`) and `/sesi`
+  (`sessionRun.test.tsx`, `sessionResume.test.tsx`). They render through `renderApp` on real
+  timers and wait for a lazily loaded page with `WAIT = { timeout: 3000 }` (4000 ms in
+  `sessionRun.test.tsx`, whose slow tests also take a 30 s test timeout): the `session` module's
+  lazy import can exceed `findBy`'s 1 s default while test files run in parallel, and
+  `tests/app/appLayout.test.tsx` uses the same wait. A test controls the plan by seeding a future
+  `review` state for every content item except the ones it wants planned (unseen items become new
+  material, past-due states review); `Math.random` is pinned with `vi.spyOn(Math, 'random')` where
+  the production drill choice must be fixed. `tests/utils/` tests the pure helpers of
+  `src/utils/`: `toLocalDate` covers the local-midnight, month, year, and leap-day boundaries and,
+  with `vi.stubEnv('TZ', …)`, time zones whose date differs from UTC — which works because
+  Vitest's default `forks` pool runs each test file in its own process.
   Component tests of leaf modules and shared components live in `tests/modules/<name>/` and
   `tests/components/`. They render the component directly with React Testing Library's `render`
   and call `cleanup()` themselves (no `renderApp`); they drive time with `vi.useFakeTimers()`,

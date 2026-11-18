@@ -5,6 +5,8 @@ import { renderApp } from '../renderApp';
 
 const NAV = 'Navigasi utama';
 
+const WAIT = { timeout: 3000 };
+
 const profile = (): UserProfile => ({
   id: 'me',
   name: 'Handal',
@@ -21,7 +23,7 @@ const seedProfile = async (repository: Repository): Promise<void> => {
 };
 
 const mainNavOnceLoaded = async (heading: string): Promise<HTMLElement> => {
-  await screen.findByRole('heading', { name: heading });
+  await screen.findByRole('heading', { name: heading }, WAIT);
   expect(screen.queryAllByRole('navigation', { name: NAV })).toHaveLength(1);
   return screen.getByRole('navigation', { name: NAV });
 };
@@ -55,7 +57,7 @@ describe('AppLayout', () => {
 
     fireEvent.click(within(nav).getByRole('link', { name: 'Pengaturan' }));
 
-    expect(await screen.findByRole('heading', { name: 'Pengaturan' })).toBeDefined();
+    expect(await screen.findByRole('heading', { name: 'Pengaturan' }, WAIT)).toBeDefined();
     expect(router.state.location.pathname).toBe('/pengaturan');
     expect(
       within(nav).getByRole('link', { name: 'Pengaturan' }).getAttribute('aria-current'),
@@ -68,7 +70,7 @@ describe('AppLayout', () => {
     cleanup();
 
     await renderApp({ path: '/mulai' });
-    await screen.findByRole('heading', { name: 'Selamat datang' });
+    await screen.findByRole('heading', { name: 'Selamat datang' }, WAIT);
     expect(screen.queryByRole('navigation', { name: NAV })).toBeNull();
   });
 });

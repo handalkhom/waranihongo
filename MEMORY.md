@@ -58,7 +58,7 @@ and a plain-vs-rough warning matter.
 * Re-assessed after each weekly test that changes a priority and at each phase transition; this
 section and `docs/learning-plan.md` are updated together.
 
-## Project state (2026-11-17)
+## Project state (2026-11-18)
 
 * **Git (2026-11-12):** remote `origin` = `https://github.com/handalkhom/waranihongo.git`;
 branch `main` (renamed from `master` 2026-11-12 at the owner's request) tracks `origin/main`.
@@ -136,19 +136,27 @@ gradeAnswer 17, planSession +5 (42).
 PlacementTest.tsx, WeakSeedStep.tsx}` and the real `OnboardingPage.tsx` (placeholder replaced).
 Tests: placementItems 32, weakSeedChoices 13, localDate 11, onboarding route tests 8 + 8
 (`apps/web/tests/modules/session/onboardingTest.test.tsx`, `onboardingSave.test.tsx`).
-* **Next: step 0.1.9 batch 3** — Beranda `/` and `/sesi` with `SessionProvider` (`chooseDrill`,
-`pickChoices`, `gradeAnswer`, the kana drills, `ContrastDrill`); the first browser look at the
-drills comes with it. Batch 4: `/tes/kana-exit`.
+* **Step 0.1.9 batch 3 (Beranda `/` and `/sesi`, test-first) done (2026-11-18):** core
+`session/needsIntro.ts`, `session/resumeSession.ts`, `session/advanceSession.ts`, all exported
+from `@wara/core`; `Repository.getAssessments` (core interface + Dexie, `orderBy('date')`); web
+kana `KanaIntroCard.tsx` (exported from the kana `index.ts`); session `useHome.ts`, `HomePage.tsx`
+(placeholder replaced), `useSessionRunner.ts`, `useSession.ts`, `SessionProvider.tsx`,
+`SessionDrill.tsx` (`SessionDrillView`), `SessionPage.tsx`; router `/sesi` outside `AppLayout`.
+Tests: needsIntro 10, resumeSession 15, advanceSession 19, getAssessments 7
+(`apps/web/tests/data/dexieRepositoryAssessments.test.ts`), KanaIntroCard 11, home 15, sessionRun
+14, sessionResume 11.
+* **Next: step 0.1.9 batch 4** — `/tes/kana-exit` (TestPage) and the Beranda kana-exit card
+(`kanaExitAvailable` over drillable kana ids + `getAssessments`); then 0.1.10 Settings.
 * **Not yet written:** `docs/qa-session.md`, `docs/plan-v0.2.md`.
-* **Last verification (2026-11-17, step 0.1.9 batch 2):** red first — placementItems 29 of 32
-failing on assertions (the 3 empty-result cases pass against a `[]` stub), weakSeedChoices 13/13,
-localDate 11/11, onboarding route tests 16/16 failing against the placeholder page
-(onboardingSave's failures are testing-library "unable to find" on the first profile field, since
-nothing past the placeholder exists); every frozen test file's md5 unchanged after green. Full
-run: `lint`, `typecheck`, `test` (web 207, content 224, core 368), `build`, `validate` all exit 0.
-`/mulai` checked by the owner in a real browser (2026-11-18). **Not seen in a browser:** the drills
-have no route until batch 3; TTS not heard on a device. Not verified: real-browser IndexedDB
-(phone QA, `docs/qa-session.md`).
+* **Last verification (2026-11-18, step 0.1.9 batch 3):** red first — needsIntro 10/10,
+resumeSession 15/15, advanceSession 18/19 (the empty-queue no-op passes against the stub by
+contract), getAssessments 6/7 (empty table), KanaIntroCard 11/11, home 15/15, sessionRun 14/14,
+sessionResume 10/11 (the no-profile redirect guard passes against the placeholder); every frozen
+test file's md5 unchanged after green except `apps/web/tests/app/appLayout.test.tsx`, deliberately
+changed (see Traps, 2026-11-18). Full run: `lint`, `typecheck`, `test` (web 265, content 224, core
+412), `build`, `validate` all exit 0. `/mulai` checked by the owner (2026-11-18). **Not seen in a
+browser:** `/` and `/sesi` (the drills' first real-browser look) — pending the owner's check; TTS
+not heard on a device. Not verified: real-browser IndexedDB (phone QA, `docs/qa-session.md`).
 * **Guards and orchestration skill: NOT installed (checked 2026-11-09, re-checked 2026-11-10,
   user's machine `GMBR-KEMLU-100`, Git Bash):** `~/.claude/hooks/` does not exist,
   `~/.claude/settings.json` has no `hooks` key, and `~/.claude/skills/` holds only `synced/` with
@@ -480,6 +488,28 @@ consequence of the batch-1 rule that っ/ッ/ー are practised only inside words
 default.
 * Owner: the quick test grades with `weakSeeds: []` (it measures those kana directly).
 
+Taken by the owner, 2026-11-18 (step 0.1.9 batch 3):
+
+* Owner: a new kana gets an intro card (kana, romaji, mnemonic, "Dengar", "Mengerti") before its
+first choice drill; new vocabulary goes straight to word reading (coordinator).
+* Owner: a wrong answer is asked again at the end of the current activity until it is answered
+correctly; every attempt is logged.
+* Owner: a confusion with a kana partner runs the contrast drill right after the feedback.
+* Owner: "Lanjutkan sesi" resumes by filtering the cursor activity in core (`resumeSession`:
+review = due or no state, new = no state, production restarts in full), with no `Session` type
+change.
+
+Taken by the coordinator, 2026-11-18 (step 0.1.9 batch 3):
+
+* Beranda keeps the h1 "Beranda" (the frozen app tests find the page by it), with the greeting
+"Halo, {name}" as a paragraph.
+* The kana-exit card moves to batch 4; the 12-month map waits for `progressSummary`.
+* `getAssessments` added to the `Repository` so the planner gets the phase.
+* `/sesi` sits outside `AppLayout`.
+* The Beranda hook keeps the today classification (unfinished / completed / none) as composition.
+* `SessionContext` and `useSession` live in `useSession.ts` because the react-refresh lint rule
+allows only component exports from a `.tsx` file.
+
 Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation** (the monorepo item was
 confirmed by the user 2026-11-10, see above):
 
@@ -519,6 +549,13 @@ Dexie, zod, core and content load eagerly; revisit (lazy content/core, `manualCh
 PWA step if first load on a phone is slow.
 * Shared kana choice grid (2026-11-16): `RomajiToKanaDrill`, `DictationDrill` and `ContrastDrill`
 repeat the same button markup — whether to extract one component.
+* Beranda beyond v0.1 (2026-11-18): the empty state for a brand-new learner ("Mulai dari kana" in
+the product doc), the streak forgiveness marker (`forgivenessUsedThisWeek`), and due counts per
+item type are product-doc items not in v0.1's simple Beranda.
+* `priorityNew` from `gradeAnswer` is unused by the session (2026-11-18).
+* `/` and `/sesi` need the owner's real-browser check at about 390 px and a desktop width
+(2026-11-18); record the outcome here.
+* "Belum kenal" during wrong-answer feedback (Traps, 2026-11-17) is still open.
 
 ## Load-bearing facts — to be filled from the code
 
@@ -642,6 +679,22 @@ pool (localDate test); re-check if the pool changes.
 * Checkboxes and radios on onboarding are native inputs (`accent-primary`), not registry
 primitives.
 * The `/mulai` look was checked by the owner in a real browser and approved (2026-11-18).
+
+Recorded 2026-11-18 (step 0.1.9 batch 3):
+
+* Lazy route modules can exceed testing-library's 1 s default `findBy*` timeout under parallel
+test files; route tests use `WAIT = { timeout: 3000 }`. `tests/app/appLayout.test.tsx` was
+changed on 2026-11-18 (coordinator decision) to pass `WAIT` to its three page waits — assertions
+unchanged; its new md5 recorded.
+* React StrictMode runs effects twice in development; the session hook opens once through a ref
+guard so it never plans or saves two sessions.
+* Route tests control the plan by seeding a future `review` state for every content item except
+the ones wanted; `Math.random` is pinned with `vi.spyOn` (production `< 0.5` → dictation,
+otherwise romaji→kana).
+* `actualMin` counts only drill answer time (the `elapsedMs` sum), not feedback, intro, or
+contrast time.
+* After a wrong answer the item's FSRS state is no longer `review`, so its requeued attempt may
+switch from typed to multiple choice (`chooseDrill`).
 
 ## Standing checklist
 

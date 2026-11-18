@@ -49,6 +49,9 @@ export type { DrillChoice } from './session/chooseDrill';
 export { pickChoices } from './session/pickChoices';
 export { placementItems } from './session/placementItems';
 export { weakSeedChoices } from './session/weakSeedChoices';
+export { needsIntro } from './session/needsIntro';
+export { resumeSession } from './session/resumeSession';
+export { advanceSession } from './session/advanceSession';
 export {
   RATE_TYPED_EASY_MAX_MS,
   RATE_TYPED_GOOD_MAX_MS,

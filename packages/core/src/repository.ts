@@ -23,6 +23,7 @@ export interface Repository {
   readonly saveProfile: (profile: UserProfile) => Promise<void>;
   readonly saveJournalEntry: (entry: JournalEntry) => Promise<void>;
   readonly saveAssessment: (assessment: Assessment) => Promise<void>;
+  readonly getAssessments: () => Promise<ReadonlyArray<Assessment>>;
   readonly exportAll: () => Promise<ExportBundle>;
   readonly importAll: (bundle: unknown) => Promise<void>;
 }

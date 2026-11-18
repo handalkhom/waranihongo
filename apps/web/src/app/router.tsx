@@ -20,6 +20,10 @@ export const appRoutes: RouteObject[] = [
         lazy: async () => ({ Component: (await import('@/modules/session')).OnboardingPage }),
       },
       {
+        path: '/sesi',
+        lazy: async () => ({ Component: (await import('@/modules/session')).SessionPage }),
+      },
+      {
         element: <AppLayout />,
         children: [
           {

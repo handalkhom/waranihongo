@@ -117,28 +117,41 @@ menyembunyikan keduanya. Tanpa baris profil, semua route dialihkan ke `/mulai`; 
 
 ### Beranda — `/`
 
-- **Isi:** sapaan dengan nama; streak ("{n} hari berturut-turut", dengan tanda bila hari
-  pengampunan sudah terpakai minggu ini); jumlah due per tipe (kana; kosakata dan kanji mulai
-  v0.2) dari `useLiveQuery`; tombol **"Mulai sesi hari ini"** (atau **"Lanjutkan sesi"** bila ada
-  baris `sessions` hari ini yang `completed: false`); kartu **"Tes keluar Fase 0"** setelah setiap
-  kana pernah diulang sekali, sampai tes itu lulus — pembelajar sendiri yang memilih kapan
-  memulainya.
+- **Isi:** judul "Beranda"; sapaan "Halo, {nama}"; streak ("{n} hari berturut-turut"; tanda bila
+  hari pengampunan sudah terpakai minggu ini belum di v0.1); **"Perlu diulang: {n}"** — satu angka
+  total item due dari `useLiveQuery` (rincian due per tipe — kana; kosakata dan kanji mulai v0.2 —
+  belum di v0.1); satu tombol sesuai keadaan sesi hari ini:
+  - **"Lanjutkan sesi"** bila ada baris `sessions` hari ini yang `completed: false`;
+  - **"Sesi hari ini selesai."** disertai tombol **"Mulai sesi lagi"** bila sesi hari ini sudah
+    selesai;
+  - selain itu **"Mulai sesi hari ini"**.
+
+  Kartu **"Tes keluar Fase 0"** setelah setiap kana pernah diulang sekali, sampai tes itu lulus —
+  pembelajar sendiri yang memilih kapan memulainya. Kartu ini belum di v0.1 saat ini; menyusul
+  bersama `/tes/kana-exit` pada batch berikutnya.
 - **Peta 12 bulan (v0.3):** lima fase dengan posisi saat ini dan indikator on-track dari
-  `progressSummary`.
-- **Keadaan:** memuat (kerangka); kosong — belum ada review sama sekali → "Mulai dari kana" sebagai
-  label tombol; berhasil; error.
+  `progressSummary`. Belum di v0.1; menunggu ringkasan progres.
+- **Keadaan:** memuat (kerangka); berhasil; error. Keadaan kosong — belum ada review sama sekali →
+  "Mulai dari kana" sebagai label tombol — belum di v0.1.
 
 ### Sesi — `/sesi`
 
 - **Tujuan:** menjalankan `SessionPlan` dari `planSession` satu aktivitas per waktu.
-- **Susunan:** bilah atas berisi progres waktu dan tombol jeda; badan berisi aktivitas aktif;
-  tidak ada navigasi lain.
+- **Susunan:** layar penuh, tanpa tab bawah atau sidebar. Bilah atas berisi tombol **"Keluar"**
+  (kembali ke Beranda; sesi tetap belum selesai dan bisa dilanjutkan dari Beranda) dan baris
+  progres "Bagian i dari n · {label} · Sisa n", dengan label **Ulangan**, **Huruf baru**, atau
+  **Latihan** sesuai aktivitas; badan berisi aktivitas aktif; tidak ada navigasi lain. Progres
+  waktu dan tombol jeda belum di v0.1.
+- **Waktu sesi:** target menit harian dari profil menjadi waktu sesi yang direncanakan
+  (`availableMin` untuk `planSession`).
 - **Aktivitas** (urutan tampil): **Ulangan** kartu SRS yang due; **Materi baru** — unit
-  kurikulum berikutnya (seed lemah lebih dulu), item diperkenalkan satu per satu dengan mnemonik,
-  contoh, dan TTS, lalu langsung diuji sekali; **Produksi** — memakai item yang baru diperkenalkan:
-  pada fase 0, kana diuji bergantian acak antara dikte (dengar, lalu pilih hurufnya dari grid) dan
-  romaji→kana (grid), tanpa keyboard Jepang; fase berikutnya dapat memakai dikte ketik kana, susun
-  kata, atau "isi jurnal hari ini" (v0.3) bila belum ada entri hari itu.
+  kurikulum berikutnya (seed lemah lebih dulu), item diperkenalkan satu per satu, lalu langsung
+  diuji. Di v0.1, kana baru tampil dulu sebagai **kartu kenalan** — huruf besar, romaji kecil,
+  mnemonik bila ada, tombol "Dengar" (TTS) dan "Mengerti" — lalu drill pilihan ganda; kosakata
+  baru langsung masuk latihan membaca tanpa kartu kenalan; **Produksi** — memakai item yang baru
+  diperkenalkan: pada fase 0, kana diuji bergantian acak antara dikte (dengar, lalu pilih hurufnya
+  dari grid) dan romaji→kana (grid), tanpa keyboard Jepang; fase berikutnya dapat memakai dikte
+  ketik kana, susun kata, atau "isi jurnal hari ini" (v0.3) bila belum ada entri hari itu.
 - **Alokasi waktu:** ulangan tidak pernah dipotong; ulangan due yang melebihi jatahnya memakai
   jatah materi baru; jumlah item baru per hari dikurangi bila tumpukan ulangan besar.
 - **Rating** hibrida. Drill objektif (kana→romaji, romaji→kana grid, dikte, baca kata utuh, uji
@@ -150,24 +163,31 @@ menyembunyikan keduanya. Tanpa baris profil, semua route dialihkan ke `/mulai`; 
 - **Drill kana** punya empat mode: kana→romaji (pilihan ganda, lalu ketik); romaji→kana (grid);
   dikte — TTS membacakan kana, lalu pembelajar memilih hurufnya dari grid, tanpa keyboard Jepang;
   baca kata utuh — ketik romaji; bila salah, romaji yang benar ditampilkan. Jawaban yang cocok
-  dengan anggota lain grup rawan tertukar memajukan pasangan itu menjadi due sekarang dan
-  menampilkan **drill kontras**: dua huruf berdampingan, yang diminta disebut dalam romaji
-  ("Pilih: ne"), posisi kedua huruf diacak setiap putaran, dan harus benar **tiga kali
-  berturut-turut**; jawaban salah mengembalikan hitungan ke 0. Untuk grup lebih dari dua anggota,
-  pasangannya adalah dua huruf yang benar-benar tertukar. Drill kontras hanya latihan dan tidak
-  dicatat sebagai review.
+  dengan anggota lain grup rawan tertukar (mis. ね dijawab "re") memajukan pasangan itu menjadi due
+  sekarang dan menampilkan **drill kontras** langsung setelah umpan balik jawaban: dua huruf
+  berdampingan, yang diminta disebut dalam romaji ("Pilih: ne" — pilih ね atau れ), posisi kedua
+  huruf diacak setiap putaran, dan harus benar **tiga kali berturut-turut**; jawaban salah
+  mengembalikan hitungan ke 0. Setelah itu sesi berlanjut ke drill berikutnya. Untuk grup lebih
+  dari dua anggota, pasangannya adalah dua huruf yang benar-benar tertukar. Drill kontras hanya
+  latihan dan tidak dicatat sebagai review.
 - **Umpan balik jawaban:** jawaban benar menampilkan "Benar" lalu lanjut sendiri setelah jeda
   singkat; jawaban salah menampilkan jawaban yang benar dan menunggu tombol "Lanjut". Berlaku untuk
   semua drill objektif.
-- **Persistensi:** setiap aktivitas selesai → review, log-nya, dan progres sesi ditulis dalam
-  **satu** transaksi (`commitReview` bersama sesi). Menutup tab tidak menghilangkan progres dan
-  tidak menghitung ganda; "Lanjutkan sesi" di Beranda melanjutkan dari aktivitas berikutnya.
-- **Selesai:** ringkasan — item diulang, akurasi, item baru, menit aktual — dan tombol "Kembali ke
-  Beranda". Bila waktu habis sebelum semua aktivitas, yang belum dikerjakan adalah produksi;
-  materi baru sudah dikurangi planner sejak awal bila tumpukan ulangan besar.
-- **Keadaan:** tanpa item due dan tanpa unit baru → "Tidak ada yang perlu dipelajari hari ini."
-  (mulai v0.2 ditambah "Mau jelajah bebas?" dengan tautan ke `/belajar`); error pada
-  `commitReview` → aktivitas tetap di layar dengan tombol coba lagi; jawaban tidak hilang.
+- **Jawaban salah:** item itu muncul lagi di akhir bagian yang sama sampai dijawab benar; setiap
+  percobaan, benar maupun salah, tercatat sebagai review.
+- **Persistensi:** setiap jawaban → review, log-nya, dan progres sesi ditulis dalam **satu**
+  transaksi (`commitReview` bersama sesi). Menutup tab tidak menghilangkan progres dan tidak
+  menghitung ganda. "Lanjutkan sesi" di Beranda membuka kembali bagian yang sedang berjalan dengan
+  disaring: ulangan yang sudah tidak jatuh tempo dan huruf baru yang sudah punya catatan review
+  dilewati; bagian latihan diulang dari awal.
+- **Selesai:** judul "Sesi selesai", ringkasan "{n} jawaban, {m} benar.", dan tombol "Kembali ke
+  Beranda". Ringkasan lengkap — item diulang, akurasi, item baru, menit aktual — belum di v0.1.
+  Bila waktu habis sebelum semua aktivitas, yang belum dikerjakan adalah produksi; materi baru
+  sudah dikurangi planner sejak awal bila tumpukan ulangan besar.
+- **Keadaan:** memuat; rencana kosong (tanpa item due dan tanpa unit baru) → "Tidak ada yang perlu
+  dilatih sekarang." dengan tombol "Kembali ke Beranda" (mulai v0.2 ditambah "Mau jelajah bebas?"
+  dengan tautan ke `/belajar`); jawaban gagal disimpan → peringatan "Jawaban gagal disimpan. Coba
+  jawab lagi." dan huruf yang sama ditanyakan lagi; jawaban tidak hilang.
 
 ### Tes keluar Fase 0 — `/tes/kana-exit`
 

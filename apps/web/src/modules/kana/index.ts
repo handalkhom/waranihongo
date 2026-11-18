@@ -1,10 +1,12 @@
 export { ContrastDrill } from './ContrastDrill';
 export { DictationDrill } from './DictationDrill';
+export { KanaIntroCard } from './KanaIntroCard';
 export { KanaToRomajiDrill } from './KanaToRomajiDrill';
 export { RomajiToKanaDrill } from './RomajiToKanaDrill';
 export { WordReadingDrill } from './WordReadingDrill';
 export type { ContrastDrillProps } from './ContrastDrill';
 export type { DictationDrillProps } from './DictationDrill';
+export type { KanaIntroCardProps } from './KanaIntroCard';
 export type { KanaToRomajiDrillProps } from './KanaToRomajiDrill';
 export type { RomajiToKanaDrillProps } from './RomajiToKanaDrill';
 export type { KanaDrillAnswer } from './types';

@@ -92,6 +92,8 @@ export const createDexieRepository = (db: WaraDb, now: () => Date): Repository =
       );
     },
 
+    getAssessments: () => db.assessments.orderBy('date').toArray(),
+
     exportAll: () =>
       db.transaction(
         'r',
