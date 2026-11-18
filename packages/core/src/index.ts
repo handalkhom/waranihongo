@@ -47,6 +47,8 @@ export { isDrillableKana } from './session/isDrillableKana';
 export { chooseDrill } from './session/chooseDrill';
 export type { DrillChoice } from './session/chooseDrill';
 export { pickChoices } from './session/pickChoices';
+export { placementItems } from './session/placementItems';
+export { weakSeedChoices } from './session/weakSeedChoices';
 export {
   RATE_TYPED_EASY_MAX_MS,
   RATE_TYPED_GOOD_MAX_MS,
@@ -55,6 +57,7 @@ export {
   KANA_EXIT_TIME_LIMIT_MS,
   JLPT_SIM_PASS_SCORE,
   DEFAULT_AVAILABLE_MIN,
+  DAILY_TARGET_MIN_OPTIONS,
   SESSION_SPLIT_MIN,
   REVIEW_ITEM_SEC,
   NEW_ITEM_SEC,

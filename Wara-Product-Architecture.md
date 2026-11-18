@@ -92,16 +92,27 @@ menyembunyikan keduanya. Tanpa baris profil, semua route dialihkan ke `/mulai`; 
 ### Onboarding — `/mulai`
 
 - **Tujuan:** membuat baris profil dan memetakan kana yang sudah dikuasai.
-- **Isi, berurutan:** nama panggilan; target menit per hari (default 30); **uji cepat** hiragana
-  dan katakana dasar; daftar seed lemah dari `seed/alan-weak.json` untuk item yang tidak tercakup
-  uji cepat (misalnya しゃ しゅ しょ dan っ), ditampilkan sebagai kartu huruf yang bisa dicentang
-  atau dibuang; pilihan `romajiAid` (default `on-demand`). Tidak ada pilihan fase.
-- **Uji cepat:** tiap huruf tampil sekali dan dijawab dengan mengetik romaji (varian yang diterima
-  dihitung benar, lihat Sesi). Setiap jawaban adalah review sungguhan: dinilai otomatis dari
-  benar-salah dan waktu jawab, lalu ditulis bersama log-nya lewat `commitReview`.
-- **Simpan** → `saveProfile` dengan seed yang dicentang sebagai `profile.weakSeeds`; seed itu
-  diperkenalkan paling awal sebagai materi baru. Lalu dialihkan ke `/`.
-- **Keadaan:** awal, uji berjalan, menyimpan, error (pesan di bawah tombol). Tidak ada keadaan
+- **Isi, berurutan:** nama panggilan; target menit per hari, dipilih dari 15, 20, 30, 45, atau
+  60 menit (default 30); **uji cepat** kana dasar; daftar seed lemah — kartu huruf dari
+  `seed/alan-weak.json` yang dapat dilatih dan belum punya data review setelah uji cepat, yaitu
+  huruf di luar uji cepat (ぴ, しゃ, しゅ, しょ) ditambah seed yang dilewati dengan "Belum kenal";
+  semua tercentang di awal dan bisa dibuang. っ tidak ditampilkan karena tidak pernah dilatih
+  sendiri (dilatih lewat kata). Terakhir, pilihan bantuan romaji (`romajiAid`): Selalu tampil /
+  Tampil saat diminta (default) / Tidak tampil. Tidak ada pilihan fase.
+- **Uji cepat:** semua 92 kana dasar (46 hiragana + 46 katakana) — semua hiragana dulu, lalu semua
+  katakana, masing-masing diacak sehingga urutan tabel tidak memberi petunjuk. Tiap huruf dijawab
+  dengan mengetik romaji (varian yang diterima dihitung benar, lihat Sesi). Setiap jawaban adalah
+  review sungguhan: dinilai otomatis dari benar-salah dan waktu jawab, lalu ditulis bersama
+  log-nya lewat `commitReview`. Huruf yang sudah punya data review tidak ditanyakan lagi, jadi uji
+  yang terputus (tab ditutup) dilanjutkan dari huruf yang belum dijawab. Tombol **"Belum kenal"**
+  melewati huruf itu tanpa menulis review: huruf tetap berstatus baru dan nanti diperkenalkan
+  dengan mnemonik di Materi baru.
+- **Simpan** → `saveProfile` membuat profil (tema `system`, suara default) dengan seed yang
+  dicentang sebagai `profile.weakSeeds`; seed itu diperkenalkan paling awal sebagai materi baru.
+  Lalu dialihkan ke `/`.
+- **Keadaan:** memuat; isi profil; uji berjalan (bila jawaban gagal disimpan: "Jawaban gagal
+  disimpan. Coba jawab lagi."); menyimpan ("Menyimpan…"); error simpan ("Profil gagal disimpan.
+  Coba lagi." di bawah tombol); gagal membaca data → layar "Terjadi kesalahan". Tidak ada keadaan
   kosong.
 
 ### Beranda — `/`
@@ -220,10 +231,10 @@ menyembunyikan keduanya. Tanpa baris profil, semua route dialihkan ke `/mulai`; 
 
 ### Pengaturan — `/pengaturan`
 
-- `romajiAid` (lihat aturan romaji di atas); target menit; pilihan suara TTS (daftar suara
-  `ja-JP` perangkat; bila tidak ada, peringatan "Suara Jepang tidak tersedia di perangkat ini;
-  dikte dilewati"); tema (ikuti sistem / terang / gelap; default ikuti sistem); **Ekspor data**
-  → berkas JSON `wara-export-YYYY-MM-DD.json`.
+- `romajiAid` (lihat aturan romaji di atas); target menit (pilihan sama dengan onboarding: 15,
+  20, 30, 45, 60); pilihan suara TTS (daftar suara `ja-JP` perangkat; bila tidak ada, peringatan
+  "Suara Jepang tidak tersedia di perangkat ini; dikte dilewati"); tema (ikuti sistem / terang /
+  gelap; default ikuti sistem); **Ekspor data** → berkas JSON `wara-export-YYYY-MM-DD.json`.
 - **Impor data (v0.2)** → pemilih berkas, validasi penuh dulu, lalu dialog "Impor akan mengganti
   seluruh data di perangkat ini. Lanjutkan?" dengan tombol "Batal" dan "Ganti"; berkas yang gagal
   validasi ditolak dengan pesan dan tidak mengubah apa pun.

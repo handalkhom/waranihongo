@@ -10,6 +10,7 @@ export const KANA_EXIT_TIME_LIMIT_MS = 120_000;
 export const JLPT_SIM_PASS_SCORE = { n5: 0.8, n4: 0.7 } as const;
 
 export const DEFAULT_AVAILABLE_MIN = 30;
+export const DAILY_TARGET_MIN_OPTIONS = [15, 20, 30, 45, 60] as const;
 export const SESSION_SPLIT_MIN = { review: 5, newMaterial: 15, production: 10 } as const;
 
 export const REVIEW_ITEM_SEC = 10;

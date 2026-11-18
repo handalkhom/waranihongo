@@ -58,7 +58,7 @@ and a plain-vs-rough warning matter.
 * Re-assessed after each weekly test that changes a priority and at each phase transition; this
 section and `docs/learning-plan.md` are updated together.
 
-## Project state (2026-11-16)
+## Project state (2026-11-17)
 
 * **Git (2026-11-12):** remote `origin` = `https://github.com/handalkhom/waranihongo.git`;
 branch `main` (renamed from `master` 2026-11-12 at the owner's request) tracks `origin/main`.
@@ -129,20 +129,26 @@ KanaToRomaji 14, RomajiToKana 9, Dictation 11, WordReading 14, Contrast 17.
 `session/defaults.ts`; `planSession` now excludes non-drillable kana from the new pool; all
 exported from `@wara/core`. Tests: isDrillableKana 12, chooseDrill 9, pickChoices 28,
 gradeAnswer 17, planSession +5 (42).
-* **Next: step 0.1.9 batch 2** — onboarding `/mulai` (name, daily target, a kana quick test of
-basic hiragana + katakana with typed romaji recorded as real reviews, weak-seed checklist, romaji
-aid) and `toLocalDate`. Batch 3 (Beranda `/` + `/sesi` with `SessionProvider`) and batch 4
-(`/tes/kana-exit`) follow; the first browser look at the drills comes with batch 3.
+* **Step 0.1.9 batch 2 (onboarding `/mulai`, test-first) done (2026-11-17):** core
+`session/placementItems.ts`, `session/weakSeedChoices.ts`, `DAILY_TARGET_MIN_OPTIONS` in
+`session/defaults.ts`, all exported from `@wara/core`; web `src/utils/localDate.ts`
+(`toLocalDate`), `src/modules/session/{useOnboarding.ts, OnboardingProfileStep.tsx,
+PlacementTest.tsx, WeakSeedStep.tsx}` and the real `OnboardingPage.tsx` (placeholder replaced).
+Tests: placementItems 32, weakSeedChoices 13, localDate 11, onboarding route tests 8 + 8
+(`apps/web/tests/modules/session/onboardingTest.test.tsx`, `onboardingSave.test.tsx`).
+* **Next: step 0.1.9 batch 3** — Beranda `/` and `/sesi` with `SessionProvider` (`chooseDrill`,
+`pickChoices`, `gradeAnswer`, the kana drills, `ContrastDrill`); the first browser look at the
+drills comes with it. Batch 4: `/tes/kana-exit`.
 * **Not yet written:** `docs/qa-session.md`, `docs/plan-v0.2.md`.
-* **Last verification (2026-11-16, step 0.1.9 batch 1):** red first — isDrillableKana 12,
-chooseDrill 9, pickChoices 28, gradeAnswer 17 failing assertions against stubs; planSession's 5
-new tests failing against the old planner with its 37 existing tests green; every frozen test
-file's md5 unchanged after green (planSession's hash re-recorded after its contract change). Full
-run: `lint`, `typecheck`, `test` (web 180, content 224, core 323), `build`, `validate` (41) all
-exit 0; main JS chunk 547 kB (169.7 kB gzip); core still clock-free (no `Date.now(`,
-`new Date(`, `Math.random(` in `packages/core/src/`). **Not seen in a browser:** the drills have
-no route until batch 3; TTS not heard on a device. Not verified: real-browser IndexedDB (phone
-QA, `docs/qa-session.md`).
+* **Last verification (2026-11-17, step 0.1.9 batch 2):** red first — placementItems 29 of 32
+failing on assertions (the 3 empty-result cases pass against a `[]` stub), weakSeedChoices 13/13,
+localDate 11/11, onboarding route tests 16/16 failing against the placeholder page
+(onboardingSave's failures are testing-library "unable to find" on the first profile field, since
+nothing past the placeholder exists); every frozen test file's md5 unchanged after green. Full
+run: `lint`, `typecheck`, `test` (web 207, content 224, core 368), `build`, `validate` all exit 0.
+`/mulai` checked by the owner in a real browser (2026-11-18). **Not seen in a browser:** the drills
+have no route until batch 3; TTS not heard on a device. Not verified: real-browser IndexedDB
+(phone QA, `docs/qa-session.md`).
 * **Guards and orchestration skill: NOT installed (checked 2026-11-09, re-checked 2026-11-10,
   user's machine `GMBR-KEMLU-100`, Git Bash):** `~/.claude/hooks/` does not exist,
   `~/.claude/settings.json` has no `hooks` key, and `~/.claude/skills/` holds only `synced/` with
@@ -461,6 +467,19 @@ ids).
 hook holds no rule.
 * `DRILL_CHOICE_COUNT` = 4 for kana→romaji, 6 for the grids.
 
+Taken by the owner, 2026-11-17 (step 0.1.9 batch 2):
+
+* Owner: the onboarding quick test covers all 92 basic kana (46 hiragana + 46 katakana), typed
+romaji, hiragana first then katakana, each script shuffled.
+* Owner: a "Belum kenal" button skips a kana without writing a review — it stays new and is
+introduced later with its mnemonic; a skipped seed appears in the weak-seed checklist.
+* Owner: the daily target is picked from fixed options `DAILY_TARGET_MIN_OPTIONS` [15, 20, 30, 45,
+60], default 30; Pengaturan reuses them.
+* Owner: the weak-seed checklist offers only drillable seeds without a state (っ excluded — a
+consequence of the batch-1 rule that っ/ッ/ー are practised only inside words); all checked by
+default.
+* Owner: the quick test grades with `weakSeeds: []` (it measures those kana directly).
+
 Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation** (the monorepo item was
 confirmed by the user 2026-11-10, see above):
 
@@ -609,6 +628,20 @@ after such a manual write.
 * React StrictMode runs a lazy `useState` initialiser twice in development, so `ContrastDrill`'s
 first round calls `rng` four times in dev (tests do not use StrictMode); `DictationDrill` speaks
 twice on mount in dev for the same reason (`speakJapanese` cancels the first).
+
+Recorded 2026-11-17 (step 0.1.9 batch 2):
+
+* Open: "Belum kenal" stays clickable while a wrong answer's feedback waits for "Lanjut";
+pressing it then skips without committing that wrong answer. Not covered by a test.
+* After the last quick-test answer the finish step computes the checklist from the live states,
+which may lag one live-query tick; `WeakSeedStep` stores the unchecked ids so a list that shrinks
+after mount stays correct.
+* Route tests must not fake `setTimeout` (Dexie/fake-indexeddb stall); fake only `Date` when
+needed. `vi.stubEnv('TZ', …)` switches the time zone at runtime under Vitest's default `forks`
+pool (localDate test); re-check if the pool changes.
+* Checkboxes and radios on onboarding are native inputs (`accent-primary`), not registry
+primitives.
+* The `/mulai` look was checked by the owner in a real browser and approved (2026-11-18).
 
 ## Standing checklist
 

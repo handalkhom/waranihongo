@@ -134,7 +134,8 @@ Browser (phone first)
                                             // at the edge; owns no rule
                   → @wara/core              // pure: romajiMatches, romanize, rateAnswer, schedule,
                                             // applyConfusion, gradeAnswer, planSession, isDrillableKana,
-                                            // chooseDrill, pickChoices, derivePhase, evaluateKanaExit,
+                                            // chooseDrill, pickChoices, placementItems,
+                                            // weakSeedChoices, derivePhase, evaluateKanaExit,
                                             // kanaExitAvailable, nextCurriculumUnit, streak,
                                             // progressSummary
                   → Repository (src/data)   // via useRepository(); Dexie, the only code that knows IndexedDB
@@ -190,6 +191,27 @@ three correct picks in a row (a wrong pick resets the count); it is neither logg
 `DrillFeedback` (`correct`, `answer`, `onContinue`): a correct answer shows "Benar" and continues
 after 800 ms; a wrong answer shows "Belum tepat" with the correct answer and waits for "Lanjut".
 
+**The onboarding flow (`session`, `/mulai`).** `useOnboarding(): Onboarding` in
+`src/modules/session/useOnboarding.ts` reads every kana's review state with `useLiveQuery` (a
+failed read rethrows and reaches the route error element) and exposes `step`, `kana`, `start`,
+`answer`, `skip`, and `save`. Its steps are `loading` → `profile` → `test` → `finish`. `start`
+builds the quick-test queue once with `placementItems` (`rng: Math.random`). Each `answer`
+re-reads the kana states through the repository, grades with `gradeAnswer` (`weakSeeds: []`), and
+writes with `commitReview` without a session; a `RepositoryError` keeps the same kana and raises
+its `failedAttempts`, which remounts the drill under an alert; any other error is rethrown.
+`skip` ("Belum kenal") advances without a write. `finish` computes `weakSeedChoices` from the live
+states and the content seed list. `save` writes the profile `{ id: 'me', name, dailyTargetMin,
+romajiAid, theme: 'system', ttsVoiceUri: null, startDate: toLocalDate(now), weakSeeds }` (a
+`RepositoryError` shows a save-failed alert and keeps the step); `OnboardingGuard` then redirects
+to `/` — the page has no navigation code. `OnboardingPage` renders `PageLoader` while loading and
+one of three module-internal step components: `OnboardingProfileStep` (labelled name field and a
+daily-target select over `DAILY_TARGET_MIN_OPTIONS`, `DEFAULT_AVAILABLE_MIN` selected),
+`PlacementTest` (a typed `KanaToRomajiDrill` keyed by item id and failed attempts, a
+"Huruf n dari m" counter, and "Belum kenal"), and `WeakSeedStep` (a checkbox per seed choice, all
+checked; the checklist is hidden when there is none; romaji-aid radios defaulting to
+`ROMAJI_AID_DEFAULT.phase0`). The session hooks read content from `contentBundle`
+(`@wara/content`).
+
 ## 5. Domain model (`packages/core/src/domain.ts`)
 
 Content types (`ContentItem`, `KanaData`, `VocabData`, `CustomVocabData`, `Phase`,
@@ -231,11 +253,11 @@ and takes `rng` where it samples. Reference: *none yet*.
 
 `packages/core/src/` groups functions by concern: `answer/` (`romajiMatches`, `romanize`,
 `rateAnswer`), `srs/` (`schedule`, `applyConfusion`, `gradeAnswer`), `session/` (`planSession`,
-`isDrillableKana`, `chooseDrill`, `pickChoices`, `defaults.ts`), `phase/` (`derivePhase`,
-`evaluateKanaExit`, `kanaExitAvailable`), `progress/` (`streak`, later `progressSummary`); the
-placement of `nextCurriculumUnit` is decided with it. `answer/tokenise.ts` is the internal
-longest-match tokeniser shared by `romajiMatches` and `romanize`; it is not exported from
-`@wara/core`. `tests/` mirrors this layout.
+`isDrillableKana`, `chooseDrill`, `pickChoices`, `placementItems`, `weakSeedChoices`,
+`defaults.ts`), `phase/` (`derivePhase`, `evaluateKanaExit`, `kanaExitAvailable`), `progress/`
+(`streak`, later `progressSummary`); the placement of `nextCurriculumUnit` is decided with it.
+`answer/tokenise.ts` is the internal longest-match tokeniser shared by `romajiMatches` and
+`romanize`; it is not exported from `@wara/core`. `tests/` mirrors this layout.
 
 | Function | Signature (abridged) | Rule |
 | --- | --- | --- |
@@ -249,6 +271,8 @@ longest-match tokeniser shared by `romajiMatches` and `romanize`; it is not expo
 | `isDrillableKana` | `(item: KanaItem) => boolean` | True when the kana's `romaji` is not `''`. っ, ッ, and ー have no sound of their own and are practised only inside words, so they are never introduced as new items, drilled alone, or offered as a choice. Used by `planSession`, `pickChoices`, and the Beranda kana-exit check. |
 | `chooseDrill` | `({ item, state, activity, rng }: { item: ContentItem; state: ReviewState \| null; activity: SessionActivityKind; rng: () => number }) => DrillChoice`, `DrillChoice` = `{ kind: 'kana-to-romaji'; answerMode: 'choice' \| 'typed' } \| { kind: 'romaji-to-kana' } \| { kind: 'dictation' } \| { kind: 'word-reading' }` | A vocabulary item (content or custom) → `word-reading` in every activity. A kana in a `review` or `new` activity → `kana-to-romaji`, `typed` only when the card's FSRS `state` is `'review'`, otherwise `choice` (no state, `new`, `learning`, `relearning` — a forgotten card returns to choice). A kana in a `production` activity → one `rng()` call: below 0.5 `dictation`, otherwise `romaji-to-kana`. `rng` is not called in any other case. Callers never pass a non-drillable kana. |
 | `pickChoices` | `({ item, items, groups, count, rng }: { item: KanaItem; items: ReadonlyArray<ContentItem>; groups: ReadonlyArray<ConfusionGroup>; count: number; rng: () => number }) => ReadonlyArray<KanaItem>` | The choices of a choice drill: `item` plus up to `count - 1` distractors, shuffled with `rng` (`item` appears exactly once, even when `items` lacks it). The pool is the kana in `items` that are drillable (`isDrillableKana`), not superseded, of the item's `script`, and not the item; no choice shares a `romaji` with the item or with another choice (じ/ぢ, ず/づ, and お/を share one). Preference: confusion partners (the members of every group containing the item, in group order, then member order), then kana of the item's own kana `group` in `rng` order, then the rest of the pool in `rng` order. Fewer than `count` choices come back when the pool runs out. `count` comes from `DRILL_CHOICE_COUNT` (`kanaToRomaji` 4, `kanaGrid` 6). |
+| `placementItems` | `({ items, states, rng }: { items: ReadonlyArray<ContentItem>; states: ReadonlyArray<ReviewState>; rng: () => number }) => ReadonlyArray<KanaItem>` | The onboarding quick-test queue: the kana in `items` with `data.group === 'basic'`, drillable (`isDrillableKana`), not superseded, and without any entry in `states` (so a closed tab resumes where it stopped). Hiragana first, then katakana; each script keeps content order and is shuffled separately with `rng` (Fisher–Yates from the end, hiragana consuming `rng` first; n−1 calls per script of n items). Deterministic for identical inputs. |
+| `weakSeedChoices` | `({ seedIds, items, states }: { seedIds: ReadonlyArray<string>; items: ReadonlyArray<ContentItem>; states: ReadonlyArray<ReviewState> }) => ReadonlyArray<KanaItem>` | The onboarding weak-seed checklist: in `seedIds` order, the seeds that resolve to a drillable, non-superseded kana in `items` with no entry in `states` (a seed answered in the quick test is measured, so it drops out; っ, ッ, and ー never appear). Unknown ids, non-kana ids, and repeats are skipped. |
 | `derivePhase` | `({ assessments }: { assessments: ReadonlyArray<Assessment> }) => Phase` | Phase from assessments only (review states are not an input), cumulative: 0 by default; 1 when a passed `kana-exit` assessment exists (a `KanaExitAssessment` with `passed: true`; `kanaExitAvailable` reads it the same way); 2 when additionally the best `jlpt-sim` score at level `n5` is ≥ `JLPT_SIM_PASS_SCORE.n5` (0.80); 3 when additionally the best `n4` score is ≥ `JLPT_SIM_PASS_SCORE.n4` (0.70). Mirrors the measurable targets of `docs/learning-plan.md` §4. |
 | `evaluateKanaExit` | `(answers: ReadonlyArray<{ itemId: string; correct: boolean }>, elapsedMs: number) => { passed: boolean; wrong: ReadonlyArray<string> }` | `elapsedMs` is the sum of per-word display times (a word appearing to "Siap"; typing time excluded). Pass = exactly `KANA_EXIT_WORD_COUNT` answers, all correct, and `elapsedMs` ≤ `KANA_EXIT_TIME_LIMIT_MS` (inclusive). `wrong` lists the item ids answered wrong, in answer order. Each kana-exit answer is also a review: `romajiMatches` → `rateAnswer` (mode `typed`, `elapsedMs` = that word's display time) → `schedule` → `commitReview`. |
 | `kanaExitAvailable` | `({ kanaIds, states, assessments }: { kanaIds: ReadonlyArray<string>; states: ReadonlyArray<ReviewState>; assessments: ReadonlyArray<Assessment> }) => boolean` | True when every id in `kanaIds` has a `ReviewState` (each kana reviewed at least once) and no passed `kana-exit` assessment exists; an empty `kanaIds` returns false. Drives the "Tes keluar Fase 0" card on Beranda; a failed attempt keeps it true so the test can be retaken. |
@@ -256,10 +280,14 @@ longest-match tokeniser shared by `romajiMatches` and `romanize`; it is not expo
 | `streak` | `({ sessions, today }) => { days: number; forgivenessUsedThisWeek: boolean }` | Consecutive local days ending today or yesterday with a completed session; one forgiveness day per ISO week. A day counts when it has at least one `completed` session; today without a completed session neither counts nor breaks the streak. Walking back from the latest counted day, a single missed day is forgiven (not counted, not breaking) when no forgiveness was used yet in that missed day's ISO week (Monday start) and the day before it counts; two consecutive missed days end the streak. `forgivenessUsedThisWeek` is true when a forgiven day lies in the ISO week of `today`. Sessions dated after `today` are ignored. Used by Beranda; `progressSummary` reuses it. |
 | `progressSummary` | `(states, logs, sessions, now, today) => ProgressSummary` | Streak via `streak`, accuracy per confusion group from `ReviewLog.confusedWith`, on-track flag against the 12-month map. |
 
-The placement test has no function of its own: each answer goes through `romajiMatches` →
-`rateAnswer` → `schedule` → `commitReview`.
+The onboarding quick test's queue comes from `placementItems`; each answer goes through
+`gradeAnswer` with `weakSeeds: []` (the quick test measures those kana directly) and
+`commitReview` without a session. "Belum kenal" writes nothing, so that kana stays new and is
+later introduced with its mnemonic.
 
-Defaults (`core/session/defaults.ts`): `DEFAULT_AVAILABLE_MIN` 30, `SESSION_SPLIT_MIN`
+Defaults (`core/session/defaults.ts`): `DEFAULT_AVAILABLE_MIN` 30, `DAILY_TARGET_MIN_OPTIONS`
+`[15, 20, 30, 45, 60]` (the fixed daily-target choices, offered by the onboarding select;
+`DEFAULT_AVAILABLE_MIN` is the default selection), `SESSION_SPLIT_MIN`
 `{ review: 5, newMaterial: 15, production: 10 }`, `REVIEW_ITEM_SEC` 10, `NEW_ITEM_SEC` 30,
 `PRODUCTION_ITEM_SEC` 20, `DRILL_CHOICE_COUNT` `{ kanaToRomaji: 4, kanaGrid: 6 }` (the choices
 `pickChoices` returns for a kana-to-romaji drill and for the kana grid of a romaji-to-kana or
@@ -477,9 +505,15 @@ Exempt from TDD, each with its substitute verification:
   not work, because `liveQuery` ignores `DatabaseClosedError`. Every page has a route test
   covering empty, loading, success, and error. A behaviour change ships with a route or
   component test, not only a core test. `URL.createObjectURL` is stubbed per test that exports.
-  `speechSynthesis` is absent in jsdom; `tts.ts` is stubbed through its one module. A
-  time-dependent route test sets the clock with Vitest fake timers; `toLocalDate` has its own
-  test covering the local-midnight boundary.
+  `speechSynthesis` is absent in jsdom; `tts.ts` is stubbed through its one module. Route tests
+  never fake `setTimeout` — Dexie over `fake-indexeddb` stalls under it; a route test that needs
+  the clock fakes only `Date` (`vi.useFakeTimers({ toFake: ['Date'] })`) and waits out the 800 ms
+  `DrillFeedback` continue on real timers with long `waitFor` timeouts. Route tests of
+  `session`'s `/mulai` live in `tests/modules/session/` (the profile step, the quick test, and the
+  finish step and save). `tests/utils/` tests the pure helpers of `src/utils/`: `toLocalDate`
+  covers the local-midnight, month, year, and leap-day boundaries and, with `vi.stubEnv('TZ', …)`,
+  time zones whose date differs from UTC — which works because Vitest's default `forks` pool runs
+  each test file in its own process.
   Component tests of leaf modules and shared components live in `tests/modules/<name>/` and
   `tests/components/`. They render the component directly with React Testing Library's `render`
   and call `cleanup()` themselves (no `renderApp`); they drive time with `vi.useFakeTimers()`,
