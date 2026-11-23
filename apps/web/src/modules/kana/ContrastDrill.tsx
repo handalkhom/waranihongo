@@ -32,13 +32,20 @@ export function ContrastDrill({ target, partner, rng, onDone }: ContrastDrillPro
   return (
     <div className="flex flex-col gap-4">
       <h2 className={TYPOGRAPHY.sectionTitle}>
-        Bedakan <span lang="ja">{target.data.char}</span> dan <span lang="ja">{partner.data.char}</span>
+        Bedakan{' '}
+        <span lang="ja" className="text-accent-foreground">
+          {target.data.char}
+        </span>{' '}
+        dan{' '}
+        <span lang="ja" className="text-accent-foreground">
+          {partner.data.char}
+        </span>
       </h2>
       <p className="text-sm text-muted-foreground">
         Benar berturut-turut: {streak}/{REQUIRED_STREAK}
       </p>
-      <p className="text-4xl font-semibold">Pilih: {round.asked.data.romaji}</p>
-      <div className="grid grid-cols-2 gap-2">
+      <p className="text-3xl font-semibold">Pilih: {round.asked.data.romaji}</p>
+      <div className="grid grid-cols-2 gap-3">
         {round.order.map((choice) => (
           <button
             key={choice.id}
@@ -48,9 +55,9 @@ export function ContrastDrill({ target, partner, rng, onDone }: ContrastDrillPro
               setPick(choice);
               setStreak(choice.id === round.asked.id ? streak + 1 : 0);
             }}
-            className="h-20 rounded-md border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50"
+            className="genko flex aspect-square min-h-14 w-full max-w-40 items-center justify-center justify-self-center hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
           >
-            <span lang="ja" className="text-5xl">
+            <span lang="ja" className="text-6xl leading-none">
               {choice.data.char}
             </span>
           </button>

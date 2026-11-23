@@ -144,9 +144,16 @@ kana `KanaIntroCard.tsx` (exported from the kana `index.ts`); session `useHome.t
 `SessionDrill.tsx` (`SessionDrillView`), `SessionPage.tsx`; router `/sesi` outside `AppLayout`.
 Tests: needsIntro 10, resumeSession 15, advanceSession 19, getAssessments 7
 (`apps/web/tests/data/dexieRepositoryAssessments.test.ts`), KanaIntroCard 11, home 15, sessionRun
-14, sessionResume 11.
-* **Next: step 0.1.9 batch 4** — `/tes/kana-exit` (TestPage) and the Beranda kana-exit card
-(`kanaExitAvailable` over drillable kana ids + `getAssessments`); then 0.1.10 Settings.
+14, sessionResume 11. Committed and pushed as `c879071` (2026-11-18). The owner's browser check
+of `/` and `/sesi` (2026-11-18) found nothing functionally wrong but judged the look too plain
+("polos") — see Decisions, visual identity.
+* **Plan renumbered (2026-11-18):** new step 0.1.10 "Identitas visual" inserted in
+`docs/plan-v0.1.md` (unplanned work); Settings moved 0.1.10 → 0.1.11, PWA 0.1.11 → 0.1.12. Commit
+ids follow: visual `[WARA-0.1.10]`, Settings `[WARA-0.1.11]`, PWA `[WARA-0.1.12]`.
+* **Next: step 0.1.10 (visual identity)**, before batch 4 so batch 4 is built on the new tokens;
+then **step 0.1.9 batch 4** (still `[WARA-0.1.9]`) — `/tes/kana-exit` (TestPage) and the Beranda
+kana-exit card (`kanaExitAvailable` over drillable kana ids + `getAssessments`); then 0.1.11
+Settings, 0.1.12 PWA.
 * **Not yet written:** `docs/qa-session.md`, `docs/plan-v0.2.md`.
 * **Last verification (2026-11-18, step 0.1.9 batch 3):** red first — needsIntro 10/10,
 resumeSession 15/15, advanceSession 18/19 (the empty-queue no-op passes against the stub by
@@ -154,9 +161,9 @@ contract), getAssessments 6/7 (empty table), KanaIntroCard 11/11, home 15/15, se
 sessionResume 10/11 (the no-profile redirect guard passes against the placeholder); every frozen
 test file's md5 unchanged after green except `apps/web/tests/app/appLayout.test.tsx`, deliberately
 changed (see Traps, 2026-11-18). Full run: `lint`, `typecheck`, `test` (web 265, content 224, core
-412), `build`, `validate` all exit 0. `/mulai` checked by the owner (2026-11-18). **Not seen in a
-browser:** `/` and `/sesi` (the drills' first real-browser look) — pending the owner's check; TTS
-not heard on a device. Not verified: real-browser IndexedDB (phone QA, `docs/qa-session.md`).
+412), `build`, `validate` all exit 0. `/mulai` checked by the owner (2026-11-18). `/` and `/sesi`
+checked by the owner in a real browser (2026-11-18): functionally fine, look too plain. TTS not
+heard on a device. Not verified: real-browser IndexedDB (phone QA, `docs/qa-session.md`).
 * **Guards and orchestration skill: NOT installed (checked 2026-11-09, re-checked 2026-11-10,
   user's machine `GMBR-KEMLU-100`, Git Bash):** `~/.claude/hooks/` does not exist,
   `~/.claude/settings.json` has no `hooks` key, and `~/.claude/skills/` holds only `synced/` with
@@ -427,7 +434,8 @@ app (found while wiring). `AppProviders` provides only the repository.
 (`prefers-color-scheme` when the attribute is not `light`), so no `matchMedia` in JavaScript
 (absent in jsdom).
 * Placeholder pages for `/mulai`, `/`, `/pengaturan` (heading + "… sedang dibangun.") are
-scaffolding; their real screens come test-first in 0.1.9/0.1.10. Until 0.1.9 a fresh browser can
+scaffolding; their real screens come test-first in 0.1.9/0.1.11 (Settings renumbered from 0.1.10,
+2026-11-18). Until 0.1.9 a fresh browser can
 only reach the onboarding placeholder (no profile → redirect to `/mulai`).
 * Routes follow ARCHITECTURE §9: `*` redirects to `/`; `PageLoader` is the
 `hydrateFallbackElement` and the guard's loading view; `/sesi` and `/tes/:kind` are added with
@@ -510,6 +518,27 @@ Taken by the coordinator, 2026-11-18 (step 0.1.9 batch 3):
 * `SessionContext` and `useSession` live in `useSession.ts` because the react-refresh lint rule
 allows only component exports from a `.tsx` file.
 
+Taken by the owner, 2026-11-19 (visual identity, step 0.1.10):
+
+* History: grey default judged "polos"; 藍 indigo rejected on sight ("jangan biru"); 藁 straw gold
+with soft rounded cards, icons in tinted circles, and a gold hero card rejected as "terlalu AI";
+brutalist (radius 0, ink borders, mono uppercase) rejected as "terlalu sakit mata". After three
+code rounds the coordinator switched to a static mockup comparison (a private claude.ai artifact,
+six directions × six colours) and the owner picked from it. Lesson: for a look decision, show a
+mockup before changing code.
+* Final: direction "B · Kertas latihan" (Japanese practice paper) + colour "Murasaki". Paper page
+`#FBF8F1` with a faint 22px grid (`--grid`), cells `--card #FFFDF8`, soft warm borders `#BFAE93`,
+primary purple `#6B4C9A` with white text (dark mode `#B79DE2` with dark text), accent lavender
+`#EEE7F5` / accent-foreground `#5A3E86`. Dark mode is a warm dark brown (background `#1B1510`).
+* Kana sit in genkō yōshi squares through the `genko` utility in `index.css` (cell + 1.5px border +
+dashed centre cross drawn with background gradients, `--guide`). The Beranda streak is a rotated
+purple stamp; the session end shows a 済 stamp. Headings normal case (`TYPOGRAPHY`), small radius
+(md 4px).
+* Green and red stay reserved for correct/wrong feedback (DrillFeedback is a paper note with a 3px
+green/red left stripe); that is also why vermilion and matcha were never identity candidates.
+* Owner: timing — commit batch 3 first, then a dedicated visual step touching all screens, before
+batch 4.
+
 Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation** (the monorepo item was
 confirmed by the user 2026-11-10, see above):
 
@@ -553,9 +582,10 @@ repeat the same button markup — whether to extract one component.
 the product doc), the streak forgiveness marker (`forgivenessUsedThisWeek`), and due counts per
 item type are product-doc items not in v0.1's simple Beranda.
 * `priorityNew` from `gradeAnswer` is unused by the session (2026-11-18).
-* `/` and `/sesi` need the owner's real-browser check at about 390 px and a desktop width
-(2026-11-18); record the outcome here.
 * "Belum kenal" during wrong-answer feedback (Traps, 2026-11-17) is still open.
+* Step 0.1.10 (2026-11-19): the owner's browser check of the final Kertas latihan + Murasaki look
+is pending; the word-reading `genko` box (one cross through the middle of the whole word) is open
+for the owner.
 
 ## Load-bearing facts — to be filled from the code
 
@@ -695,6 +725,26 @@ otherwise romaji→kana).
 contrast time.
 * After a wrong answer the item's FSRS state is no longer `review`, so its requeued attempt may
 switch from typed to multiple choice (`chooseDrill`).
+* Until step 0.1.10, `apps/web/src/index.css` defined no `--accent`/`--muted` tokens although
+components use `bg-accent`, `hover:bg-accent`, `hover:bg-muted`, `has-checked:bg-accent` — those
+classes resolved to nothing, so hover and selected states were invisible (found 2026-11-18). Any
+new utility colour needs its token defined in both `:root` and the dark variant and mapped in
+`@theme inline`.
+* The Murasaki purple primary IS readable as text (>= 6.3:1 on card and background), so
+`text-primary` is allowed; a `bg-primary` fill pairs with `text-primary-foreground`. (The earlier
+straw-gold primary was not, at 2.71:1 on card; that rule is gone with it.)
+* Borders are soft (~2:1 against the page) by design. Light `muted-foreground` on `muted` is
+4.39:1, below AA, so grey text on a muted fill is avoided.
+
+Recorded 2026-11-19 (step 0.1.10):
+
+* The frozen drill tests assert each answer button carries exactly one height class from
+`h-14` / `h-16` / `h-20` / `min-h-14`; genkō answer cells use `aspect-square min-h-14`.
+* WordReadingDrill and sessionRun tests find the word by `queryByText(word)` (its own text node),
+so the word cannot be split into per-character spans; it sits in one wide `genko` box whose cross
+runs through the middle of the whole word (open item, Open decisions).
+* Parallel agents running vitest cause worker-start timeouts and `findBy` timeouts (8 of 31 once);
+an idle full run passed 265/265. Re-run idle before suspecting code.
 
 ## Standing checklist
 

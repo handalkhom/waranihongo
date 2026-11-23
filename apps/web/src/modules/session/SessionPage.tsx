@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { Link } from 'react-router';
+import { X } from 'lucide-react';
 import type { SessionActivityKind } from '@wara/core';
 import { PageLoader } from '@/components/PageLoader';
 import { TYPOGRAPHY } from '@/lib/typography';
@@ -22,34 +23,66 @@ function activityLabel(kind: SessionActivityKind): string {
   }
 }
 
+function segmentClass(index: number, current: number): string {
+  if (index < current) return 'h-2 flex-1 rounded-sm border border-primary bg-primary';
+  if (index === current) return 'h-2 flex-1 rounded-sm border border-primary bg-primary/40';
+  return 'h-2 flex-1 rounded-sm border border-border bg-card';
+}
+
 function ProgressHeader({ progress }: { readonly progress: SessionProgress }): ReactElement {
   return (
-    <header className="flex items-center justify-between gap-3">
-      <Link
-        to="/"
-        className="inline-flex h-11 items-center justify-center rounded-md px-3 text-sm font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:h-9"
-      >
-        Keluar
-      </Link>
-      <p className="flex flex-wrap items-center justify-end gap-x-1.5 text-xs text-muted-foreground">
-        <span>{`Bagian ${String(progress.activityIndex + 1)} dari ${String(progress.activityCount)}`}</span>
-        <span aria-hidden="true">·</span>
-        <span>{activityLabel(progress.activityKind)}</span>
-        <span aria-hidden="true">·</span>
-        <span>{`Sisa ${String(progress.remaining)}`}</span>
-      </p>
+    <header className="flex flex-col gap-3">
+      <div className="flex items-center justify-between gap-3">
+        <Link
+          to="/"
+          className="-ml-2 inline-flex h-11 items-center gap-1.5 rounded-md px-2 text-sm font-medium text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background md:h-9"
+        >
+          <X aria-hidden="true" className="size-4" />
+          Keluar
+        </Link>
+        <p className="flex flex-wrap items-center justify-end gap-x-1.5 text-xs text-muted-foreground">
+          <span>{`Bagian ${String(progress.activityIndex + 1)} dari ${String(progress.activityCount)}`}</span>
+          <span aria-hidden="true">·</span>
+          <span className="font-medium text-accent-foreground">{activityLabel(progress.activityKind)}</span>
+          <span aria-hidden="true">·</span>
+          <span>{`Sisa ${String(progress.remaining)}`}</span>
+        </p>
+      </div>
+      <div aria-hidden="true" className="flex gap-1">
+        {Array.from({ length: progress.activityCount }, (_, index) => (
+          <div key={index} className={segmentClass(index, progress.activityIndex)} />
+        ))}
+      </div>
     </header>
   );
 }
 
-function SessionEnd({ title, message }: { readonly title: string; readonly message: string }): ReactElement {
+function SessionEnd({
+  title,
+  message,
+  stamped,
+}: {
+  readonly title: string;
+  readonly message: string;
+  readonly stamped: boolean;
+}): ReactElement {
   return (
     <div className="flex flex-col gap-4">
+      {stamped && (
+        <div
+          aria-hidden="true"
+          className="flex size-14 -rotate-3 items-center justify-center rounded-md border-2 border-primary text-primary"
+        >
+          <span lang="ja" className="text-3xl font-bold">
+            済
+          </span>
+        </div>
+      )}
       <h1 className={TYPOGRAPHY.pageTitle}>{title}</h1>
-      <p className="text-sm">{message}</p>
+      <p className="text-sm text-muted-foreground">{message}</p>
       <Link
         to="/"
-        className="inline-flex h-11 w-full items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:h-9 md:w-auto md:self-start"
+        className="inline-flex h-12 w-full items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background md:h-10 md:w-auto md:self-start"
       >
         Kembali ke Beranda
       </Link>
@@ -63,7 +96,7 @@ function SessionStepView({ runner }: { readonly runner: SessionRunner }): ReactE
     case 'loading':
       return <PageLoader />;
     case 'empty':
-      return <SessionEnd title="Sesi hari ini" message="Tidak ada yang perlu dilatih sekarang." />;
+      return <SessionEnd title="Sesi hari ini" message="Tidak ada yang perlu dilatih sekarang." stamped={false} />;
     case 'intro':
       return <KanaIntroCard item={step.item} onDone={runner.finishIntro} />;
     case 'drill':
@@ -99,6 +132,7 @@ function SessionStepView({ runner }: { readonly runner: SessionRunner }): ReactE
         <SessionEnd
           title="Sesi selesai"
           message={`${String(step.answered)} jawaban, ${String(step.correct)} benar.`}
+          stamped
         />
       );
     default:
@@ -109,7 +143,7 @@ function SessionStepView({ runner }: { readonly runner: SessionRunner }): ReactE
 function SessionView(): ReactElement {
   const runner = useSession();
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-md flex-col gap-6 px-4 py-8">
+    <main className="mx-auto flex min-h-svh w-full max-w-md flex-col gap-6 px-4 py-6 md:py-8">
       {runner.progress !== null && <ProgressHeader progress={runner.progress} />}
       <SessionStepView runner={runner} />
     </main>

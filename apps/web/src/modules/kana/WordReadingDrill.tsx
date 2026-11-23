@@ -28,7 +28,7 @@ export function WordReadingDrill({ item, kana, onAnswer }: WordReadingDrillProps
     <div className="flex flex-col gap-6">
       <div className="flex flex-col items-center gap-4 text-center">
         <p className="text-sm text-muted-foreground">Baca kata ini</p>
-        <p lang="ja" className="text-5xl font-medium leading-tight">
+        <p lang="ja" className="genko inline-flex px-4 py-3 text-5xl font-medium leading-tight">
           {item.data.word}
         </p>
       </div>
@@ -61,12 +61,12 @@ export function WordReadingDrill({ item, kana, onAnswer }: WordReadingDrillProps
             onChange={(event) => {
               setText(event.target.value);
             }}
-            className="h-11 min-w-0 flex-1 rounded-md border bg-transparent px-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 read-only:opacity-70 md:h-9 md:text-sm"
+            className="h-11 min-w-0 flex-1 rounded-md border border-border bg-card px-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 read-only:opacity-70 md:h-9 md:text-sm"
           />
           <button
             type="submit"
             disabled={locked || blank}
-            className="h-11 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 md:h-9"
+            className="h-11 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 md:h-9"
           >
             Kirim
           </button>

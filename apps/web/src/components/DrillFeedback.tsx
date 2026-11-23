@@ -30,8 +30,8 @@ export function DrillFeedback({
 
   if (correct) {
     return (
-      <div className="flex flex-col gap-2">
-        <p role="status" className="font-medium text-emerald-600 dark:text-emerald-400">
+      <div className="flex flex-col gap-3 rounded-md border border-l-[3px] border-border border-l-emerald-600 bg-card p-4 dark:border-l-emerald-400">
+        <p role="status" className="text-base font-medium text-emerald-600 dark:text-emerald-400">
           Benar
         </p>
       </div>
@@ -39,11 +39,11 @@ export function DrillFeedback({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <p role="status" className="font-medium text-red-600 dark:text-red-400">
+    <div className="flex flex-col gap-3 rounded-md border border-l-[3px] border-border border-l-red-600 bg-card p-4 dark:border-l-red-400">
+      <p role="status" className="text-base font-medium text-red-600 dark:text-red-400">
         Belum tepat
       </p>
-      <p className="text-sm">Jawaban yang benar: {answer}</p>
+      <p className="text-sm text-foreground">Jawaban yang benar: {answer}</p>
       <button
         type="button"
         autoFocus
@@ -52,7 +52,7 @@ export function DrillFeedback({
           setContinued(true);
           onContinue();
         }}
-        className="h-11 w-full rounded-md bg-primary text-sm font-medium text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 md:h-9"
+        className="h-11 w-full rounded-md bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 md:h-9"
       >
         Lanjut
       </button>

@@ -40,12 +40,12 @@ export function DictationDrill({ item, choices, onAnswer }: DictationDrillProps)
         onClick={() => {
           speak(char);
         }}
-        className="inline-flex h-11 items-center justify-center gap-2 self-start rounded-md border bg-background px-4 text-sm font-medium hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:h-9"
+        className="inline-flex h-11 items-center justify-center gap-2 self-start rounded-md border border-border bg-card px-4 text-sm font-medium hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:h-9"
       >
         <Volume2 aria-hidden="true" className="size-4" />
         Putar lagi
       </button>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2">
         {choices.map((choice) => (
           <button
             key={choice.id}
@@ -54,9 +54,9 @@ export function DictationDrill({ item, choices, onAnswer }: DictationDrillProps)
             onClick={() => {
               setPick({ chosen: choice, elapsedMs: Date.now() - startedAt.current });
             }}
-            className="flex h-20 items-center justify-center rounded-md border bg-background hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50"
+            className="genko flex aspect-square min-h-14 items-center justify-center hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
           >
-            <span lang="ja" className="text-5xl">
+            <span lang="ja" className="text-5xl leading-none">
               {choice.data.char}
             </span>
           </button>

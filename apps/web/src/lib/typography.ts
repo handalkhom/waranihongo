@@ -1,5 +1,5 @@
 export const TYPOGRAPHY = {
-  pageTitle: 'text-2xl font-semibold tracking-tight',
+  pageTitle: 'text-2xl font-bold tracking-tight',
   sectionTitle: 'text-lg font-semibold',
-  cardTitle: 'text-base font-medium',
+  cardTitle: 'text-base font-semibold',
 } as const;

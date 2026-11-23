@@ -25,7 +25,7 @@ export function RomajiToKanaDrill({ item, choices, onAnswer }: RomajiToKanaDrill
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-muted-foreground">Pilih huruf untuk bunyi ini</p>
-      <p className="text-4xl font-semibold">{item.data.romaji}</p>
+      <p className="text-4xl font-semibold tracking-wide">{item.data.romaji}</p>
       <div className="grid grid-cols-3 gap-2">
         {choices.map((choice) => (
           <button
@@ -35,9 +35,9 @@ export function RomajiToKanaDrill({ item, choices, onAnswer }: RomajiToKanaDrill
             onClick={() => {
               setPick({ chosen: choice, elapsedMs: Date.now() - start.current });
             }}
-            className="h-20 rounded-md border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50"
+            className="genko flex aspect-square min-h-14 items-center justify-center hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
           >
-            <span lang="ja" className="text-5xl">
+            <span lang="ja" className="text-5xl leading-none">
               {choice.data.char}
             </span>
           </button>
