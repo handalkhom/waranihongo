@@ -58,7 +58,7 @@ and a plain-vs-rough warning matter.
 * Re-assessed after each weekly test that changes a priority and at each phase transition; this
 section and `docs/learning-plan.md` are updated together.
 
-## Project state (2026-11-18)
+## Project state (2026-11-24)
 
 * **Git (2026-11-12):** remote `origin` = `https://github.com/handalkhom/waranihongo.git`;
 branch `main` (renamed from `master` 2026-11-12 at the owner's request) tracks `origin/main`.
@@ -150,20 +150,25 @@ of `/` and `/sesi` (2026-11-18) found nothing functionally wrong but judged the 
 * **Plan renumbered (2026-11-18):** new step 0.1.10 "Identitas visual" inserted in
 `docs/plan-v0.1.md` (unplanned work); Settings moved 0.1.10 → 0.1.11, PWA 0.1.11 → 0.1.12. Commit
 ids follow: visual `[WARA-0.1.10]`, Settings `[WARA-0.1.11]`, PWA `[WARA-0.1.12]`.
-* **Next: step 0.1.10 (visual identity)**, before batch 4 so batch 4 is built on the new tokens;
-then **step 0.1.9 batch 4** (still `[WARA-0.1.9]`) — `/tes/kana-exit` (TestPage) and the Beranda
-kana-exit card (`kanaExitAvailable` over drillable kana ids + `getAssessments`); then 0.1.11
-Settings, 0.1.12 PWA.
+* **Step 0.1.10 (visual identity) done (2026-11-23):** committed as `8954b25`
+`[WARA-0.1.10]` after the owner approved the Kertas latihan + Murasaki look in the browser
+("commit"). See Decisions, visual identity.
+* **Step 0.1.9 batch 4 (kana exit test, test-first) built and verified (2026-11-24), NOT yet
+committed** (still `[WARA-0.1.9]`): core `phase/kanaExitWords.ts`, `phase/kanaExitGate.ts`,
+`phase/kanaExitAssessment.ts`, exported from `@wara/core`; web session `useKanaExit.ts`,
+`TestPage.tsx` (route `/tes/:kind`), `useHome.kanaExit` and the Beranda kana-exit card. Tests:
+kanaExitWords 14, kanaExitGate 14, kanaExitAssessment 10; route tests `homeKanaExit.test.tsx` 8,
+`kanaExitAccess.test.tsx` 8, `kanaExitRun.test.tsx` 10. The owner's browser check of
+`/tes/kana-exit` and the Beranda card is pending.
+* **Next:** commit batch 4 after the owner's check; then 0.1.11 Settings, 0.1.12 PWA.
 * **Not yet written:** `docs/qa-session.md`, `docs/plan-v0.2.md`.
-* **Last verification (2026-11-18, step 0.1.9 batch 3):** red first — needsIntro 10/10,
-resumeSession 15/15, advanceSession 18/19 (the empty-queue no-op passes against the stub by
-contract), getAssessments 6/7 (empty table), KanaIntroCard 11/11, home 15/15, sessionRun 14/14,
-sessionResume 10/11 (the no-profile redirect guard passes against the placeholder); every frozen
-test file's md5 unchanged after green except `apps/web/tests/app/appLayout.test.tsx`, deliberately
-changed (see Traps, 2026-11-18). Full run: `lint`, `typecheck`, `test` (web 265, content 224, core
-412), `build`, `validate` all exit 0. `/mulai` checked by the owner (2026-11-18). `/` and `/sesi`
-checked by the owner in a real browser (2026-11-18): functionally fine, look too plain. TTS not
-heard on a device. Not verified: real-browser IndexedDB (phone QA, `docs/qa-session.md`).
+* **Last verification (2026-11-24, step 0.1.9 batch 4):** red first on assertions — core
+kanaExitWords/Gate/Assessment 38/38; route tests 23/26 (the 3 passing were guards). Full run:
+`lint`, `typecheck`, `build`, `validate` exit 0; `test` web 291, content 224, core 450.
+`kanaExitAccess.test.tsx` was deliberately changed after red (see Traps, 2026-11-24). `/mulai`,
+`/`, `/sesi` and the 0.1.10 look checked by the owner in a real browser; `/tes/kana-exit` and the
+Beranda card pending. TTS not heard on a device. Not verified: real-browser IndexedDB (phone QA,
+`docs/qa-session.md`).
 * **Guards and orchestration skill: NOT installed (checked 2026-11-09, re-checked 2026-11-10,
   user's machine `GMBR-KEMLU-100`, Git Bash):** `~/.claude/hooks/` does not exist,
   `~/.claude/settings.json` has no `hooks` key, and `~/.claude/skills/` holds only `synced/` with
@@ -538,6 +543,21 @@ purple stamp; the session end shows a 済 stamp. Headings normal case (`TYPOGRAP
 green/red left stripe); that is also why vermilion and matcha were never identity candidates.
 * Owner: timing — commit batch 3 first, then a dedicated visual step touching all screens, before
 batch 4.
+* Owner, 2026-11-23: final look approved in the browser; committed as `8954b25`.
+
+Taken 2026-11-24 (kana exit test, step 0.1.9 batch 4) — by the owner where marked "Owner",
+otherwise coordinator:
+
+* Owner: no per-word right/wrong feedback; the wrong words are listed at the end with their romaji.
+* Owner: the test always runs to word 50; every answer is still a review.
+* Owner: "Keluar" mid-test keeps the committed reviews and saves no assessment.
+* Owner: opening `/tes/kana-exit` directly shows "Tes ini terbuka setelah setiap kana pernah
+diulang sekali." when locked and "Kamu sudah lulus tes ini." when passed.
+* The word pool is content-sourced reading-practice vocab only (custom vocab excluded).
+* `kanaExitGate` counts only drillable kana — っ/ッ/ー are never drilled alone, so counting them
+would keep the test closed forever.
+* `weakSeeds` for grading = `profile.weakSeeds`, as in `/sesi`.
+* The Beranda card uses live queries; `useHome` stays loading until states and assessments load.
 
 Taken by the assistant, 2026-11-09 — **awaiting the user's confirmation** (the monorepo item was
 confirmed by the user 2026-11-10, see above):
@@ -583,9 +603,21 @@ the product doc), the streak forgiveness marker (`forgivenessUsedThisWeek`), and
 item type are product-doc items not in v0.1's simple Beranda.
 * `priorityNew` from `gradeAnswer` is unused by the session (2026-11-18).
 * "Belum kenal" during wrong-answer feedback (Traps, 2026-11-17) is still open.
-* Step 0.1.10 (2026-11-19): the owner's browser check of the final Kertas latihan + Murasaki look
-is pending; the word-reading `genko` box (one cross through the middle of the whole word) is open
-for the owner.
+* Step 0.1.10 (2026-11-19): the word-reading `genko` box (one cross through the middle of the
+whole word) is open for the owner. (The browser check of the final look was done and approved
+2026-11-23.)
+* Kana exit test (2026-11-24): double-pressing "Kirim" before the first commit resolves can commit
+two review logs for one word (the answer count stays right because both updates start from the
+same run). Fix test-first with a pending guard — TestPage disables "Kirim" while submitting, or the
+hook ignores a second submit.
+* Kana exit test (2026-11-24): the "Lulus" result has no stamp (済 exists on the session end); a
+look change needs a mockup with the owner first.
+* Beranda due count (2026-11-25, found in the batch 4 browser check, from batch 3): in
+`HomePage.tsx` the due count renders as the number above a dangling label "Perlu diulang:" — the
+`<p>` uses `flex-col-reverse`, so the colon ends the visible label with nothing after it. The
+frozen `home.test.tsx` matches the phrase "Perlu diulang: N" (exactText), so a fix must keep that
+accessible text or go test-first with an approved test change; a look change goes through a mockup
+with the owner first.
 
 ## Load-bearing facts — to be filled from the code
 
@@ -745,6 +777,19 @@ so the word cannot be split into per-character spans; it sits in one wide `genko
 runs through the middle of the whole word (open item, Open decisions).
 * Parallel agents running vitest cause worker-start timeouts and `findBy` timeouts (8 of 31 once);
 an idle full run passed 265/265. Re-run idle before suspecting code.
+
+Recorded 2026-11-24 (step 0.1.9 batch 4):
+
+* A frozen route test asserting a heading is absent "at any level" collides with a sibling page's
+heading of the same name (the Beranda card's h2 "Tes keluar Fase 0" vs the access test's redirect
+check). The coordinator approved narrowing `kanaExitAccess.test.tsx`'s assertion to `level: 1`
+(md5 now `2a0d1bfe29d8880d3dc1b132030ef10c`). Write absence checks with the level/role that
+identifies the page.
+* Adjacent `<span>`s give no separator in `textContent`; the wrong-word list needs a literal
+`{' '}` between the word and its romaji for phrase matchers.
+* Pinning `Math.random` to 0.999999 makes `kanaExitWords` return the pool's first 50 words in
+content order (first word `vocab:other:たべる`); the route tests rely on it.
+* Route tests that run all 50 words take ~60 s each under load; they carry 60 s timeouts.
 
 ## Standing checklist
 

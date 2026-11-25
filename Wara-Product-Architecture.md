@@ -126,9 +126,9 @@ menyembunyikan keduanya. Tanpa baris profil, semua route dialihkan ke `/mulai`; 
     selesai;
   - selain itu **"Mulai sesi hari ini"**.
 
-  Kartu **"Tes keluar Fase 0"** setelah setiap kana pernah diulang sekali, sampai tes itu lulus —
-  pembelajar sendiri yang memilih kapan memulainya. Kartu ini belum di v0.1 saat ini; menyusul
-  bersama `/tes/kana-exit` pada batch berikutnya.
+  Kartu **"Tes keluar Fase 0"** dengan tautan **"Mulai tes"** ke `/tes/kana-exit`, tampil setelah
+  setiap kana yang punya bunyi sendiri (っ, ッ, ー tidak dihitung) pernah diulang sekali, sampai tes
+  itu lulus — pembelajar sendiri yang memilih kapan memulainya.
 - **Peta 12 bulan (v0.3):** lima fase dengan posisi saat ini dan indikator on-track dari
   `progressSummary`. Belum di v0.1; menunggu ringkasan progres.
 - **Keadaan:** memuat (kerangka); berhasil; error. Keadaan kosong — belum ada review sama sekali →
@@ -194,18 +194,29 @@ menyembunyikan keduanya. Tanpa baris profil, semua route dialihkan ke `/mulai`; 
 - **Tujuan:** mengukur target fase 0 dari `docs/learning-plan.md` dan membuka fase 1.
 - **Susunan:** layar penuh seperti `/sesi`, milik `session`; dimulai dari kartu "Tes keluar Fase 0"
   di Beranda.
-- **Isi:** 50 kata acak dari set kata latihan baca, dengan pewaktu yang hanya menghitung waktu
-  kata tampil. **Lulus** = 50 kata benar dengan total waktu tampil ≤ 2 menit. Setiap jawaban
-  dinilai otomatis seperti drill objektif lain; hasil tes disimpan ke `assessments`. Bila belum
-  lulus, tes bisa diulang dari kartu yang sama.
+- **Isi:** 50 kata acak dari kata latihan baca bawaan (kata tambahan sendiri tidak ikut), dengan
+  pewaktu yang hanya menghitung waktu kata tampil. **Lulus** = 50 kata benar dengan total waktu
+  tampil ≤ 2 menit. Setiap jawaban dinilai otomatis seperti drill objektif lain; hasil tes
+  disimpan ke `assessments`.
 - **Cara menjawab:** setiap kata tampil dengan tombol "Siap"; pewaktu hanya berjalan selama kata
   tampil. "Siap" menyembunyikan kata dan menghentikan pewaktu; pembelajar mengetik romaji kata itu
   lalu "Kirim"; kata berikutnya tampil dan pewaktu berjalan lagi. Yang diukur kecepatan membaca,
   bukan kecepatan mengetik. Romaji dicocokkan dengan varian yang diterima dari kana penyusun kata
   (`romajiMatches`), sama seperti drill "baca kata utuh".
+- **Selama tes:** tidak ada umpan balik benar/salah per kata; setelah "Kirim" langsung kata
+  berikutnya. Header menampilkan "Kata {n} dari 50" dan "Waktu tampil m:ss / 2:00".
+- **Selalu sampai 50:** tes tetap berjalan sampai kata ke-50 walau sudah pasti tidak lulus; setiap
+  jawaban tetap tercatat sebagai ulangan.
+- **Keluar di tengah:** jawaban yang sudah dikirim tetap tercatat sebagai ulangan; tidak ada hasil
+  tes yang disimpan.
+- **Hasil:** "Lulus" (Fase 1 terbuka) atau "Belum lulus" dengan jumlah benar, total waktu tampil,
+  dan daftar kata yang salah beserta romaji yang benar. Keduanya kembali ke Beranda; tes diulang
+  dari kartu di Beranda.
+- **Akses langsung lewat URL:** belum tersedia → "Tes ini terbuka setelah setiap kana pernah
+  diulang sekali."; sudah lulus → "Kamu sudah lulus tes ini."; keduanya dengan tautan ke Beranda.
 - **Keadaan:** memuat; berjalan — kata tampil (pewaktu dan nomor kata) atau mengetik (pewaktu
-  berhenti); selesai — lulus (fase 1 terbuka) atau belum lulus dengan daftar kata yang salah;
-  error dengan tombol coba lagi.
+  berhenti); selesai — hasil di atas; jawaban gagal disimpan → "Jawaban gagal disimpan. Coba kirim
+  lagi." dan kata yang sama ditanyakan lagi; hasil tes gagal disimpan → tombol "Simpan lagi".
 
 ### Jelajah — `/belajar`, `/belajar/:type/:id` (v0.2)
 
